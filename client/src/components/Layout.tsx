@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PlansModal } from "./PlansModal";
+import { CreditsModal } from "./CreditsModal";
 import { UserMenu } from "./UserMenu";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -11,6 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [isDark, setIsDark] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
+  const [creditsOpen, setCreditsOpen] = useState(false);
   const isAdmin = localStorage.getItem("adminLoggedIn") === "true";
 
   useEffect(() => {
@@ -152,7 +154,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Button
               variant="outline"
               className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
-              onClick={() => {}}
+              onClick={() => setCreditsOpen(true)}
             >
               <Zap className="w-4 h-4 mr-2" />
               Créditos
@@ -180,7 +182,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             variant="outline"
             size="sm"
             className="border-border/50 text-foreground hover:bg-secondary/50 flex-1 text-xs"
-            onClick={() => {}}
+            onClick={() => setCreditsOpen(true)}
           >
             <Zap className="w-3 h-3 mr-1" />
             Créditos
