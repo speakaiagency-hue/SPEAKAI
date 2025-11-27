@@ -3,12 +3,17 @@ import { BookOpen, Star, Users2, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+import reactCover from "@assets/generated_images/react_advanced_course_cover.png";
+import webDesignCover from "@assets/generated_images/web_design_modern_course_cover.png";
+import javascriptCover from "@assets/generated_images/javascript_zero_course_cover.png";
+
 type Course = {
   id: string;
   title: string;
   description: string;
   students: number;
   level: "iniciante" | "intermediário" | "avançado";
+  image?: string;
 };
 
 export default function Members() {
@@ -22,6 +27,7 @@ export default function Members() {
       description: "Domine padrões avançados e performance em React",
       students: 1240,
       level: "avançado",
+      image: reactCover,
     },
     {
       id: "2",
@@ -29,6 +35,7 @@ export default function Members() {
       description: "Aprenda a criar interfaces incríveis com Tailwind CSS",
       students: 856,
       level: "intermediário",
+      image: webDesignCover,
     },
     {
       id: "3",
@@ -36,6 +43,7 @@ export default function Members() {
       description: "Fundamentos completos de JavaScript para iniciantes",
       students: 2100,
       level: "iniciante",
+      image: javascriptCover,
     },
   ];
 
@@ -115,7 +123,19 @@ export default function Members() {
           {courses.map((course) => (
             <Link key={course.id} href={`/course/${course.id}`}>
               <a>
-                <Card className="h-full bg-[#1a1d24] border-[#2d3748] hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 cursor-pointer group">
+                <Card className="h-full bg-[#1a1d24] border-[#2d3748] hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10 transition-all duration-300 cursor-pointer group overflow-hidden">
+                  {/* Course Cover Image */}
+                  {course.image && (
+                    <div className="relative h-48 overflow-hidden bg-[#0f1117]">
+                      <img 
+                        src={course.image} 
+                        alt={course.title}
+                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#1a1d24] via-transparent to-transparent" />
+                    </div>
+                  )}
+                  
                   <CardHeader className="pb-3">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
