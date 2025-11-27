@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Users, Plus, Edit2, Trash2, BookOpen, Star, Users2 } from "lucide-react";
+import { Link } from "wouter";
+import { Users, Plus, Edit2, Trash2, BookOpen, Star, Users2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -215,48 +216,43 @@ export default function Members() {
         </Card>
       </div>
 
-      {/* Courses Grid */}
+      {/* Courses Grid - Vitrine Clicável */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {courses.map((course) => (
-          <Card
-            key={course.id}
-            className="bg-[#1a1d24] border-[#2d3748] shadow-lg hover:border-cyan-500/50 hover:shadow-cyan-500/10 transition-all duration-300 overflow-hidden group"
-          >
-            <div className="h-24 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border-b border-[#2d3748] group-hover:from-cyan-600/30 group-hover:to-blue-600/30 transition-colors" />
-            <CardHeader className="relative pb-2">
-              <CardTitle className="text-lg text-white pr-8">{course.title}</CardTitle>
-              <div className="absolute top-4 right-4 flex gap-2">
-                <button className="p-2 rounded-lg bg-[#2d3748] hover:bg-blue-600/20 transition-colors">
-                  <Edit2 className="w-4 h-4 text-blue-400" />
-                </button>
-                <button
-                  onClick={() => handleDeleteCourse(course.id)}
-                  className="p-2 rounded-lg bg-[#2d3748] hover:bg-red-600/20 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4 text-red-400" />
-                </button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                {course.description}
-              </p>
+          <Link key={course.id} href={`/course/${course.id}`}>
+            <a className="group cursor-pointer h-full">
+              <Card
+                className="bg-[#1a1d24] border-[#2d3748] shadow-lg hover:border-cyan-500/50 hover:shadow-cyan-500/10 transition-all duration-300 overflow-hidden h-full flex flex-col"
+              >
+                <div className="h-24 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border-b border-[#2d3748] group-hover:from-cyan-600/30 group-hover:to-blue-600/30 transition-colors" />
+                <CardHeader className="pb-2 flex-1">
+                  <CardTitle className="text-lg text-white flex items-center justify-between">
+                    {course.title}
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-cyan-400 group-hover:translate-x-1 transition-all" />
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground text-sm leading-relaxed">
+                    {course.description}
+                  </p>
 
-              <div className="flex items-center justify-between pt-2">
-                <div className="flex items-center gap-2 text-sm text-gray-400">
-                  <Users className="w-4 h-4" />
-                  <span>{course.students.toLocaleString("pt-BR")} alunos</span>
-                </div>
-                <div
-                  className={`px-3 py-1 rounded-full text-xs font-medium border ${getLevelColor(
-                    course.level
-                  )}`}
-                >
-                  {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <Users className="w-4 h-4" />
+                      <span>{course.students.toLocaleString("pt-BR")} alunos</span>
+                    </div>
+                    <div
+                      className={`px-3 py-1 rounded-full text-xs font-medium border ${getLevelColor(
+                        course.level
+                      )}`}
+                    >
+                      {course.level.charAt(0).toUpperCase() + course.level.slice(1)}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </a>
+          </Link>
         ))}
       </div>
     </div>
