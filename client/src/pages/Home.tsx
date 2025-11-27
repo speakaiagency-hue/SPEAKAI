@@ -19,32 +19,38 @@ export default function Home() {
     {
       id: "1",
       title: "Roteiro para Video Marketing",
-      prompt: "Você é um roteirista expert em vídeos de marketing. Crie um roteiro de 30 segundos para um produto de software que soluciona problemas de produtividade. Inclua: hook nos primeiros 3 segundos, problema, solução e call-to-action."
+      prompt: "Você é um roteirista expert em vídeos de marketing. Crie um roteiro de 30 segundos para um produto de software que soluciona problemas de produtividade. Inclua: hook nos primeiros 3 segundos, problema, solução e call-to-action.",
+      image: "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&auto=format&fit=crop&q=60"
     },
     {
       id: "2",
       title: "Análise de Dados",
-      prompt: "Sou um analista de dados. Preciso de uma query SQL otimizada para extrair os top 10 produtos mais vendidos do último mês, agrupados por categoria, com suas respectivas taxas de crescimento em relação ao mês anterior."
+      prompt: "Sou um analista de dados. Preciso de uma query SQL otimizada para extrair os top 10 produtos mais vendidos do último mês, agrupados por categoria, com suas respectivas taxas de crescimento em relação ao mês anterior.",
+      image: "https://images.unsplash.com/photo-1516321318423-f06f70d504f0?w=600&auto=format&fit=crop&q=60"
     },
     {
       id: "3",
       title: "Copy para Email Marketing",
-      prompt: "Escreva uma copy de email para uma campanha de Black Friday. O produto é um curso online sobre fotografia profissional. Deve ter: subject line impactante, apresentação do desconto, benefícios do curso, urgência e CTA claro. Máximo 200 palavras."
+      prompt: "Escreva uma copy de email para uma campanha de Black Friday. O produto é um curso online sobre fotografia profissional. Deve ter: subject line impactante, apresentação do desconto, benefícios do curso, urgência e CTA claro. Máximo 200 palavras.",
+      image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&auto=format&fit=crop&q=60"
     },
     {
       id: "4",
       title: "Brainstorm de Conteúdo",
-      prompt: "Me sugira 10 ideias criativas de conteúdo para um blog sobre inteligência artificial e produtividade. Cada ideia deve ter: título, tipo de conteúdo (artigo/vídeo/infográfico), público-alvo e palavra-chave principal."
+      prompt: "Me sugira 10 ideias criativas de conteúdo para um blog sobre inteligência artificial e produtividade. Cada ideia deve ter: título, tipo de conteúdo (artigo/vídeo/infográfico), público-alvo e palavra-chave principal.",
+      image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60"
     },
     {
       id: "5",
       title: "Descrição de Produto",
-      prompt: "Crie uma descrição detalhada e persuasiva para um produto de fone de ouvido wireless premium. Inclua: características técnicas, benefícios para o usuário, diferenciais da marca e uma chamada para ação. Máximo 150 palavras."
+      prompt: "Crie uma descrição detalhada e persuasiva para um produto de fone de ouvido wireless premium. Inclua: características técnicas, benefícios para o usuário, diferenciais da marca e uma chamada para ação. Máximo 150 palavras.",
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=60"
     },
     {
       id: "6",
       title: "Plano de Conteúdo Social",
-      prompt: "Desenvolva um plano de conteúdo para Instagram de um personal trainer. Sugestões de posts para a semana: segunda, quarta, sexta e domingo. Cada post deve incluir: tema, tipo de conteúdo, hashtags relevantes e horário sugerido."
+      prompt: "Desenvolva um plano de conteúdo para Instagram de um personal trainer. Sugestões de posts para a semana: segunda, quarta, sexta e domingo. Cada post deve incluir: tema, tipo de conteúdo, hashtags relevantes e horário sugerido.",
+      image: "https://images.unsplash.com/photo-1611532736adf-a1c17b2b0a4f?w=600&auto=format&fit=crop&q=60"
     },
   ];
 
@@ -156,18 +162,27 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {prompts.map((item) => (
-            <Card key={item.id} className="bg-[#1a1d24] border-[#2d3748] hover:border-primary/50 transition-all duration-300 flex flex-col">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg text-white">{item.title}</CardTitle>
+            <Card key={item.id} className="bg-[#1a1d24] border-[#2d3748] hover:border-primary/50 transition-all duration-300 flex flex-col overflow-hidden">
+              {/* Image Preview */}
+              <div className="h-40 overflow-hidden bg-[#0f1117]">
+                <img 
+                  src={item.image} 
+                  alt={item.title}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base text-white">{item.title}</CardTitle>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
-                <p className="text-sm text-gray-300 leading-relaxed flex-1 mb-4 line-clamp-4">
+                <p className="text-xs text-gray-400 leading-relaxed flex-1 mb-4 line-clamp-3">
                   {item.prompt}
                 </p>
                 <Button
                   size="sm"
                   onClick={() => handleCopy(item.prompt, item.id)}
-                  className={`w-full transition-all ${
+                  className={`w-full transition-all text-xs ${
                     copiedId === item.id
                       ? "bg-green-600 hover:bg-green-600"
                       : "bg-indigo-600 hover:bg-indigo-700"
@@ -175,11 +190,11 @@ export default function Home() {
                 >
                   {copiedId === item.id ? (
                     <>
-                      <Check className="w-4 h-4 mr-2" /> Copiado!
+                      <Check className="w-3 h-3 mr-1" /> Copiado!
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 mr-2" /> Copiar Prompt
+                      <Copy className="w-3 h-3 mr-1" /> Copiar
                     </>
                   )}
                 </Button>
