@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { getAuthHeader } from "@/lib/auth";
 
 export default function Prompt() {
   const { toast } = useToast();
@@ -23,7 +24,7 @@ export default function Prompt() {
     try {
       const response = await fetch("/api/prompt/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({ userInput: input }),
       });
 

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { getAuthHeader } from "@/lib/auth";
 
 export default function ImagePage() {
   const { toast } = useToast();
@@ -32,7 +33,7 @@ export default function ImagePage() {
     try {
       const response = await fetch("/api/image/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({ prompt, aspectRatio }),
       });
 

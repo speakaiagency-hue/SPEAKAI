@@ -5,6 +5,7 @@ import { generateVideo, type GenerateVideoParams } from "./services/geminiServic
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
+import { authMiddleware } from "./middleware/authMiddleware";
 
 // Store chat instances per session
 const chatInstances = new Map<string, any>();
@@ -17,8 +18,8 @@ export async function registerRoutes(
   const promptService = await createPromptService();
   const imageService = await createImageService();
 
-  // Video Generation API
-  app.post("/api/video/generate", async (req: Request, res: Response) => {
+  // Video Generation API (Protected)
+  app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       const params: GenerateVideoParams = req.body;
 
@@ -35,8 +36,8 @@ export async function registerRoutes(
     }
   });
 
-  // Chat API - Send Message
-  app.post("/api/chat/send-message", async (req: Request, res: Response) => {
+  // Chat API - Send Message (Protected)
+  app.post("/api/chat/send-message", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { conversationId, message, history } = req.body;
 
@@ -102,8 +103,8 @@ export async function registerRoutes(
     }
   });
 
-  // Prompt Generation API
-  app.post("/api/prompt/generate", async (req: Request, res: Response) => {
+  // Prompt Generation API (Protected)
+  app.post("/api/prompt/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { userInput } = req.body;
 
@@ -120,8 +121,8 @@ export async function registerRoutes(
     }
   });
 
-  // Image Generation API
-  app.post("/api/image/generate", async (req: Request, res: Response) => {
+  // Image Generation API (Protected)
+  app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { prompt, aspectRatio = "1:1" } = req.body;
 

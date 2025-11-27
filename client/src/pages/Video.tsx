@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { getAuthHeader } from "@/lib/auth";
 
 interface ImageData {
   base64: string;
@@ -77,7 +78,7 @@ export default function VideoPage() {
 
       const response = await fetch("/api/video/generate", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify(payload),
       });
 

@@ -60,6 +60,8 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  const { registerAuthRoutes } = await import("./routes/authRoutes");
+  await registerAuthRoutes(app);
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

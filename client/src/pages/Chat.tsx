@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useToast } from "@/hooks/use-toast";
+import { getAuthHeader } from "@/lib/auth";
 
 type Message = {
   id: string;
@@ -63,7 +64,7 @@ export default function Chat() {
 
       const response = await fetch("/api/chat/send-message", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({
           conversationId: conversationIdRef.current,
           message: input,
