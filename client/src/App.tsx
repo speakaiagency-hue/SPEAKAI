@@ -18,22 +18,14 @@ function Router() {
   return (
     <Switch>
       <Route path="/admin" component={Admin} />
-      <Route 
-        component={() => (
-          <Layout>
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/chat" component={Chat} />
-              <Route path="/prompt" component={Prompt} />
-              <Route path="/image" component={ImagePage} />
-              <Route path="/video" component={VideoPage} />
-              <Route path="/members" component={Members} />
-              <Route path="/course/:id" component={CourseDetail} />
-              <Route component={NotFound} />
-            </Switch>
-          </Layout>
-        )}
-      />
+      <Route path="/" component={() => <Layout><Home /></Layout>} />
+      <Route path="/chat" component={() => <Layout><Chat /></Layout>} />
+      <Route path="/prompt" component={() => <Layout><Prompt /></Layout>} />
+      <Route path="/image" component={() => <Layout><ImagePage /></Layout>} />
+      <Route path="/video" component={() => <Layout><VideoPage /></Layout>} />
+      <Route path="/members" component={() => <Layout><Members /></Layout>} />
+      <Route path="/course/:id" component={() => <Layout><CourseDetail /></Layout>} />
+      <Route component={() => <Layout><NotFound /></Layout>} />
     </Switch>
   );
 }

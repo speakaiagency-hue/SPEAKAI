@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link } from "wouter";
-import { ArrowRight, MessageSquare, Type, Image as ImageIcon, Video, Sparkles, Copy, Check } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { ArrowRight, MessageSquare, Type, Image as ImageIcon, Video, Sparkles, Copy, Check, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import videoImg from "@assets/generated_images/video_production_concept.png";
 export default function Home() {
   const { toast } = useToast();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
 
   const prompts = [
     {
@@ -101,7 +102,19 @@ export default function Home() {
   ];
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 relative">
+      {/* Admin Button (Top Right) */}
+      <div className="fixed bottom-8 right-8 z-40">
+        <Button
+          onClick={() => setLocation("/admin")}
+          className="bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-full px-4 gap-2"
+          size="sm"
+        >
+          <Settings className="w-4 h-4" />
+          Admin
+        </Button>
+      </div>
+
       {/* Hero Section */}
       <section className="text-center space-y-6 py-12 relative overflow-hidden rounded-3xl bg-gradient-to-b from-primary/5 to-transparent border border-primary/10">
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
