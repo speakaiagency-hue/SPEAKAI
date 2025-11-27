@@ -158,6 +158,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               Créditos
             </Button>
             <Button
+              variant="outline"
+              className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
+              onClick={() => {}}
+            >
+              Personalizado
+            </Button>
+            <Button
               className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full font-semibold shadow-lg shadow-indigo-500/20"
               onClick={() => setPlansOpen(true)}
             >
@@ -172,15 +179,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Button
             variant="outline"
             size="sm"
-            className="border-border/50 text-foreground hover:bg-secondary/50 flex-1"
+            className="border-border/50 text-foreground hover:bg-secondary/50 flex-1 text-xs"
             onClick={() => {}}
           >
-            <Zap className="w-4 h-4 mr-2" />
+            <Zap className="w-3 h-3 mr-1" />
             Créditos
           </Button>
           <Button
+            variant="outline"
             size="sm"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white flex-1 font-semibold"
+            className="border-border/50 text-foreground hover:bg-secondary/50 flex-1 text-xs"
+            onClick={() => {}}
+          >
+            Personalizado
+          </Button>
+          <Button
+            size="sm"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white flex-1 font-semibold text-xs"
             onClick={() => setPlansOpen(true)}
           >
             Planos
