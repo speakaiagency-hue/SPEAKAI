@@ -1,0 +1,53 @@
+/*
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+*/
+
+/*
+  Um reset de CSS moderno para garantir uma renderização consistente entre navegadores.
+  Isso ajuda a prevenir problemas de layout, especialmente em dispositivos móveis.
+  Baseado no reset de Josh W. Comeau: https://www.joshwcomeau.com/css/custom-css-reset/
+*/
+
+/* 1. Use um modelo de caixa (box model) mais intuitivo. */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* 2. Remova a margem padrão de todos os elementos. */
+* {
+  margin: 0;
+}
+
+/* 3. Permita que os elementos html e body cresçam para preencher o espaço disponível. */
+html, body {
+  height: 100%;
+}
+
+/* 4. Melhore a renderização do texto. */
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Cores e família de fontes são definidas no index.html e nos componentes com Tailwind CSS. */
+}
+
+/* 5. Melhore o comportamento padrão dos elementos de mídia. */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* 6. Garanta que os elementos de formulário herdem as propriedades de fonte. */
+input, button, textarea, select {
+  font: inherit;
+}
+
+/* 7. Evite que o texto transborde (overflow) de seu contêiner. */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+/* 8. Crie um contexto de empilhamento (stacking context) no elemento raiz. */
+#root {
+  isolation: isolate;
+}
