@@ -210,6 +210,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       <PlansModal open={plansOpen} onOpenChange={setPlansOpen} />
+      <CreditsModal open={creditsOpen} onOpenChange={setCreditsOpen} />
     </div>
   );
 }
