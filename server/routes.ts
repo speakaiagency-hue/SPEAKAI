@@ -185,5 +185,47 @@ export async function registerRoutes(
     }
   });
 
+  // Update User Profile (Protected)
+  app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const { name, email } = req.body;
+      
+      if (!name || !email) {
+        return res.status(400).json({ error: "Nome e email são obrigatórios" });
+      }
+
+      const updatedUser = await storage.updateUserProfile(req.user!.id, { name, email });
+      if (!updatedUser) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ error: "Erro ao atualizar perfil" });
+    }
+  });
+
+  // Change Password (Protected)
+  app.post("/api/auth/change-password", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const { newPassword } = req.body;
+      
+      if (!newPassword || newPassword.length < 6) {
+        return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
+      }
+
+      const updated = await storage.updateUserPassword(req.user!.id, newPassword);
+      if (!updated) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Password change error:", error);
+      res.status(500).json({ error: "Erro ao alterar senha" });
+    }
+  });
+
   return httpServer;
 }

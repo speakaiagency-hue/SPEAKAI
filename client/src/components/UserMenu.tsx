@@ -35,9 +35,14 @@ export function UserMenu() {
       const base64 = event.target?.result as string;
       
       try {
+        const headers: HeadersInit = { "Content-Type": "application/json" };
+        const authHeader = getAuthHeader();
+        if (authHeader.Authorization) {
+          (headers as Record<string, string>).Authorization = authHeader.Authorization;
+        }
         const response = await fetch("/api/auth/update-avatar", {
           method: "POST",
-          headers: { "Content-Type": "application/json", ...getAuthHeader() },
+          headers,
           body: JSON.stringify({ avatar: base64 }),
         });
 
@@ -107,11 +112,11 @@ export function UserMenu() {
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => setLocation("/profile")}
             className="cursor-pointer"
           >
-            <Camera className="w-4 h-4 mr-2" />
-            Mudar Avatar
+            <UserIcon className="w-4 h-4 mr-2" />
+            Meu Perfil
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-500">

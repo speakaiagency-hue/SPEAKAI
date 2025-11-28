@@ -11,6 +11,7 @@ import Chat from "./pages/Chat";
 import Prompt from "./pages/Prompt";
 import ImagePage from "./pages/Image";
 import VideoPage from "./pages/Video";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/not-found";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -24,6 +25,7 @@ function Router() {
       <Route path="/prompt" component={() => <ProtectedRoute><Layout><Prompt /></Layout></ProtectedRoute>} />
       <Route path="/image" component={() => <ProtectedRoute><Layout><ImagePage /></Layout></ProtectedRoute>} />
       <Route path="/video" component={() => <ProtectedRoute><Layout><VideoPage /></Layout></ProtectedRoute>} />
+      <Route path="/profile" component={() => <ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
       <Route component={() => <Layout><NotFound /></Layout>} />
     </Switch>
   );

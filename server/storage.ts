@@ -6,6 +6,8 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserAvatar(id: string, avatar: string): Promise<User | undefined>;
+  updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined>;
+  updateUserPassword(id: string, password: string): Promise<User | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -27,7 +29,7 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { ...insertUser, id, name: null, email: null, avatar: null, status: "active" };
     this.users.set(id, user);
     this.userCredits.set(id, { credits: 0, totalUsed: 0, totalPurchased: 0 });
     return user;
@@ -58,6 +60,22 @@ export class MemStorage implements IStorage {
     const user = this.users.get(id);
     if (!user) return undefined;
     const updated = { ...user, avatar };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  async updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, ...data };
+    this.users.set(id, updated);
+    return updated;
+  }
+
+  async updateUserPassword(id: string, password: string): Promise<User | undefined> {
+    const user = this.users.get(id);
+    if (!user) return undefined;
+    const updated = { ...user, password };
     this.users.set(id, updated);
     return updated;
   }
