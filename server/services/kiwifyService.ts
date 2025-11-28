@@ -79,6 +79,17 @@ export async function createKiwifyService() {
 
     async authenticateUser(email: string, password: string): Promise<KiwifyUser | null> {
       try {
+        // Development mode: accept hardcoded credentials
+        if (isDevelopment && email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
+          return {
+            id: "dev-user-001",
+            email: "speakai.agency@gmail.com",
+            name: "Speak AI Admin",
+            status: "active",
+            products: [],
+          };
+        }
+
         // This would typically call a custom authentication endpoint
         // For now, we'll use the Kiwify API to fetch customer data
         const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
