@@ -166,6 +166,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
           <div></div>
           <div className="flex items-center gap-3">
+            {isLogged && credits !== null && (
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
+                <Zap className="w-4 h-4" />
+                {credits}
+              </div>
+            )}
             {isLogged && (
               <Button
                 variant="outline"
