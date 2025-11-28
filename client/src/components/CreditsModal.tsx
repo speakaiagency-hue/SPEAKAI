@@ -8,12 +8,12 @@ interface CreditsModalProps {
 }
 
 const creditPlans = [
-  { id: 1, credits: 500, price: "R$ 9,90" },
-  { id: 2, credits: 1000, price: "R$ 19,90" },
-  { id: 3, credits: 2500, price: "R$ 39,90" },
-  { id: 4, credits: 5000, price: "R$ 79,90", popular: true },
-  { id: 5, credits: 10000, price: "R$ 149,90" },
-  { id: 6, credits: 20000, price: "R$ 279,90" },
+  { id: 1, credits: 500, originalPrice: "R$ 19,90", price: "R$ 9,90" },
+  { id: 2, credits: 1000, originalPrice: "R$ 29,90", price: "R$ 19,90" },
+  { id: 3, credits: 2500, originalPrice: "R$ 59,90", price: "R$ 39,90" },
+  { id: 4, credits: 5000, originalPrice: "R$ 129,90", price: "R$ 79,90", popular: true },
+  { id: 5, credits: 10000, originalPrice: "R$ 199,90", price: "R$ 149,90" },
+  { id: 6, credits: 20000, originalPrice: "R$ 349,90", price: "R$ 279,90" },
 ];
 
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
@@ -46,7 +46,8 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                 <p className="text-xs text-muted-foreground">Créditos</p>
               </div>
 
-              <div className="mb-6">
+              <div className="mb-6 space-y-2">
+                <div className="text-sm line-through text-muted-foreground">{plan.originalPrice}</div>
                 <div className="text-2xl font-bold text-white">{plan.price}</div>
               </div>
 
