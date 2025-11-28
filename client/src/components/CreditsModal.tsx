@@ -8,7 +8,7 @@ interface CreditsModalProps {
 }
 
 const creditPlans = [
-  { id: 1, credits: 500, originalPrice: "R$ 19,90", price: "R$ 9,90" },
+  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00" },
   { id: 2, credits: 1000, originalPrice: "R$ 29,90", price: "R$ 19,90" },
   { id: 3, credits: 2500, originalPrice: "R$ 59,90", price: "R$ 39,90" },
   { id: 4, credits: 5000, originalPrice: "R$ 129,90", price: "R$ 79,90", popular: true },
