@@ -97,7 +97,6 @@ export default function ImagePage() {
                   {ratio}
                 </button>
               ))}
-              <span className="text-xs font-semibold px-2 py-1.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">5 ⚡</span>
             </div>
 
             {/* Character Count */}
@@ -108,7 +107,7 @@ export default function ImagePage() {
         </div>
 
         <Button 
-          className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white font-bold h-16 rounded-xl text-xl shadow-lg shadow-purple-900/20 transition-all duration-300 hover:scale-[1.01]"
+          className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white font-bold h-16 rounded-xl text-xl shadow-lg shadow-purple-900/20 transition-all duration-300 hover:scale-[1.01] flex items-center justify-center gap-3"
           onClick={handleGenerate}
           disabled={isGenerating}
         >
@@ -117,7 +116,10 @@ export default function ImagePage() {
               <RefreshCw className="w-6 h-6 animate-spin" /> Gerando...
             </span>
           ) : (
-            "Gerar Imagem"
+            <>
+              <span>Gerar Imagem</span>
+              <span className="text-sm font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">5 ⚡</span>
+            </>
           )}
         </Button>
       </div>

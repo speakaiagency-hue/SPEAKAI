@@ -71,16 +71,13 @@ export default function Prompt() {
             className="min-h-[200px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
             maxLength={2000}
           />
-          <div className="flex items-center justify-between px-6 pb-4 gap-2">
-            <span className="text-xs font-semibold px-2 py-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">2 ⚡</span>
-            <div className="text-xs text-muted-foreground font-mono">
-              {input.length}/2000
-            </div>
+          <div className="absolute bottom-4 right-6 text-xs text-muted-foreground font-mono">
+            {input.length}/2000
           </div>
         </div>
 
         <Button 
-          className="w-full bg-[#6366f1] hover:bg-[#5558dd] text-white font-bold h-14 rounded-xl text-lg shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.01]"
+          className="w-full bg-[#6366f1] hover:bg-[#5558dd] text-white font-bold h-14 rounded-xl text-lg shadow-lg shadow-indigo-500/20 transition-all duration-300 hover:scale-[1.01] flex items-center justify-center gap-3"
           onClick={handleGenerate}
           disabled={isGenerating}
         >
@@ -89,7 +86,10 @@ export default function Prompt() {
               <RefreshCw className="w-5 h-5 animate-spin" /> Gerando...
             </span>
           ) : (
-            "Gerar Prompt"
+            <>
+              <span>Gerar Prompt</span>
+              <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">2 ⚡</span>
+            </>
           )}
         </Button>
       </div>

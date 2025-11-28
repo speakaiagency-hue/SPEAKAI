@@ -158,11 +158,6 @@ export default function VideoPage() {
         </div>
       </div>
 
-      {/* Cost Badge */}
-      <div className="flex justify-start">
-        <span className="text-xs font-semibold px-2 py-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">20 ⚡</span>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Controls - Styled to match screenshot */}
         <Card className="lg:col-span-5 border-border/50 shadow-xl bg-[#0f1117] border-[#1f2937] h-fit overflow-hidden">
@@ -286,7 +281,7 @@ export default function VideoPage() {
 
             {/* Generate Button */}
             <Button 
-              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-500/20 h-14 rounded-lg text-lg mt-4 transition-all duration-300 hover:scale-[1.02]"
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-500/20 h-14 rounded-lg text-lg mt-4 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3"
               onClick={handleGenerate}
               disabled={isGenerating}
             >
@@ -296,9 +291,12 @@ export default function VideoPage() {
                   Gerando...
                 </span>
               ) : (
-                <span className="flex items-center gap-2">
-                  Gerar <ArrowRight className="w-5 h-5 ml-1" />
-                </span>
+                <>
+                  <span className="flex items-center gap-2">
+                    Gerar <ArrowRight className="w-5 h-5" />
+                  </span>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">20 ⚡</span>
+                </>
               )}
             </Button>
           </CardContent>
