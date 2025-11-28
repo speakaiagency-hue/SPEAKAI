@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createKiwifyService } from "../services/kiwifyService";
 import { generateToken } from "../middleware/authMiddleware";
+import { storage } from "../storage";
 
 export async function registerAuthRoutes(app: Express) {
   const kiwifyService = await createKiwifyService();
@@ -21,16 +22,24 @@ export async function registerAuthRoutes(app: Express) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
+      // Ensure user exists in storage
+      let storedUser = await storage.getUserByUsername(user.email);
+      if (!storedUser) {
+        storedUser = await storage.createUser({ username: user.email, password });
+        // Update with email and name
+        storedUser = await storage.updateUserProfile(storedUser.id, { name: user.name, email: user.email }) || storedUser;
+      }
+
       // Generate JWT token
-      const token = generateToken(user.id, user.email, user.name);
+      const token = generateToken(storedUser.id, storedUser.email || user.email, storedUser.name || user.name);
 
       res.json({
         token,
         user: {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          status: user.status,
+          id: storedUser.id,
+          email: storedUser.email || user.email,
+          name: storedUser.name || user.name,
+          status: storedUser.status,
         },
       });
     } catch (error) {
@@ -68,14 +77,21 @@ export async function registerAuthRoutes(app: Express) {
 
       // In development, accept the predefined credentials
       if (process.env.NODE_ENV === "development" && email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
-        const token = generateToken("dev-user-001", email, name || "Speak AI Admin");
+        // Ensure dev user exists in storage
+        let storedUser = await storage.getUserByUsername(email);
+        if (!storedUser) {
+          storedUser = await storage.createUser({ username: email, password });
+          storedUser = await storage.updateUserProfile(storedUser.id, { name: name || "Speak AI Admin", email }) || storedUser;
+        }
+        
+        const token = generateToken(storedUser.id, storedUser.email || email, storedUser.name || name || "Speak AI Admin");
         return res.json({
           token,
           user: {
-            id: "dev-user-001",
-            email,
-            name: name || "Speak AI Admin",
-            status: "active",
+            id: storedUser.id,
+            email: storedUser.email || email,
+            name: storedUser.name || name || "Speak AI Admin",
+            status: storedUser.status,
           },
         });
       }
