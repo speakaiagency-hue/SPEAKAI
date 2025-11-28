@@ -107,6 +107,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ))}
             <div className="border-t border-border/50 pt-4 space-y-2 mt-4">
               <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                onClick={() => {
+                  setCreditsOpen(true);
+                  setIsOpen(false);
+                }}
+              >
+                <Zap className="w-3 h-3 mr-2" />
+                Créditos
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                onClick={() => setIsOpen(false)}
+              >
+                Personalizado
+              </Button>
+              <Button
+                size="sm"
+                className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold text-xs justify-start"
+                onClick={() => {
+                  setPlansOpen(true);
+                  setIsOpen(false);
+                }}
+              >
+                Planos
+              </Button>
+              <Button
                 variant="ghost"
                 onClick={() => setIsDark(!isDark)}
                 className="w-full flex items-center justify-start gap-3 text-muted-foreground hover:text-foreground"
@@ -148,34 +178,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Button>
             <UserMenu />
           </div>
-        </div>
-
-        {/* Mobile Top Bar with Créditos and Planos */}
-        <div className="md:hidden fixed top-20 left-0 right-0 bg-background/80 backdrop-blur-xl border-b border-border/50 p-4 flex gap-2 z-30">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-border/50 text-foreground hover:bg-secondary/50 flex-1 text-xs"
-            onClick={() => setCreditsOpen(true)}
-          >
-            <Zap className="w-3 h-3 mr-1" />
-            Créditos
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-border/50 text-foreground hover:bg-secondary/50 flex-1 text-xs"
-            onClick={() => {}}
-          >
-            Personalizado
-          </Button>
-          <Button
-            size="sm"
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white flex-1 font-semibold text-xs"
-            onClick={() => setPlansOpen(true)}
-          >
-            Planos
-          </Button>
         </div>
 
         <div className="max-w-7xl mx-auto p-6 lg:p-12 animate-in fade-in duration-500 slide-in-from-bottom-4 md:mt-20">
