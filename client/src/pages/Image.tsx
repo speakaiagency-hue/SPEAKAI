@@ -62,13 +62,10 @@ export default function ImagePage() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div className="flex flex-col items-center text-center gap-2 mb-8">
-        <div className="flex items-center gap-2 justify-center">
-          <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-purple-500/10 text-purple-500"><ImageIcon className="w-6 h-6" /></span>
-            Geração de Imagem
-          </h1>
-          <span className="text-xs font-semibold px-2 py-1 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">5 ⚡</span>
-        </div>
+        <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+          <span className="p-2 rounded-lg bg-purple-500/10 text-purple-500"><ImageIcon className="w-6 h-6" /></span>
+          Geração de Imagem
+        </h1>
         <p className="text-muted-foreground">Descreva o que você quer ver e transformaremos em arte.</p>
       </div>
 
@@ -100,6 +97,7 @@ export default function ImagePage() {
                   {ratio}
                 </button>
               ))}
+              <span className="text-xs font-semibold px-2 py-1.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">5 ⚡</span>
             </div>
 
             {/* Character Count */}

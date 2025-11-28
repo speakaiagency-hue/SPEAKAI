@@ -150,15 +150,17 @@ export default function VideoPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between">
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-              <span className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500"><Video className="w-6 h-6" /></span>
-              Geração de Vídeo
-            </h1>
-            <span className="text-xs font-semibold px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">20 ⚡</span>
-          </div>
+          <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+            <span className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500"><Video className="w-6 h-6" /></span>
+            Geração de Vídeo
+          </h1>
           <p className="text-muted-foreground">Crie vídeos cinematográficos a partir de texto ou imagens.</p>
         </div>
+      </div>
+
+      {/* Cost Badge */}
+      <div className="flex justify-start">
+        <span className="text-xs font-semibold px-2 py-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">20 ⚡</span>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

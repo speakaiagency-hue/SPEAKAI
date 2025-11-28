@@ -54,13 +54,10 @@ export default function Prompt() {
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div className="flex flex-col items-center text-center gap-2 mb-8">
-        <div className="flex items-center gap-2 justify-center">
-          <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
-            <span className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500"><Wand2 className="w-6 h-6" /></span>
-            Gerador de Prompt
-          </h1>
-          <span className="text-xs font-semibold px-2 py-1 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">2 ⚡</span>
-        </div>
+        <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+          <span className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500"><Wand2 className="w-6 h-6" /></span>
+          Gerador de Prompt
+        </h1>
         <p className="text-muted-foreground">Descreva o que você precisa e deixe nossa IA criar o prompt perfeito.</p>
       </div>
 
@@ -74,8 +71,11 @@ export default function Prompt() {
             className="min-h-[200px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
             maxLength={2000}
           />
-          <div className="absolute bottom-4 right-6 text-xs text-muted-foreground font-mono">
-            {input.length}/2000
+          <div className="flex items-center justify-between px-6 pb-4 gap-2">
+            <span className="text-xs font-semibold px-2 py-1.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">2 ⚡</span>
+            <div className="text-xs text-muted-foreground font-mono">
+              {input.length}/2000
+            </div>
           </div>
         </div>
 
