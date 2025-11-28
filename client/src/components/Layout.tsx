@@ -6,15 +6,18 @@ import { cn } from "@/lib/utils";
 import { PlansModal } from "./PlansModal";
 import { CreditsModal } from "./CreditsModal";
 import { UserMenu } from "./UserMenu";
+import { isAuthenticated } from "@/lib/auth";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location, setLocation] = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [plansOpen, setPlansOpen] = useState(false);
   const [creditsOpen, setCreditsOpen] = useState(false);
+  const [isLogged, setIsLogged] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
+    setIsLogged(isAuthenticated());
   }, []);
 
   const navItems = [
@@ -92,18 +95,20 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <NavLink key={item.href} item={item} />
             ))}
             <div className="border-t border-border/50 pt-4 space-y-2 mt-4">
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
-                onClick={() => {
-                  setCreditsOpen(true);
-                  setIsOpen(false);
-                }}
-              >
-                <Zap className="w-3 h-3 mr-2" />
-                Créditos
-              </Button>
+              {isLogged && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                  onClick={() => {
+                    setCreditsOpen(true);
+                    setIsOpen(false);
+                  }}
+                >
+                  <Zap className="w-3 h-3 mr-2" />
+                  Créditos
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -133,14 +138,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
           <div></div>
           <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
-              onClick={() => setCreditsOpen(true)}
-            >
-              <Zap className="w-4 h-4 mr-2" />
-              Créditos
-            </Button>
+            {isLogged && (
+              <Button
+                variant="outline"
+                className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
+                onClick={() => setCreditsOpen(true)}
+              >
+                <Zap className="w-4 h-4 mr-2" />
+                Créditos
+              </Button>
+            )}
             <Button
               variant="outline"
               className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
