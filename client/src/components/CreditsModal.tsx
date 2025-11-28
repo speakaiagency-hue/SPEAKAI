@@ -12,7 +12,7 @@ const creditPlans = [
   { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00" },
   { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00" },
   { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 277,00", popular: true },
-  { id: 5, credits: 10000, originalPrice: "R$ 199,90", price: "R$ 149,90" },
+  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 517,00" },
   { id: 6, credits: 20000, originalPrice: "R$ 349,90", price: "R$ 279,90" },
 ];
 
