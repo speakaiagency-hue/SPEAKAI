@@ -29,7 +29,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/prompt", icon: Type, label: "Gerador de Prompt" },
     { href: "/image", icon: ImageIcon, label: "Gerar Imagem" },
     { href: "/video", icon: Video, label: "Gerar Vídeo" },
-    { href: "/members", icon: BookOpen, label: "Área de Membros" },
   ];
 
   const handleNavigate = (href: string) => {

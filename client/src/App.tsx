@@ -11,8 +11,6 @@ import Chat from "./pages/Chat";
 import Prompt from "./pages/Prompt";
 import ImagePage from "./pages/Image";
 import VideoPage from "./pages/Video";
-import Members from "./pages/Members";
-import CourseDetail from "./pages/CourseDetail";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/not-found";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -28,8 +26,6 @@ function Router() {
       <Route path="/prompt" component={() => <ProtectedRoute><Layout><Prompt /></Layout></ProtectedRoute>} />
       <Route path="/image" component={() => <ProtectedRoute><Layout><ImagePage /></Layout></ProtectedRoute>} />
       <Route path="/video" component={() => <ProtectedRoute><Layout><VideoPage /></Layout></ProtectedRoute>} />
-      <Route path="/members" component={() => <Layout><Members /></Layout>} />
-      <Route path="/course/:id" component={() => <Layout><CourseDetail /></Layout>} />
       <Route component={() => <Layout><NotFound /></Layout>} />
     </Switch>
   );
