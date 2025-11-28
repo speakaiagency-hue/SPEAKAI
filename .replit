@@ -45,3 +45,10 @@ waitForPort = 5000
 
 [agent]
 mockupState = "FULLSTACK"
+
+[userenv]
+
+[userenv.shared]
+KIWIFY_CLIENT_ID = "33647e4b-c7a6-47ea-b806-0e8643e61a64"
+KIWIFY_CLIENT_SECRET = "277639b94aae80d2525c3af05e95292540b91ae27e58479dfedb16c5f0d6963d"
+KIWIFY_ACCOUNT_ID = "0ifOQDBlVYzfMic"
