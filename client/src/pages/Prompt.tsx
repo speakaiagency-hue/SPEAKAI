@@ -87,8 +87,8 @@ export default function Prompt() {
             </span>
           ) : (
             <>
-              <span>Gerar Prompt</span>
               <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">2 ⚡</span>
+              <span>Gerar Prompt</span>
             </>
           )}
         </Button>

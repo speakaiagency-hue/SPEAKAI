@@ -117,8 +117,8 @@ export default function ImagePage() {
             </span>
           ) : (
             <>
-              <span>Gerar Imagem</span>
               <span className="text-sm font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">5 ⚡</span>
+              <span>Gerar Imagem</span>
             </>
           )}
         </Button>

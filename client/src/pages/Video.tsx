@@ -292,10 +292,10 @@ export default function VideoPage() {
                 </span>
               ) : (
                 <>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">20 ⚡</span>
                   <span className="flex items-center gap-2">
                     Gerar <ArrowRight className="w-5 h-5" />
                   </span>
-                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">20 ⚡</span>
                 </>
               )}
             </Button>
