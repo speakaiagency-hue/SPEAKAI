@@ -124,9 +124,8 @@ export default function Home() {
       {/* Modules Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
         {modules.map((module) => (
-          <Link key={module.href} href={module.href}>
-            <a className="group">
-              <Card className="h-full overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
+          <Link key={module.href} href={module.href} className="group">
+            <Card className="h-full overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
                 <div className="relative h-48 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
                   <img 
@@ -148,7 +147,6 @@ export default function Home() {
                   </CardDescription>
                 </CardHeader>
               </Card>
-            </a>
           </Link>
         ))}
       </section>
