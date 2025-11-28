@@ -31,15 +31,15 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
           <p className="text-muted-foreground text-lg">Use créditos para gerar conteúdo com IA</p>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 py-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 py-8">
           {creditPlans.map((plan) => (
             <div
               key={plan.id}
               className={`relative rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                 plan.popular
-                  ? "border-indigo-500 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-slate-900 shadow-lg shadow-indigo-500/40 scale-105"
+                  ? "border-indigo-500 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-slate-900 shadow-lg shadow-indigo-500/40"
                   : "border-border/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 hover:border-indigo-400/80 hover:shadow-lg hover:shadow-indigo-500/10"
-              } p-5 flex flex-col h-full group`}
+              } p-6 flex flex-col h-full group min-h-64`}
             >
               <div className="mb-4">
                 <div className="text-3xl font-bold text-indigo-300 mb-1 text-center">{plan.credits}</div>
