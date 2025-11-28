@@ -56,7 +56,7 @@ export default function Login() {
             <img src="/speak-ai-logo.png" alt="Speak AI" className="h-16 object-contain" />
           </div>
           <p className="text-muted-foreground text-sm">
-            Faça login para acessar os aplicativos de IA
+            Faça login para acessar sua conta!
           </p>
         </CardHeader>
 
