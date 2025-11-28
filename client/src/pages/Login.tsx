@@ -130,9 +130,7 @@ export default function Login() {
             </Button>
 
             {/* Info Text */}
-            <p className="text-xs text-muted-foreground text-center">
-              Integrado com Kiwify • Use suas credenciais de cliente
-            </p>
+            <p className="text-xs text-muted-foreground text-center">Use suas credenciais de cliente</p>
           </form>
         </CardContent>
       </Card>
