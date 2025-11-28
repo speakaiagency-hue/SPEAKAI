@@ -42,7 +42,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
               } p-5 flex flex-col h-full group`}
             >
               <div className="mb-4">
-                <div className="text-3xl font-bold text-indigo-300 mb-1">{plan.credits}</div>
+                <div className="text-3xl font-bold text-indigo-300 mb-1 text-center">{plan.credits}</div>
                 <p className="text-xs text-muted-foreground text-center">Créditos</p>
               </div>
 
