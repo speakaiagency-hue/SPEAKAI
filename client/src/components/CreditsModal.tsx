@@ -43,7 +43,7 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
             >
               <div className="mb-4">
                 <div className="text-3xl font-bold text-indigo-300 mb-1">{plan.credits}</div>
-                <p className="text-xs text-muted-foreground">Créditos</p>
+                <p className="text-xs text-muted-foreground text-center">Créditos</p>
               </div>
 
               <div className="mb-6 space-y-2">
