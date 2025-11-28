@@ -103,23 +103,23 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     size="sm"
                     className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
                     onClick={() => {
-                      setLocation("/profile");
-                      setIsOpen(false);
-                    }}
-                  >
-                    📋 Meu Perfil
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
-                    onClick={() => {
                       setCreditsOpen(true);
                       setIsOpen(false);
                     }}
                   >
                     <Zap className="w-3 h-3 mr-2" />
                     Créditos
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                    onClick={() => {
+                      setLocation("/profile");
+                      setIsOpen(false);
+                    }}
+                  >
+                    👤 Meu Perfil
                   </Button>
                 </>
               )}
