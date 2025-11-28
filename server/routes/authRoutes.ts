@@ -57,6 +57,37 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
+  // Register endpoint
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    try {
+      const { email, password, name } = req.body;
+
+      if (!email || !password || !name) {
+        return res.status(400).json({ error: "Email, senha e nome são obrigatórios" });
+      }
+
+      // In development, accept the predefined credentials
+      if (process.env.NODE_ENV === "development" && email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
+        const token = generateToken("dev-user-001", email, name || "Speak AI Admin");
+        return res.json({
+          token,
+          user: {
+            id: "dev-user-001",
+            email,
+            name: name || "Speak AI Admin",
+            status: "active",
+          },
+        });
+      }
+
+      // For production, you would hash the password and save to database
+      res.status(400).json({ error: "Registro apenas disponível em desenvolvimento" });
+    } catch (error) {
+      console.error("Register error:", error);
+      res.status(500).json({ error: "Erro ao criar conta" });
+    }
+  });
+
   // Get current user
   app.get("/api/auth/me", async (req: Request, res: Response) => {
     try {
