@@ -71,14 +71,16 @@ export function CreditsDisplay({ operationCost, operationName, creditsAfterOpera
               Precisa de {operationCost} créditos. Compre mais!
             </div>
           </div>
-          <Button
-            onClick={() => window.open("https://pay.kiwify.com.br/KRTMqIF", "_blank")}
-            className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white"
+          <a
+            href="https://pay.kiwify.com.br/KRTMqIF"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1"
             data-testid="button-buy-credits"
           >
-            <Plus className="w-3 h-3 mr-1" />
+            <Plus className="w-3 h-3" />
             Comprar 190 Créditos (R$ 19)
-          </Button>
+          </a>
         </div>
       )}
 

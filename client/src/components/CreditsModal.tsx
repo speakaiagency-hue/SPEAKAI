@@ -8,12 +8,12 @@ interface CreditsModalProps {
 }
 
 const creditPlans = [
-  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00" },
-  { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00" },
-  { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00" },
-  { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 277,00", popular: true },
-  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 517,00" },
-  { id: 6, credits: 2000, originalPrice: "R$ 1.147,00", price: "R$ 977,00" },
+  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00", kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
+  { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00", kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
+  { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00", kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
+  { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 277,00", popular: true, kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
+  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 517,00", kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
+  { id: 6, credits: 2000, originalPrice: "R$ 1.147,00", price: "R$ 977,00", kiwifyLink: "https://pay.kiwify.com.br/KRTMqIF" },
 ];
 
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
@@ -51,16 +51,19 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                 <div className="text-2xl font-bold text-white text-center">{plan.price}</div>
               </div>
 
-              <Button
-                className={`w-full h-9 font-semibold transition-all duration-300 text-sm ${
+              <a
+                href={plan.kiwifyLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full h-9 font-semibold transition-all duration-300 text-sm rounded-lg flex items-center justify-center ${
                   plan.popular
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/40 text-white"
                     : "border border-indigo-500/50 text-indigo-300 hover:text-white hover:bg-indigo-500/10 hover:border-indigo-400"
                 }`}
-                variant={plan.popular ? "default" : "outline"}
+                data-testid={`button-buy-credits-${plan.id}`}
               >
                 Comprar
-              </Button>
+              </a>
             </div>
           ))}
         </div>
