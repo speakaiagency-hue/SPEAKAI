@@ -123,18 +123,19 @@ export default function Credits() {
                 </div>
 
                 {/* Button */}
-                <Button
-                  onClick={() => window.open(pkg.kiwifyLink, "_blank")}
-                  className={`w-full h-10 font-semibold transition-all ${
+                <a
+                  href={pkg.kiwifyLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full h-10 font-semibold transition-all flex items-center justify-center rounded-lg ${
                     pkg.highlighted
                       ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-500/30"
                       : "border border-indigo-500/50 text-indigo-300 hover:text-white hover:bg-indigo-600/20 hover:border-indigo-400"
                   }`}
-                  variant={pkg.highlighted ? "default" : "outline"}
                   data-testid={`button-buy-credits-${pkg.id}`}
                 >
                   Comprar Agora
-                </Button>
+                </a>
               </div>
             </div>
           ))}
