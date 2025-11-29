@@ -101,7 +101,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <img src="/speak-ai-logo.png" alt="Speak AI" className="h-10 object-contain" />
         </div>
 
-        <nav className="flex-1 py-6 px-3 space-y-2">
+        <nav className="flex-1 py-6 px-3 space-y-2 text-[14px] pl-[9px] pr-[9px] pt-[24px] pb-[24px]">
           {navItems.map((item) => (
             <NavLink key={item.href} item={item} />
           ))}
@@ -110,7 +110,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="p-4 border-t border-border/50 space-y-2">
         </div>
       </aside>
-
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between p-4 h-16">
@@ -185,7 +184,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         )}
       </div>
-
       {/* Main Content */}
       <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0">
         {/* Top Bar with Créditos and Planos */}
@@ -244,7 +242,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </main>
-
       <PlansModal open={plansOpen} onOpenChange={setPlansOpen} />
       <CreditsModal open={creditsOpen} onOpenChange={setCreditsOpen} />
     </div>
