@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { Link } from "wouter";
 
 export default function Login() {
   const { toast } = useToast();
@@ -144,6 +145,21 @@ export default function Login() {
             {/* Info Text */}
             <p className="text-xs text-muted-foreground text-center">Use suas credenciais de cliente</p>
           </form>
+
+          {/* Sign up Link */}
+          <div className="mt-6 pt-6 border-t border-border/30 text-center">
+            <p className="text-sm text-muted-foreground mb-3">
+              Não tem uma conta?
+            </p>
+            <Link href="/signup" asChild>
+              <Button
+                variant="outline"
+                className="w-full border-border/50 text-foreground hover:bg-secondary/50"
+              >
+                Criar Conta
+              </Button>
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
