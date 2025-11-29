@@ -29,7 +29,7 @@ export class MemStorage implements IStorage {
     const id = randomUUID();
     const user: User = { ...insertUser, id, name: null, email: null, avatar: null, status: "active" };
     this.users.set(id, user);
-    this.userCredits.set(id, { credits: 0, totalUsed: 0, totalPurchased: 0 });
+    // Credits only created after user purchases a plan via Kiwify webhook
     console.log("✅ User created:", { id, username: user.username, totalUsers: this.users.size });
     return user;
   }

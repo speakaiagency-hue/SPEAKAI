@@ -1,8 +1,9 @@
 import type { Express, Request, Response } from "express";
 import { handleKiwifyPurchase, verifyKiwifySignature, KiwifyWebhookData, deductCredits } from "../services/webhookService";
 import { authMiddleware } from "../middleware/authMiddleware";
+import type { IStorage } from "../storage";
 
-export async function registerWebhookRoutes(app: Express) {
+export async function registerWebhookRoutes(app: Express, storage: IStorage, kiwifyService: any) {
   // Kiwify Webhook Endpoint
   app.post("/api/webhook/kiwify", async (req: Request, res: Response) => {
     try {
@@ -53,10 +54,24 @@ export async function registerWebhookRoutes(app: Express) {
   // Get user credits endpoint
   app.get("/api/credits/balance", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const userCredits = req.userCredits || 0;
-      res.json({ credits: userCredits });
+      const user = await storage.getUser(req.user!.id);
+      if (!user || !user.email) {
+        return res.json({ credits: null });
+      }
+
+      // Check if user has membership (any Kiwify purchase)
+      const hasMembership = await kiwifyService.hasAnyPurchase(user.email);
+
+      if (!hasMembership) {
+        return res.json({ credits: null });
+      }
+
+      // Get credits from storage (only if has membership)
+      const credits = await (storage as any).getUserCredits?.(req.user!.id);
+      res.json({ credits: credits?.credits || 0 });
     } catch (error) {
-      res.status(500).json({ error: "Erro ao buscar saldo de créditos" });
+      console.error("Error fetching credits:", error);
+      res.json({ credits: null });
     }
   });
 }

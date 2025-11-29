@@ -65,9 +65,12 @@ app.use((req, res, next) => {
   const { registerWebhookRoutes } = await import("./routes/webhookRoutes");
   const { creditsCheckMiddleware } = await import("./middleware/creditsMiddleware");
   const { authMiddleware } = await import("./middleware/authMiddleware");
+  const { storage } = await import("./storage");
+  const { createKiwifyService } = await import("./services/kiwifyService");
+  const kiwifyService = await createKiwifyService();
   
   await registerAuthRoutes(app);
-  await registerWebhookRoutes(app);
+  await registerWebhookRoutes(app, storage, kiwifyService);
   
   // Apply credits check middleware to protected routes
   app.use((req, res, next) => {
