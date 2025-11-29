@@ -7,7 +7,7 @@ declare global {
       user?: {
         id: string;
         email: string;
-        name: string;
+        name?: string;
       };
     }
   }
@@ -15,9 +15,9 @@ declare global {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
-export function generateToken(userId: string, email: string, name: string): string {
+export function generateToken(userId: string, email: string, name?: string): string {
   return jwt.sign(
-    { id: userId, email, name },
+    { id: userId, email, name: name || "" },
     JWT_SECRET,
     { expiresIn: "7d" }
   );

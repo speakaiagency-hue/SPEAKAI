@@ -1,45 +1,97 @@
 import type { Express, Request, Response } from "express";
-import { createKiwifyService } from "../services/kiwifyService";
+import bcrypt from "bcrypt";
 import { generateToken, authMiddleware } from "../middleware/authMiddleware";
 import { storage } from "../storage";
+import { createKiwifyService } from "../services/kiwifyService";
 
 export async function registerAuthRoutes(app: Express) {
   const kiwifyService = await createKiwifyService();
 
-  // Login endpoint
+  // Register endpoint - create new user with hashed password
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    try {
+      const { email, password, name } = req.body;
+
+      // Validate required fields
+      if (!email || !password || !name) {
+        return res.status(400).json({ error: "Email, senha e nome são obrigatórios" });
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: "Email inválido" });
+      }
+
+      // Validate password length
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByUsername(email);
+      if (existingUser) {
+        return res.status(409).json({ error: "Email já cadastrado" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create new user with hashed password
+      const newUser = await storage.createUser({ username: email, password: hashedPassword });
+      const updatedUser = await storage.updateUserProfile(newUser.id, { name, email }) || newUser;
+
+      // Generate JWT token
+      const token = generateToken(updatedUser.id, updatedUser.email || email, updatedUser.name || name);
+
+      res.status(201).json({
+        message: "Conta criada com sucesso",
+        token,
+        user: {
+          id: updatedUser.id,
+          email: updatedUser.email || email,
+          name: updatedUser.name || name,
+        },
+      });
+    } catch (error) {
+      console.error("Register error:", error);
+      res.status(500).json({ error: "Erro ao criar conta" });
+    }
+  });
+
+  // Login endpoint - authenticate with email and compare hashed password
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
 
+      // Validate required fields
       if (!email || !password) {
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
       }
 
-      // Authenticate with Kiwify
-      const user = await kiwifyService.authenticateUser(email, password);
+      // Find user by email
+      const user = await storage.getUserByUsername(email);
 
-      if (!user) {
+      if (!user || !user.password) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
-      // Ensure user exists in storage
-      let storedUser = await storage.getUserByUsername(user.email);
-      if (!storedUser) {
-        storedUser = await storage.createUser({ username: user.email, password });
-        // Update with email and name
-        storedUser = await storage.updateUserProfile(storedUser.id, { name: user.name, email: user.email }) || storedUser;
+      // Compare passwords
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
       // Generate JWT token
-      const token = generateToken(storedUser.id, storedUser.email || user.email, storedUser.name || user.name);
+      const token = generateToken(user.id, user.email || email, user.name || undefined);
 
       res.json({
         token,
         user: {
-          id: storedUser.id,
-          email: storedUser.email || user.email,
-          name: storedUser.name || user.name,
-          status: storedUser.status,
+          id: user.id,
+          email: user.email || email,
+          name: user.name,
         },
       });
     } catch (error) {
@@ -48,25 +100,7 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Validate access endpoint
-  app.post("/api/auth/validate-access", async (req: Request, res: Response) => {
-    try {
-      const { email, productId } = req.body;
-
-      if (!email || !productId) {
-        return res.status(400).json({ error: "Email e productId são obrigatórios" });
-      }
-
-      const hasAccess = await kiwifyService.validateCustomer(email, productId);
-
-      res.json({ hasAccess });
-    } catch (error) {
-      console.error("Validate access error:", error);
-      res.status(500).json({ error: "Erro ao validar acesso" });
-    }
-  });
-
-  // Check membership (Protected) - verifies if user bought any plan
+  // Check membership (Protected)
   app.get("/api/auth/check-membership", authMiddleware, async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(req.user!.id);
@@ -76,7 +110,7 @@ export async function registerAuthRoutes(app: Express) {
 
       // Check if user has any plan purchases in Kiwify
       const hasMembership = await (kiwifyService as any).hasAnyPurchase(user.email);
-      
+
       res.json({ hasMembership });
     } catch (error) {
       console.error("Check membership error:", error);
@@ -84,75 +118,17 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Register endpoint
-  app.post("/api/auth/register", async (req: Request, res: Response) => {
-    try {
-      const { email, password, name } = req.body;
-
-      if (!email || !password || !name) {
-        return res.status(400).json({ error: "Email, senha e nome são obrigatórios" });
-      }
-
-      // Check if user already exists
-      let existingUser = await storage.getUserByUsername(email);
-      if (existingUser) {
-        return res.status(400).json({ error: "Email já cadastrado" });
-      }
-
-      // Create new user
-      const newUser = await storage.createUser({ username: email, password });
-      const updatedUser = await storage.updateUserProfile(newUser.id, { name, email }) || newUser;
-
-      // Generate JWT token
-      const token = generateToken(updatedUser.id, updatedUser.email || email, updatedUser.name || name);
-
-      res.json({
-        token,
-        user: {
-          id: updatedUser.id,
-          email: updatedUser.email || email,
-          name: updatedUser.name || name,
-          status: updatedUser.status,
-        },
-      });
-    } catch (error) {
-      console.error("Register error:", error);
-      res.status(500).json({ error: "Erro ao criar conta" });
-    }
-  });
-
-  // Get current user
-  app.get("/api/auth/me", async (req: Request, res: Response) => {
-    try {
-      const token = req.headers.authorization?.split(" ")[1];
-
-      if (!token) {
-        return res.status(401).json({ error: "Unauthorized" });
-      }
-
-      // In a real implementation, decode and return the user
-      res.json({ message: "User data retrieved successfully" });
-    } catch (error) {
-      res.status(500).json({ error: "Erro ao buscar usuário" });
-    }
-  });
-
   // Update User Avatar (Protected)
   app.post("/api/auth/update-avatar", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { avatar } = req.body;
-      
+
       if (!avatar) {
         return res.status(400).json({ error: "Avatar é obrigatório" });
       }
-      
-      console.log("🔍 Avatar update - User ID from token:", req.user?.id);
-      const user = await storage.getUser(req.user!.id);
-      console.log("🔍 User found in storage:", !!user);
-      
+
       const updatedUser = await storage.updateUserAvatar(req.user!.id, avatar);
       if (!updatedUser) {
-        console.error("❌ User not found for avatar update with ID:", req.user?.id);
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
@@ -167,7 +143,7 @@ export async function registerAuthRoutes(app: Express) {
   app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { name, email } = req.body;
-      
+
       if (!name || !email) {
         return res.status(400).json({ error: "Nome e email são obrigatórios" });
       }
@@ -187,18 +163,36 @@ export async function registerAuthRoutes(app: Express) {
   // Change Password (Protected)
   app.post("/api/auth/change-password", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const { newPassword } = req.body;
-      
-      if (!newPassword || newPassword.length < 6) {
-        return res.status(400).json({ error: "Senha deve ter no mínimo 6 caracteres" });
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Senha atual e nova senha são obrigatórias" });
       }
 
-      const updated = await storage.updateUserPassword(req.user!.id, newPassword);
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Nova senha deve ter no mínimo 6 caracteres" });
+      }
+
+      // Get user and verify current password
+      const user = await storage.getUser(req.user!.id);
+      if (!user || !user.password) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Senha atual incorreta" });
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updated = await storage.updateUserPassword(req.user!.id, hashedPassword);
+
       if (!updated) {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
-      res.json({ success: true });
+      res.json({ success: true, message: "Senha alterada com sucesso" });
     } catch (error) {
       console.error("Password change error:", error);
       res.status(500).json({ error: "Erro ao alterar senha" });
