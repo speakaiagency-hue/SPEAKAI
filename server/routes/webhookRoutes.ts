@@ -68,7 +68,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
       // Get credits from storage (only if has membership)
       const credits = await (storage as any).getUserCredits?.(req.user!.id);
-      res.json({ credits: credits?.credits || 0 });
+      res.json({ credits: credits?.credits ?? null });
     } catch (error) {
       console.error("Error fetching credits:", error);
       res.json({ credits: null });

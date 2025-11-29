@@ -69,7 +69,7 @@ export async function registerAuthRoutes(app: Express) {
   // Check membership (Protected) - verifies if user bought any plan
   app.get("/api/auth/check-membership", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUserById(req.user!.id);
+      const user = await storage.getUser(req.user!.id);
       if (!user || !user.email) {
         return res.json({ hasMembership: false });
       }
