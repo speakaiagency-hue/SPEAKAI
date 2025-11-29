@@ -65,6 +65,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     { href: "/prompt", icon: Type, label: "Gerador de Prompt" },
     { href: "/image", icon: ImageIcon, label: "Gerar Imagem" },
     { href: "/video", icon: Video, label: "Gerar Vídeo" },
+    { href: "/credits", icon: Zap, label: "Comprar Créditos" },
   ];
 
   const handleNavigate = (href: string) => {
