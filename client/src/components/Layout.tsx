@@ -94,19 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground transition-colors duration-300 relative overflow-hidden">
-      {/* Decorative Animated Orbs */}
-      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-        {/* Cyan-Blue Orb */}
-        <div className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full filter blur-3xl opacity-20 animate-pulse"></div>
-        
-        {/* Purple-Indigo Orb */}
-        <div className="absolute -bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '0.5s'}}></div>
-        
-        {/* Blue-Violet Orb */}
-        <div className="absolute top-1/2 -left-20 w-80 h-80 bg-gradient-to-r from-blue-500 to-violet-500 rounded-full filter blur-3xl opacity-15 animate-pulse" style={{animationDelay: '1s'}}></div>
-      </div>
-
+    <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground transition-colors duration-300">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 border-r border-border flex-col fixed h-full z-50 glass bg-background/80 backdrop-blur-xl transition-all duration-300">
         <div className="p-4 flex items-center justify-start border-b border-border/50 h-auto py-3">
