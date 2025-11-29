@@ -1,6 +1,9 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useLocation } from "wouter";
+import { useState } from "react";
+import { isAuthenticated } from "@/lib/auth";
 
 interface CreditsModalProps {
   open: boolean;
@@ -17,6 +20,19 @@ const creditPlans = [
 ];
 
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
+  const [, setLocation] = useLocation();
+  const [isLogged] = useState(() => isAuthenticated());
+
+  const handleBuy = (kiwifyLink: string) => {
+    if (!isLogged) {
+      const encodedUrl = encodeURIComponent(kiwifyLink);
+      setLocation(`/signup?redirect=${encodedUrl}`);
+      onOpenChange(false);
+    } else {
+      window.open(kiwifyLink, "_blank");
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-border/50 shadow-2xl shadow-indigo-500/20">
@@ -51,10 +67,8 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                 <div className="text-2xl font-bold text-white text-center">{plan.price}</div>
               </div>
 
-              <a
-                href={plan.kiwifyLink}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => handleBuy(plan.kiwifyLink)}
                 className={`w-full h-9 font-semibold transition-all duration-300 text-sm rounded-lg flex items-center justify-center ${
                   plan.popular
                     ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/40 text-white"
@@ -62,8 +76,8 @@ export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
                 }`}
                 data-testid={`button-buy-credits-${plan.id}`}
               >
-                Comprar
-              </a>
+                {isLogged ? "Comprar" : "Cadastrar"}
+              </button>
             </div>
           ))}
         </div>

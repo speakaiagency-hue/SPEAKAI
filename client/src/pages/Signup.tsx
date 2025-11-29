@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogIn, Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,12 +8,22 @@ import { useLocation } from "wouter";
 
 export default function Signup() {
   const { toast } = useToast();
+  const [location] = useLocation();
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+    if (redirect) {
+      setRedirectUrl(decodeURIComponent(redirect));
+    }
+  }, []);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +48,10 @@ export default function Signup() {
       localStorage.setItem("user", JSON.stringify(result.user));
 
       toast({ title: `Bem-vindo, ${result.user.name}!` });
+      
+      if (redirectUrl) {
+        window.open(redirectUrl, "_blank");
+      }
       setLocation("/");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao criar conta";

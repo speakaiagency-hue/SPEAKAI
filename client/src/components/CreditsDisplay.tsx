@@ -75,7 +75,7 @@ export function CreditsDisplay({ operationCost, operationName, creditsAfterOpera
             href="https://pay.kiwify.com.br/KRTMqIF"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1"
+            className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1 cursor-pointer"
             data-testid="button-buy-credits"
           >
             <Plus className="w-3 h-3" />

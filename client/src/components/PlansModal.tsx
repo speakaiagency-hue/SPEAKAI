@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
+import { isAuthenticated } from "@/lib/auth";
 
 interface PlansModalProps {
   open: boolean;
@@ -67,12 +69,24 @@ const plans = [
 
 export function PlansModal({ open, onOpenChange }: PlansModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [, setLocation] = useLocation();
+  const [isLogged] = useState(() => isAuthenticated());
 
   useEffect(() => {
     if (open) {
       setMounted(true);
     }
   }, [open]);
+
+  const handleBuy = (url: string) => {
+    if (!isLogged) {
+      const encodedUrl = encodeURIComponent(url);
+      setLocation(`/signup?redirect=${encodedUrl}`);
+      onOpenChange(false);
+    } else {
+      window.open(url, "_blank");
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,11 +158,7 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
               </div>
 
               <Button
-                onClick={() => {
-                  if ((plan as any).url) {
-                    window.open((plan as any).url, "_blank");
-                  }
-                }}
+                onClick={() => handleBuy((plan as any).url)}
                 className={`w-full h-11 font-semibold transition-all duration-300 group/btn ${
                   plan.highlighted
                     ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-500 shadow-lg shadow-indigo-500/40 hover:shadow-indigo-500/60 text-white"
@@ -158,7 +168,7 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
                 data-testid={`button-plan-${plan.id}`}
               >
                 <span className="flex items-center gap-2">
-                  Comprar Agora
+                  {isLogged ? "Comprar Agora" : "Cadastrar e Comprar"}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
                 </span>
               </Button>
