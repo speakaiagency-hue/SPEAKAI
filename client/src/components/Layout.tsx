@@ -145,11 +145,19 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                  disabled={!hasMembership}
+                  className={`w-full border-border/50 text-xs justify-start transition-all ${
+                    hasMembership
+                      ? "text-foreground hover:bg-secondary/50 cursor-pointer"
+                      : "text-muted-foreground/50 cursor-not-allowed opacity-50"
+                  }`}
                   onClick={() => {
-                    setCreditsOpen(true);
-                    setIsOpen(false);
+                    if (hasMembership) {
+                      setCreditsOpen(true);
+                      setIsOpen(false);
+                    }
                   }}
+                  title={hasMembership ? "Clique para gerenciar créditos" : "Compre um plano para ver créditos"}
                 >
                   <Zap className="w-3 h-3 mr-2" />
                   Créditos
@@ -193,8 +201,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             {isLogged && (
               <Button
                 variant="outline"
-                className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
-                onClick={() => setCreditsOpen(true)}
+                disabled={!hasMembership}
+                className={`border-border/50 rounded-full transition-all ${
+                  hasMembership
+                    ? "text-foreground hover:bg-secondary/50 cursor-pointer"
+                    : "text-muted-foreground/50 cursor-not-allowed opacity-50"
+                }`}
+                onClick={() => hasMembership && setCreditsOpen(true)}
+                title={hasMembership ? "Clique para gerenciar créditos" : "Compre um plano para ver créditos"}
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Créditos
