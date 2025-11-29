@@ -9,6 +9,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
+import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
 type Message = {
   id: string;
@@ -17,7 +18,7 @@ type Message = {
   timestamp: Date;
 };
 
-export default function Chat() {
+function ChatComponent() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -228,3 +229,5 @@ export default function Chat() {
     </div>
   );
 }
+
+export default withMembershipCheck(ChatComponent);

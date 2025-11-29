@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
+import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
 const VIDEO_COST = 20;
 
@@ -16,7 +17,7 @@ interface ImageData {
   file: File;
 }
 
-export default function VideoPage() {
+function VideoPageComponent() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
@@ -360,3 +361,5 @@ export default function VideoPage() {
     </div>
   );
 }
+
+export default withMembershipCheck(VideoPageComponent);

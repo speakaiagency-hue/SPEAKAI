@@ -15,17 +15,35 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const [creditsOpen, setCreditsOpen] = useState(false);
   const [isLogged, setIsLogged] = useState(false);
   const [credits, setCredits] = useState<number | null>(null);
+  const [hasMembership, setHasMembership] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.add("dark");
     setIsLogged(isAuthenticated());
     
     if (isAuthenticated()) {
-      fetchCredits();
-      const interval = setInterval(fetchCredits, 5000);
+      checkMembership();
+      const interval = setInterval(checkMembership, 10000);
       return () => clearInterval(interval);
     }
   }, []);
+
+  const checkMembership = async () => {
+    try {
+      const response = await fetch("/api/auth/check-membership", {
+        headers: getAuthHeader(),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHasMembership(data.hasMembership);
+        if (data.hasMembership) {
+          fetchCredits();
+        }
+      }
+    } catch (error) {
+      console.error("Error checking membership:", error);
+    }
+  };
 
   const fetchCredits = async () => {
     try {
@@ -98,7 +116,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex items-center justify-between p-4 h-16">
           <img src="/speak-ai-logo.png" alt="Speak AI" className="h-8 object-contain" />
           <div className="flex items-center gap-3">
-            {isLogged && credits !== null && (
+            {isLogged && hasMembership && credits !== null && (
               <div className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-sm font-semibold text-indigo-400">
                 <Zap className="w-4 h-4" />
                 {credits}
@@ -166,7 +184,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
           <div></div>
           <div className="flex items-center gap-3">
-            {isLogged && credits !== null && (
+            {isLogged && hasMembership && credits !== null && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
                 <Zap className="w-4 h-4" />
                 {credits}

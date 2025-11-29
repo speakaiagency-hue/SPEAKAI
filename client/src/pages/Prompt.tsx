@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
+import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
-export default function Prompt() {
+function PromptComponent() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
@@ -130,3 +131,5 @@ export default function Prompt() {
     </div>
   );
 }
+
+export default withMembershipCheck(PromptComponent);

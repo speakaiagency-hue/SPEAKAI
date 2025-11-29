@@ -78,6 +78,47 @@ export async function createKiwifyService() {
       }
     },
 
+    async hasAnyPurchase(email: string): Promise<boolean> {
+      try {
+        if (!hasKiwifyConfig) {
+          // In dev mode, admin has access
+          return email === "speakai.agency@gmail.com";
+        }
+
+        const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
+          headers: {
+            Authorization: `Bearer ${clientSecret}`,
+          },
+          params: { email },
+        });
+
+        if (!response.data?.data || response.data.data.length === 0) {
+          return false;
+        }
+
+        const customer = response.data.data[0];
+        const purchasesResponse = await axios.get(
+          `${KIWIFY_API_URL}/customers/${customer.id}/purchases`,
+          {
+            headers: {
+              Authorization: `Bearer ${clientSecret}`,
+            },
+          }
+        );
+
+        if (!purchasesResponse.data?.data) {
+          return false;
+        }
+
+        return purchasesResponse.data.data.some(
+          (purchase: any) => purchase.status === "approved"
+        );
+      } catch (error) {
+        console.error("Error checking any purchase:", error);
+        return false;
+      }
+    },
+
     async authenticateUser(email: string, password: string): Promise<KiwifyUser | null> {
       try {
         if (!hasKiwifyConfig) {

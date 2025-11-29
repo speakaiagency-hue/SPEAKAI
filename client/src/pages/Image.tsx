@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getAuthHeader } from "@/lib/auth";
+import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
 const IMAGE_COST = 5;
 
-export default function ImagePage() {
+function ImagePageComponent() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -145,3 +146,5 @@ export default function ImagePage() {
     </div>
   );
 }
+
+export default withMembershipCheck(ImagePageComponent);

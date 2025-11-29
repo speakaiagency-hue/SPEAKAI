@@ -66,6 +66,24 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
+  // Check membership (Protected) - verifies if user bought any plan
+  app.get("/api/auth/check-membership", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUserById(req.user!.id);
+      if (!user || !user.email) {
+        return res.json({ hasMembership: false });
+      }
+
+      // Check if user has any plan purchases in Kiwify
+      const hasMembership = await (kiwifyService as any).hasAnyPurchase(user.email);
+      
+      res.json({ hasMembership });
+    } catch (error) {
+      console.error("Check membership error:", error);
+      res.status(500).json({ error: "Erro ao verificar acesso" });
+    }
+  });
+
   // Register endpoint
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
