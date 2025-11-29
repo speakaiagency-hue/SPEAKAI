@@ -1,0 +1,110 @@
+Preciso que você corrija e refaça todo o meu sistema de cadastro e login, considerando todos os problemas que já apareceram desde o início do projeto. Aqui está o histórico e os requisitos:
+
+---
+
+🔧 Problemas encontrados:
+1. **Build no Render falhou** porque pacotes como `vite`, `tsx`, `@vitejs/plugin-react`, `@tailwindcss/vite` e plugins da Replit estavam em `devDependencies`. Isso causava erros de `ERR_MODULE_NOT_FOUND`.
+   - Correção: mover esses pacotes para `dependencies` no `package.json`.
+
+2. **Banco de dados**: o backend tentava se conectar usando hostname `base`, que só existe no Replit. No Render isso gerava:
+Error: getaddrinfo ENOTFOUND base
+
+Código
+- Correção: usar `process.env.DATABASE_URL` com a URL real do Neon/Postgres, sem `psql` e sem aspas.
+
+3. **Cadastro**: funcionava, mas a senha estava sendo salva em texto puro (ex: `Olivier1234$`).
+- Correção: usar `bcrypt.hash(password, 10)` para salvar senha criptografada.
+
+4. **Login**: falhava com "Email ou senha inválidos" porque:
+- O backend buscava usuário por `username` em vez de `email`.
+- A senha não estava sendo comparada com `bcrypt.compare`.
+- O token JWT não estava sendo gerado/enviado corretamente.
+
+5. **Rotas protegidas**: retornavam `401 Unauthorized - Invalid token`.
+- Correção: middleware deve validar token JWT no header `Authorization: Bearer <token>`.
+
+---
+
+✅ Requisitos para correção:
+1. **Banco de dados PostgreSQL**
+- Conectar usando `process.env.DATABASE_URL`.
+- Usar SSL (`?sslmode=require`).
+
+2. **Cadastro de usuário**
+- Validar campos obrigatórios: nome, email, senha.
+- Criptografar senha com `bcrypt`.
+- Salvar no banco com `id (UUID)`, `name`, `email`, `password`.
+
+3. **Login de usuário**
+- Buscar usuário por email.
+- Comparar senha com `bcrypt.compare`.
+- Se válido, gerar token JWT com `jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: "1h" })`.
+
+4. **Autenticação**
+- Middleware `verifyToken` que verifica JWT.
+- Se inválido ou ausente, retornar `401 Unauthorized`.
+
+5. **Variáveis de ambiente**
+- `.env` deve conter:
+  ```
+  DATABASE_URL=postgresql://usuario:senha@host:porta/banco?sslmode=require
+  JWT_SECRET=algumsegredo
+  NODE_ENV=production
+  ```
+
+6. **Rotas**
+- `POST /api/auth/register` → cria usuário
+- `POST /api/auth/login` → autentica e retorna token
+- `GET /api/auth/check-membership` → rota protegida, só acessível com token válido
+
+7. **Respostas**
+- Em caso de erro: `{ error: "mensagem" }`
+- Em caso de sucesso: `{ token: "..." }` ou `{ message: "Conta criada" }`
+
+---
+
+📦 Tecnologias usadas:
+- Express
+- PostgreSQL
+- bcrypt
+- jsonwebtoken
+- dotenv
+- Vite + React no frontend
+
+📦 Alterações no `package.json`:
+- Mover `vite`, `tsx`, `@vitejs/plugin-react`, `@tailwindcss/vite` e plugins da Replit de `devDependencies` para `dependencies`.
+- Garantir que `dependencies` contenha todas as libs usadas em produção:
+- `express`
+- `pg`
+- `bcrypt`
+- `jsonwebtoken`
+- `dotenv`
+- `react`
+- `react-dom`
+- `tailwindcss`
+- `devDependencies` deve conter apenas ferramentas de desenvolvimento:
+- `eslint`
+- `prettier`
+- `typescript` (se usado apenas para tipagem)
+- Scripts corretos:
+```json
+"scripts": {
+ "dev": "vite",
+ "build": "vite build",
+ "start": "node dist/index.cjs"
+}
+🎯 Objetivo: Gerar um sistema funcional de cadastro e login com segurança, pronto para deploy no Render, corrigindo todos os problemas desde o início (dependências, banco, cadastro, login, JWT).
+
+Por favor, reestruture o código com base nesses requisitos e me entregue os arquivos principais:
+
+authRoutes.ts (rotas de cadastro/login)
+
+db.ts (conexão com banco)
+
+middleware.ts (verificação JWT)
+
+.env.example (variáveis necessárias)
+
+vite.config.ts (corrigido sem dependências exclusivas do Replit)
+
+package.json (com dependências ajustadas)
