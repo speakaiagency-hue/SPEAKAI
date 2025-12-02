@@ -184,70 +184,84 @@ function VideoPageComponent() {
             </div>
 
             {/* Input Area based on Mode */}
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                {creationMode === "text-to-video" ? "Prompt" : creationMode === "reference-to-video" ? "Upload de Referências (Max 3)" : "Upload"}
-              </Label>
-              
-              {creationMode === "text-to-video" ? (
-                <Textarea 
-                  ref={textareaRef}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="Descreva o vídeo que você quer criar..." 
-                  className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
-                />
-              ) : creationMode === "reference-to-video" ? (
-                <div className="grid grid-cols-3 gap-2">
-                  {referenceImages.map((img, idx) => (
-                    <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-[#2d3748] group">
-                      <img src={img} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
-                      <button 
-                        onClick={() => removeReference(idx)}
-                        className="absolute top-1 right-1 bg-black/60 p-1 rounded-full text-white hover:bg-red-500/80 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                  {referenceImages.length < 3 && (
-                    <div className="aspect-square border-2 border-dashed border-[#2d3748] rounded-lg hover:bg-[#1a1d24] transition-colors relative cursor-pointer flex flex-col items-center justify-center gap-2 group">
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleReferenceUpload} 
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                      />
-                      <div className="w-8 h-8 rounded-full bg-[#2d3748] flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Plus className="w-4 h-4 text-gray-400" />
+            <div className="space-y-4">
+              {/* Image Upload for image-to-video mode */}
+              {creationMode === "image-to-video" && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Upload da Imagem</Label>
+                  <div className="border-2 border-dashed border-[#2d3748] rounded-lg p-6 hover:bg-[#1a1d24] transition-colors relative group cursor-pointer text-center bg-[#1a1d24]/50">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleImageUpload} 
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    {uploadedImage ? (
+                      <div className="relative w-full aspect-video rounded-md overflow-hidden">
+                        <img src={uploadedImage} alt="Upload" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span className="text-white font-medium flex items-center gap-2"><Upload className="w-4 h-4" /> Trocar</span>
+                        </div>
                       </div>
-                      <span className="text-[10px] text-gray-400 font-medium uppercase">Adicionar</span>
-                    </div>
-                  )}
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 py-4">
+                        <div className="w-12 h-12 rounded-full bg-[#2d3748] flex items-center justify-center">
+                          <Upload className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-300">Clique para fazer upload</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ) : (
-                <div className="border-2 border-dashed border-[#2d3748] rounded-lg p-6 hover:bg-[#1a1d24] transition-colors relative group cursor-pointer text-center bg-[#1a1d24]/50">
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              )}
+
+              {/* Prompt field for text-to-video and image-to-video */}
+              {(creationMode === "text-to-video" || creationMode === "image-to-video") && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                    {creationMode === "image-to-video" ? "Descreva o que deve acontecer no vídeo" : "Prompt"}
+                  </Label>
+                  <Textarea 
+                    ref={textareaRef}
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    placeholder={creationMode === "image-to-video" ? "Ex: A pessoa começa a sorrir e acenar..." : "Descreva o vídeo que você quer criar..."} 
+                    className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
                   />
-                  {uploadedImage ? (
-                    <div className="relative w-full aspect-video rounded-md overflow-hidden">
-                      <img src={uploadedImage} alt="Upload" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span className="text-white font-medium flex items-center gap-2"><Upload className="w-4 h-4" /> Trocar</span>
+                </div>
+              )}
+
+              {/* Reference images for reference-to-video mode */}
+              {creationMode === "reference-to-video" && (
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Upload de Referências (Max 3)</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {referenceImages.map((img, idx) => (
+                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-[#2d3748] group">
+                        <img src={img} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
+                        <button 
+                          onClick={() => removeReference(idx)}
+                          className="absolute top-1 right-1 bg-black/60 p-1 rounded-full text-white hover:bg-red-500/80 transition-colors opacity-0 group-hover:opacity-100"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3 py-4">
-                      <div className="w-12 h-12 rounded-full bg-[#2d3748] flex items-center justify-center">
-                        <Upload className="w-5 h-5 text-gray-400" />
+                    ))}
+                    {referenceImages.length < 3 && (
+                      <div className="aspect-square border-2 border-dashed border-[#2d3748] rounded-lg hover:bg-[#1a1d24] transition-colors relative cursor-pointer flex flex-col items-center justify-center gap-2 group">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          onChange={handleReferenceUpload} 
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <div className="w-8 h-8 rounded-full bg-[#2d3748] flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Plus className="w-4 h-4 text-gray-400" />
+                        </div>
+                        <span className="text-[10px] text-gray-400 font-medium uppercase">Adicionar</span>
                       </div>
-                      <p className="text-sm font-medium text-gray-300">Clique para fazer upload</p>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               )}
             </div>
