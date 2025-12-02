@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 export async function createPromptService() {
-  const apiKey = process.env.GEMINI_API_KEY || (process.env.NODE_ENV === "development" ? "mock_gemini_key" : "");
+  const apiKey = process.env.GEMINI_API_KEY;
 
   if (!apiKey) {
     throw new Error("GEMINI_API_KEY environment variable is not configured");

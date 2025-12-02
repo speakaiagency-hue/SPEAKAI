@@ -9,6 +9,7 @@ async function getDb() {
   if (!db) {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
     });
 
     db = drizzle(pool);
@@ -53,6 +54,7 @@ async function getDb() {
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUserAvatar(id: string, avatar: string): Promise<User | undefined>;
   updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined>;
@@ -83,6 +85,18 @@ export class DatabaseStorage implements IStorage {
       return user[0];
     } catch (error) {
       console.error("getUserByUsername error:", error);
+      return undefined;
+    }
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    try {
+      const database = await getDb();
+      const user = await database.select().from(users).where(eq(users.email, email)).limit(1);
+      console.log(`🔍 getUserByEmail(${email}):`, !!user[0]);
+      return user[0];
+    } catch (error) {
+      console.error("getUserByEmail error:", error);
       return undefined;
     }
   }

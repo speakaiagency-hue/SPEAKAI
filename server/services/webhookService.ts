@@ -38,12 +38,21 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     const creditsToAdd = Math.round(data.value * 10);
 
     // Find or create user by email
-    let user = await (storage as any).getUserByEmail?.(data.customer_email);
+    let user = await storage.getUserByEmail(data.customer_email);
     if (!user) {
-      user = await (storage as any).createUser?.({
+      // Create user with email as username
+      user = await storage.createUser({
         username: data.customer_email,
         password: "kiwify_" + Date.now(),
       });
+      
+      // Update with email and name
+      if (user) {
+        await storage.updateUserProfile(user.id, {
+          email: data.customer_email,
+          name: data.customer_name,
+        });
+      }
     }
 
     if (!user) {
@@ -51,7 +60,9 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     }
 
     // Add credits
-    await (storage as any).addCredits?.(user.id, creditsToAdd);
+    await storage.addCredits(user.id, creditsToAdd);
+
+    console.log(`✅ Kiwify purchase processed: ${creditsToAdd} credits added to user ${user.id}`);
 
     return {
       success: true,
@@ -68,7 +79,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 export async function deductCredits(userId: string, operationType: "chat" | "image" | "prompt" | "video") {
   try {
     const cost = CREDIT_COSTS[operationType];
-    const result = await (storage as any).deductCredits?.(userId, cost);
+    const result = await storage.deductCredits(userId, cost);
 
     if (!result) {
       return {
@@ -77,6 +88,8 @@ export async function deductCredits(userId: string, operationType: "chat" | "ima
         message: `Você precisa de ${cost} créditos para usar ${operationType}. Compre mais créditos.`,
       };
     }
+
+    console.log(`✅ Deducted ${cost} credits for ${operationType}. Remaining: ${result.credits}`);
 
     return {
       success: true,

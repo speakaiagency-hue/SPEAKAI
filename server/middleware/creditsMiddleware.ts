@@ -15,7 +15,7 @@ export async function creditsCheckMiddleware(req: Request, res: Response, next: 
       return res.status(401).json({ error: "Não autenticado" });
     }
 
-    const credits = await (storage as any).getUserCredits(req.user.id);
+    const credits = await storage.getUserCredits(req.user.id);
     req.userCredits = credits?.credits || 0;
 
     if (req.userCredits <= 0) {
