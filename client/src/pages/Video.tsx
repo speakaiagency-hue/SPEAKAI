@@ -215,21 +215,29 @@ function VideoPageComponent() {
                 </div>
               )}
 
-              {/* Prompt field for text-to-video and image-to-video */}
-              {(creationMode === "text-to-video" || creationMode === "image-to-video") && (
-                <div className="space-y-2">
-                  <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                    {creationMode === "image-to-video" ? "Descreva o que deve acontecer no vídeo" : "Prompt"}
-                  </Label>
-                  <Textarea 
-                    ref={textareaRef}
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    placeholder={creationMode === "image-to-video" ? "Ex: A pessoa começa a sorrir e acenar..." : "Descreva o vídeo que você quer criar..."} 
-                    className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
-                  />
-                </div>
-              )}
+              {/* Prompt field for all modes */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  {creationMode === "text-to-video" 
+                    ? "Prompt" 
+                    : creationMode === "image-to-video" 
+                    ? "Descreva o que deve acontecer no vídeo" 
+                    : "Descreva o vídeo baseado nas referências"}
+                </Label>
+                <Textarea 
+                  ref={textareaRef}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={
+                    creationMode === "text-to-video" 
+                      ? "Descreva o vídeo que você quer criar..." 
+                      : creationMode === "image-to-video" 
+                      ? "Ex: A pessoa começa a sorrir e acenar..." 
+                      : "Ex: Um vídeo no estilo das referências, com movimento suave..."
+                  } 
+                  className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
+                />
+              </div>
 
               {/* Reference images for reference-to-video mode */}
               {creationMode === "reference-to-video" && (
