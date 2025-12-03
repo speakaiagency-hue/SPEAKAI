@@ -24,7 +24,7 @@ function ChatComponent() {
     {
       id: "1",
       role: "assistant",
-      content: "Olá! Eu sou Speak AI, seu assistente de autoajuda compassivo e empático. Como posso ajudar você hoje?",
+      content: "Olá! Eu sou Speak AI. Como posso ajudar você hoje?",
       timestamp: new Date(),
     },
   ]);
