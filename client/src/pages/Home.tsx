@@ -5,59 +5,59 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
-// Import assets
-import chatVideo from "@assets/generated_images/chat.mp4";
-import promptVideo from "@assets/generated_images/prompt.mp4‎";
-import imageVideo from "@assets/generated_images/imagem.mp4";
-import videoVideo from "@assets/generated_images/Video.mp4";
-
 export default function Home() {
   const { toast } = useToast();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Agora cada prompt tem um vídeo (exemplos usando URLs públicas de demo)
+  // Vídeos de demonstração (links externos)
+  const CHAT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/chat.mp4";
+  const PROMPT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/prompt.mp4";
+  const IMAGE_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/imagem.mp4";
+  const VIDEO_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/Video.mp4";
+
+  // Biblioteca de prompts com preview em vídeo
   const prompts = [
     {
       id: "1",
       title: "Roteiro para Video Marketing",
       prompt:
         "Você é um roteirista expert em vídeos de marketing. Crie um roteiro de 30 segundos para um produto de software que soluciona problemas de produtividade. Inclua: hook nos primeiros 3 segundos, problema, solução e call-to-action.",
-      video: "https://www.w3schools.com/html/mov_bbb.mp4",
+      video: CHAT_VIDEO_URL,
     },
     {
       id: "2",
       title: "Análise de Dados",
       prompt:
         "Sou um analista de dados. Preciso de uma query SQL otimizada para extrair os top 10 produtos mais vendidos do último mês, agrupados por categoria, com suas respectivas taxas de crescimento em relação ao mês anterior.",
-      video: "https://www.w3schools.com/html/movie.mp4",
+      video: PROMPT_VIDEO_URL,
     },
     {
       id: "3",
       title: "Copy para Email Marketing",
       prompt:
         "Escreva uma copy de email para uma campanha de Black Friday. O produto é um curso online sobre fotografia profissional. Deve ter: subject line impactante, apresentação do desconto, benefícios do curso, urgência e CTA claro. Máximo 200 palavras.",
-      video: "https://www.w3schools.com/html/mov_bbb.mp4",
+      video: IMAGE_VIDEO_URL,
     },
     {
       id: "4",
       title: "Brainstorm de Conteúdo",
       prompt:
         "Me sugira 10 ideias criativas de conteúdo para um blog sobre inteligência artificial e produtividade. Cada ideia deve ter: título, tipo de conteúdo (artigo/vídeo/infográfico), público-alvo e palavra-chave principal.",
-      video: "https://www.w3schools.com/html/movie.mp4",
+      video: VIDEO_VIDEO_URL,
     },
     {
       id: "5",
       title: "Descrição de Produto",
       prompt:
         "Crie uma descrição detalhada e persuasiva para um produto de fone de ouvido wireless premium. Inclua: características técnicas, benefícios para o usuário, diferenciais da marca e uma chamada para ação. Máximo 150 palavras.",
-      video: "https://www.w3schools.com/html/mov_bbb.mp4",
+      video: CHAT_VIDEO_URL,
     },
     {
       id: "6",
       title: "Plano de Conteúdo Social",
       prompt:
         "Desenvolva um plano de conteúdo para Instagram de um personal trainer. Sugestões de posts para a semana: segunda, quarta, sexta e domingo. Cada post deve incluir: tema, tipo de conteúdo, hashtags relevantes e horário sugerido.",
-      video: "https://www.w3schools.com/html/movie.mp4",
+      video: PROMPT_VIDEO_URL,
     },
   ];
 
@@ -68,14 +68,14 @@ export default function Home() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Módulos agora usam vídeo no preview
+  // Módulos com preview em vídeo (links externos)
   const modules = [
     {
       title: "Chat IA",
       description: "Converse com uma inteligência artificial avançada com contexto e memória.",
       href: "/chat",
       icon: MessageSquare,
-      video: chatVideo,
+      video: CHAT_VIDEO_URL,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
     },
@@ -84,7 +84,7 @@ export default function Home() {
       description: "Crie prompts perfeitos para coding, marketing e design com templates prontos.",
       href: "/prompt",
       icon: Type,
-      video: promptVideo,
+      video: PROMPT_VIDEO_URL,
       color: "text-orange-500",
       bg: "bg-orange-500/10",
     },
@@ -92,8 +92,8 @@ export default function Home() {
       title: "Geração de Imagem",
       description: "Transforme texto em imagens incríveis com estilos variados e alta resolução.",
       href: "/image",
-      icon: VideoIcon, // ícone visual; pode manter ImageIcon se preferir
-      video: imageVideo,
+      icon: VideoIcon, // pode trocar para ImageIcon se preferir
+      video: IMAGE_VIDEO_URL,
       color: "text-purple-500",
       bg: "bg-purple-500/10",
     },
@@ -102,7 +102,7 @@ export default function Home() {
       description: "Crie vídeos curtos e storyboards a partir de descrições textuais.",
       href: "/video",
       icon: Video,
-      video: videoPreview,
+      video: VIDEO_VIDEO_URL,
       color: "text-red-500",
       bg: "bg-red-500/10",
     },
@@ -183,7 +183,9 @@ export default function Home() {
               </CardHeader>
 
               <CardContent className="flex-1 flex flex-col">
-                <p className="text-xs text-gray-400 leading-relaxed flex-1 mb-4 line-clamp-3">{item.prompt}</p>
+                <p className="text-xs text-gray-400 leading-relaxed flex-1 mb-4 line-clamp-3">
+                  {item.prompt}
+                </p>
                 <Button
                   size="sm"
                   onClick={() => handleCopy(item.prompt, item.id)}
