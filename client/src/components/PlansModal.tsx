@@ -11,8 +11,6 @@ interface PlansModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const KIWIFY_PLAN_URL = "https://pay.kiwify.com.br/KRTMqIF";
-
 const plans = [
   {
     id: "basico",
@@ -28,7 +26,7 @@ const plans = [
     ],
     notIncluded: ["Gerador de vídeo", "Prioridade no suporte"],
     highlighted: false,
-    url: KIWIFY_PLAN_URL,
+    url: "https://pay.kiwify.com.br/LINK-BASICO", // 🔗 link específico do plano Básico
   },
   {
     id: "pro",
@@ -45,7 +43,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: true,
-    url: KIWIFY_PLAN_URL,
+    url: "https://pay.kiwify.com.br/LINK-PRO", // 🔗 link específico do plano Pro
   },
   {
     id: "premium",
@@ -63,7 +61,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: false,
-    url: KIWIFY_PLAN_URL,
+    url: "https://pay.kiwify.com.br/LINK-PREMIUM", // 🔗 link específico do plano Premium
   },
 ];
 
@@ -94,10 +92,14 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
         <DialogHeader className="text-center space-y-4 pb-6">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
-            <DialogTitle className="text-4xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">Cresça com o plano ideal</DialogTitle>
+            <DialogTitle className="text-4xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+              Cresça com o plano ideal
+            </DialogTitle>
             <Sparkles className="w-6 h-6 text-purple-400 animate-pulse" />
           </div>
-          <p className="text-muted-foreground text-lg text-center">O plano certo, no tempo certo — aqui e agora</p>
+          <p className="text-muted-foreground text-lg text-center">
+            O plano certo, no tempo certo — aqui e agora
+          </p>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-8">
@@ -120,7 +122,11 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
               )}
 
               <div className="mb-6">
-                <h3 className={`text-2xl font-bold mb-2 ${plan.highlighted ? "text-indigo-300" : "text-white"}`}>
+                <h3
+                  className={`text-2xl font-bold mb-2 ${
+                    plan.highlighted ? "text-indigo-300" : "text-white"
+                  }`}
+                >
                   {plan.name}
                 </h3>
                 <p className="text-muted-foreground text-sm">{plan.description}</p>
@@ -128,7 +134,11 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
 
               <div className="mb-6 pb-4 border-b border-border/30">
                 <div className="flex items-baseline gap-1">
-                  <span className={`text-4xl font-bold ${plan.highlighted ? "text-indigo-300" : "text-white"}`}>
+                  <span
+                    className={`text-4xl font-bold ${
+                      plan.highlighted ? "text-indigo-300" : "text-white"
+                    }`}
+                  >
                     {plan.price}
                   </span>
                   <span className="text-muted-foreground text-sm">{plan.period}</span>
@@ -136,7 +146,9 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
               </div>
 
               <div className="flex-1 mb-6 space-y-3">
-                <p className="text-xs font-semibold text-muted-foreground uppercase">Incluso:</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase">
+                  Incluso:
+                </p>
                 {plan.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-indigo-500 shrink-0 mt-0.5" />
@@ -146,7 +158,9 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
 
                 {plan.notIncluded.length > 0 && (
                   <>
-                    <p className="text-xs font-semibold text-muted-foreground uppercase pt-3">Não incluso:</p>
+                    <p className="text-xs font-semibold text-muted-foreground uppercase pt-3">
+                      Não incluso:
+                    </p>
                     {plan.notIncluded.map((feature, idx) => (
                       <div key={idx} className="flex items-start gap-3 opacity-50">
                         <X className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
@@ -158,7 +172,7 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
               </div>
 
               <Button
-                onClick={() => handleBuy((plan as any).url)}
+                onClick={() => handleBuy(plan.url)}
                 className={`w-full h-11 font-semibold transition-all duration-300 group/btn ${
                   plan.highlighted
                     ? "bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-500 shadow-lg shadow-indigo-500/40 hover:shadow-indigo-500/60 text-white"
@@ -177,7 +191,9 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
         </div>
 
         <div className="border-t border-border/50 pt-6 text-center">
-          <p className="text-sm text-muted-foreground">✓ Comece agora • Planos simples e transparentes • Liberdade para evoluir</p>
+          <p className="text-sm text-muted-foreground">
+            ✓ Comece agora • Planos simples e transparentes • Liberdade para evoluir
+          </p>
         </div>
 
         <style>{`
@@ -192,7 +208,7 @@ export function PlansModal({ open, onOpenChange }: PlansModalProps) {
             }
           }
           
-          @keyframes float {
+             @keyframes float {
             0%, 100% {
               transform: translateY(0px);
             }
