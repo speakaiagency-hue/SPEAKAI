@@ -13,9 +13,9 @@ export interface KiwifyWebhookData {
 
 const CREDIT_COSTS = {
   chat: 1,
-  image: 5,
-  prompt: 2,
-  video: 20,
+  image: 7,
+  prompt: 0,
+  video: 40,
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
