@@ -8,7 +8,6 @@ import { useLocation } from "wouter";
 
 export default function Signup() {
   const { toast } = useToast();
-  const [location] = useLocation();
   const [, setLocation] = useLocation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,18 +36,17 @@ export default function Signup() {
         body: JSON.stringify({ email, password, name }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || "Erro ao criar conta");
       }
 
-      const result = await response.json();
-      
-      localStorage.setItem("authToken", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      toast({ title: `Bem-vindo, ${result.user.name}!` });
-      
+      toast({ title: `Bem-vindo, ${data.user.name}!` });
+
       if (redirectUrl) {
         window.open(redirectUrl, "_blank");
       }
