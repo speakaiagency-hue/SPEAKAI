@@ -28,18 +28,17 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const data = await response.json();
         throw new Error(data.error || "Erro ao fazer login");
       }
 
-      const result = await response.json();
-      
       // Store token in localStorage
-      localStorage.setItem("authToken", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.setItem("authToken", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
-      toast({ title: `Bem-vindo, ${result.user.name}!` });
+      toast({ title: `Bem-vindo, ${data.user.name}!` });
       setLocation("/");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao fazer login";
