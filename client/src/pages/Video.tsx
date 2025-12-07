@@ -141,31 +141,75 @@ function VideoPageComponent() {
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
-      {/* ... seus controles de criação (dropdown, prompt, upload) ... */}
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
+            <span className="p-2 rounded-lg bg-indigo-500/10 text-indigo-500">
+              <Video className="w-6 h-6" />
+            </span>
+            Geração de Vídeo
+          </h1>
+          <p className="text-muted-foreground">Crie vídeos cinematográficos a partir de texto ou imagens.</p>
+        </div>
+      </div>
 
-      {/* Preview Area */}
-      <div className="lg:col-span-7 space-y-6">
-        <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
-          {videoUrl ? (
-            <video 
-              src={videoUrl} 
-              className="w-full h-full object-cover rounded-lg" 
-              controls 
-              autoPlay 
-              loop 
-            />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] from-[#1f2937] to-[#0f1117]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Controls */}
+        <Card className="lg:col-span-5 border-border/50 shadow-xl bg-[#0f1117] border-[#1f2937] h-fit overflow-hidden">
+          <CardContent className="p-6 space-y-6">
+            {/* ... todos os controles de criação (dropdown, prompt, upload, referências, formato, resolução, botão Gerar) ... */}
+            {/* Botão Gerar */}
+            <Button
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-500/20 h-14 rounded-lg text-lg mt-4 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+            >
               {isGenerating ? (
-                <div className="flex flex-col items-center gap-6">
-                  <div className="relative">
+                <span className="flex items-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Gerando...
+                </span>
+              ) : (
+                <>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">
+                    {VIDEO_COST} ⚡
+                  </span>
+                  <span className="flex items-center gap-2">
+                    Gerar <ArrowRight className="w-5 h-5" />
+                  </span>
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Preview Area */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
+            {videoUrl ? (
+              <video
+                src={videoUrl}
+                className="w-full h-full object-cover rounded-lg"
+                controls
+                autoPlay
+                loop
+              />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] from-[#1f2937] to-[#0f1117]">
+                {isGenerating ? (
+                  <div className="flex flex-col items-center gap-6">
+                                     <div className="relative">
                     <div className="w-20 h-20 border-4 border-indigo-500/20 rounded-full animate-spin" />
                     <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
                     <Film className="absolute inset-0 m-auto w-8 h-8 text-indigo-500 animate-pulse" />
                   </div>
                   <div className="text-center space-y-1">
-                    <p className="text-lg font-medium text-foreground animate-pulse">Criando sua obra-prima...</p>
-                    <p className="text-sm text-muted-foreground">Isso pode levar alguns segundos</p>
+                    <p className="text-lg font-medium text-foreground animate-pulse">
+                      Criando sua obra-prima...
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Isso pode levar alguns segundos
+                    </p>
                   </div>
                 </div>
               ) : (
@@ -202,7 +246,7 @@ function VideoPageComponent() {
           </div>
         )}
 
-                {/* Storyboard Preview */}
+        {/* Storyboard Preview */}
         <div>
           <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
           <div className="grid grid-cols-4 gap-4">
