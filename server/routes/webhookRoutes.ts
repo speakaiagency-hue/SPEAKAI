@@ -27,16 +27,19 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         }
       }
 
-      // Monta os dados do webhook
+      // Monta os dados do webhook com fallback para evitar erro de username vazio
+      const fallbackEmail = `kiwify_${Date.now()}@placeholder.com`;
       const webhookData: KiwifyWebhookData = {
-        purchase_id: req.body.purchase_id || req.body.id,
-        customer_email: req.body.customer?.email || req.body.email,
-        customer_name: req.body.customer?.name || req.body.name,
-        product_name: req.body.product?.name || req.body.product_name,
-        product_id: req.body.product?.id || req.body.product_id,
+        purchase_id: req.body.purchase_id || req.body.id || `purchase_${Date.now()}`,
+        customer_email: req.body.customer?.email || req.body.email || fallbackEmail,
+        customer_name: req.body.customer?.name || req.body.name || "Cliente Kiwify",
+        product_name: req.body.product?.name || req.body.product_name || "Produto",
+        product_id: req.body.product?.id || req.body.product_id || "0",
         value: parseFloat(req.body.value || req.body.total || "0"),
         status: req.body.status || "approved",
       };
+
+      console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
 
       // Processa a compra
       const result = await handleKiwifyPurchase(webhookData);
