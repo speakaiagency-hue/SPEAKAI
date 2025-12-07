@@ -183,21 +183,23 @@ function VideoPageComponent() {
             </div>
           )}
 
-          {/* Storyboard Preview */}
-          <div>
-            <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
-            <div className="grid grid-cols-4 gap-4">
-  {[1, 2, 3, 4].map((frame) => (
-    <div
-      key={frame}
-      className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm"
-    >
-      <span className="text-xs text-muted-foreground group-hover:text-indigo-400">
-        Frame {frame}
-      </span>
-    </div>
-  ))}
+        {/* Storyboard Preview */}
+<div>
+  <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
+  <div className="grid grid-cols-4 gap-4">
+    {[1, 2, 3, 4].map((frame) => (
+      <div
+        key={frame}
+        className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm"
+      >
+        <span className="text-xs text-muted-foreground group-hover:text-indigo-400">
+          Frame {frame}
+        </span>
+      </div>
+    ))}
+  </div>
 </div>
+
 
                   key={frame}
                   className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm"
