@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
-const VIDEO_COST = 20;
+const VIDEO_COST = 40;
 
 interface ImageData {
   base64: string;
@@ -315,7 +315,7 @@ function VideoPageComponent() {
                 </span>
               ) : (
                 <>
-                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">20 ⚡</span>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">40 ⚡</span>
                   <span className="flex items-center gap-2">
                     Gerar <ArrowRight className="w-5 h-5" />
                   </span>
