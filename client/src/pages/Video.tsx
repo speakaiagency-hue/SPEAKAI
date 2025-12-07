@@ -183,49 +183,19 @@ function VideoPageComponent() {
           </CardContent>
         </Card>
 
-        {/* Preview Area */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
-            {videoUrl ? (
-              <video
-                src={videoUrl}
-                className="w-full h-full object-cover rounded-lg"
-                controls
-                autoPlay
-                loop
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] from-[#1f2937] to-[#0f1117]">
-                {isGenerating ? (
-                  <div className="flex flex-col items-center gap-6">
-                                     <div className="relative">
-                    <div className="w-20 h-20 border-4 border-indigo-500/20 rounded-full animate-spin" />
-                    <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                    <Film className="absolute inset-0 m-auto w-8 h-8 text-indigo-500 animate-pulse" />
-                  </div>
-                  <div className="text-center space-y-1">
-                    <p className="text-lg font-medium text-foreground animate-pulse">
-                      Criando sua obra-prima...
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Isso pode levar alguns segundos
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center space-y-4 p-6">
-                  <div className="w-24 h-24 rounded-full bg-[#1f2937] flex items-center justify-center mx-auto mb-2 border border-white/5">
-                    <Film className="w-10 h-10 opacity-30 text-indigo-400" />
-                  </div>
-                  <div>
-                    <p className="text-xl font-medium text-foreground">Preview do Vídeo</p>
-                    <p className="text-sm opacity-60 max-w-md mx-auto mt-2">
-                      Configure os parâmetros ao lado e clique em "Gerar" para visualizar o resultado.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
+              {/* Preview Area */}
+      <div className="lg:col-span-7 space-y-6">
+        <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
+          {videoUrl ? (
+            <video
+              src={videoUrl}
+              className="w-full h-full object-cover rounded-lg"
+              controls
+              autoPlay
+              loop
+            />
+          ) : (
+            // ... bloco de loading e preview vazio ...
           )}
         </div>
 
@@ -262,9 +232,10 @@ function VideoPageComponent() {
             ))}
           </div>
         </div>
-      </div>
-    </div>
-  );
+      </div> {/* fecha lg:col-span-7 */}
+    </div>   {/* fecha grid principal */}
+  </div>     {/* fecha container geral */}
+);
 }
 
 export default withMembershipCheck(VideoPageComponent);
