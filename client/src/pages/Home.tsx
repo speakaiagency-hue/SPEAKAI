@@ -10,10 +10,10 @@ export default function Home() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   // Vídeos de demonstração (links externos)
-  const CHAT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/chat.mp4";
+ const VIDEO_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/Video.mp4";
+const IMAGE_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/imagem.mp4";
   const PROMPT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/prompt.mp4";
-  const IMAGE_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/imagem.mp4";
-  const VIDEO_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/Video.mp4";
+  const CHAT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/chat.mp4";
 
   // Prompts
   const prompts = [
@@ -68,25 +68,16 @@ export default function Home() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Módulos
+ // Módulos
   const modules = [
     {
-      title: "Chat IA",
-      description: "Converse com uma inteligência artificial avançada com contexto e memória.",
-      href: "/chat",
-      icon: MessageSquare,
-      video: CHAT_VIDEO_URL,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-    },
-    {
-      title: "Gerador de Prompt",
-      description: "Crie prompts perfeitos para coding, marketing e design com templates prontos.",
-      href: "/prompt",
-      icon: Type,
-      video: PROMPT_VIDEO_URL,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
+      title: "Geração de Vídeo",
+      description: "Crie vídeos curtos e storyboards a partir de descrições textuais.",
+      href: "/video",
+      icon: Video,
+      video: VIDEO_VIDEO_URL,
+      color: "text-red-500",
+      bg: "bg-red-500/10",
     },
     {
       title: "Geração de Imagem",
@@ -98,13 +89,22 @@ export default function Home() {
       bg: "bg-purple-500/10",
     },
     {
-      title: "Geração de Vídeo",
-      description: "Crie vídeos curtos e storyboards a partir de descrições textuais.",
-      href: "/video",
-      icon: Video,
-      video: VIDEO_VIDEO_URL,
-      color: "text-red-500",
-      bg: "bg-red-500/10",
+      title: "Gerador de Prompt",
+      description: "Crie prompts perfeitos para coding, marketing e design com templates prontos.",
+      href: "/prompt",
+      icon: Type,
+      video: PROMPT_VIDEO_URL,
+      color: "text-orange-500",
+      bg: "bg-orange-500/10",
+    },
+    {
+      title: "Chat IA",
+      description: "Converse com uma inteligência artificial avançada com contexto e memória.",
+      href: "/chat",
+      icon: MessageSquare,
+      video: CHAT_VIDEO_URL,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
     },
   ];
 
@@ -115,11 +115,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
         <div className="relative z-10 max-w-3xl mx-auto px-4 text-[15px]">
           <h1 className="text-5xl md:text-6xl font-heading font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-foreground/60">
-            Crie seu mundo com <br />
-            <span className="text-primary">Avatares Inteligentes</span>
+            Crie seu próprio<br />
+            <span className="text-primary">Influencer com Speak AI</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Transforme fotos em vídeos, crie avatares exclusivos e explore infinitas possibilidades criativas com IA.
+            Transforme seu celular em uma agência, e deixe que a Speak AI faça tudo pra você!
           </p>
         </div>
       </section>
