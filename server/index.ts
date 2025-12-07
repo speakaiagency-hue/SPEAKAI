@@ -67,23 +67,34 @@ app.use((req, res, next) => {
   const { authMiddleware } = await import("./middleware/authMiddleware");
   const { storage } = await import("./storage");
   const { createKiwifyService } = await import("./services/kiwifyService");
+
   const kiwifyService = await createKiwifyService();
-  
+
+  // Rotas de autenticação
   await registerAuthRoutes(app);
+
+  // Rotas de webhook (Kiwify)
   await registerWebhookRoutes(app, storage, kiwifyService);
-  
-  // Apply credits check middleware to protected routes
+  console.log("✅ Webhook da Kiwify registrado em /api/webhook/kiwify");
+
+  // Middleware de créditos para rotas protegidas
   app.use((req, res, next) => {
-    if (req.path.startsWith("/api/chat") || req.path.startsWith("/api/image") || 
-        req.path.startsWith("/api/prompt") || req.path.startsWith("/api/video")) {
+    if (
+      req.path.startsWith("/api/chat") ||
+      req.path.startsWith("/api/image") ||
+      req.path.startsWith("/api/prompt") ||
+      req.path.startsWith("/api/video")
+    ) {
       authMiddleware(req, res, () => creditsCheckMiddleware(req, res, next));
     } else {
       next();
     }
   });
-  
+
+  // Outras rotas (chat, prompt, image, video)
   await registerRoutes(httpServer, app);
 
+  // Middleware de erro
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -92,9 +103,7 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+  // Static ou Vite
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
@@ -102,10 +111,7 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
+  // Porta
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
     {
@@ -114,7 +120,7 @@ app.use((req, res, next) => {
       reusePort: true,
     },
     () => {
-      log(`serving on port ${port}`);
+      log(`🚀 Servidor rodando na porta ${port}`);
     },
   );
 })();
