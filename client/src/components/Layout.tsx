@@ -107,9 +107,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-border/50 space-y-2">
-        </div>
+        <div className="p-4 border-t border-border/50 space-y-2"></div>
       </aside>
+
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between p-4 h-16">
@@ -121,7 +121,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {credits}
               </div>
             )}
-            {isLogged && <UserMenu />}
+            {isLogged ? (
+              <UserMenu />
+            ) : (
+              <Button
+                size="sm"
+                className="bg-white text-indigo-600 hover:bg-gray-100 rounded-full font-semibold"
+                onClick={() => setLocation("/login")}
+              >
+                Login
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -180,70 +190,72 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               >
                 Planos
               </Button>
+              {!isLogged && (
+                <Button
+                  size="sm"
+                  className="w-full bg-white text-indigo-600 hover:bg-gray-100 font-semibold text-xs justify-start"
+                  onClick={() => {
+                    setLocation("/login");
+                    setIsOpen(false);
+                  }}
+                >
+                  Login
+                </Button>
+              )}
             </div>
           </div>
         )}
       </div>
+
       {/* Main Content */}
       <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0">
         {/* Top Bar with Créditos and Planos */}
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
           <div></div>
-          <div className="flex items-center gap-3">
-            {isLogged && hasMembership && credits !== null && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
-                <Zap className="w-4 h-4" />
-                {credits}
-              </div>
-            )}
-            {isLogged && (
-              <Button
-                variant="outline"
-                disabled={!hasMembership}
-                className={`border-border/50 rounded-full transition-all ${
-                  hasMembership
-                    ? "text-foreground hover:bg-secondary/50 cursor-pointer"
-                    : "text-muted-foreground/50 cursor-not-allowed opacity-50"
-                }`}
-                onClick={() => hasMembership && setCreditsOpen(true)}
-                title={hasMembership ? "Clique para gerenciar créditos" : "Compre um plano para ver créditos"}
-              >
-                <Zap className="w-4 h-4 mr-2" />
-                Créditos
-              </Button>
-            )}
-            <Button
-              variant="outline"
-              className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
-              onClick={() => {}}
-            >
-              Personalizado
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full font-semibold shadow-lg shadow-indigo-500/20"
-              onClick={() => setPlansOpen(true)}
-            >
-              Planos
-            </Button>
-            {isLogged ? (
-              <UserMenu />
-            ) : (
-              <Button
-                className="bg-white text-indigo-600 hover:bg-gray-100 rounded-full font-semibold"
-                onClick={() => setLocation("/login")}
-              >
-                Login
-              </Button>
-            )}
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto p-6 lg:p-12 animate-in fade-in duration-500 slide-in-from-bottom-4 md:mt-20">
-          {children}
-        </div>
-      </main>
-      <PlansModal open={plansOpen} onOpenChange={setPlansOpen} />
-      <CreditsModal open={creditsOpen} onOpenChange={setCreditsOpen} />
+        <div className="flex items-center gap-3">
+  {isLogged && hasMembership && credits !== null && (
+    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
+      <Zap className="w-4 h-4" />
+      {credits}
     </div>
-  );
-}
+  )}
+  {isLogged && (
+    <Button
+      variant="outline"
+      disabled={!hasMembership}
+      className={`border-border/50 rounded-full transition-all ${
+        hasMembership
+          ? "text-foreground hover:bg-secondary/50 cursor-pointer"
+          : "text-muted-foreground/50 cursor-not-allowed opacity-50"
+      }`}
+      onClick={() => hasMembership && setCreditsOpen(true)}
+      title={hasMembership ? "Clique para gerenciar créditos" : "Compre um plano para ver créditos"}
+    >
+      <Zap className="w-4 h-4 mr-2" />
+      Créditos
+    </Button>
+  )}
+  <Button
+    variant="outline"
+    className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
+    onClick={() => {}}
+  >
+    Personalizado
+  </Button>
+  <Button
+    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-full font-semibold shadow-lg shadow-indigo-500/20"
+    onClick={() => setPlansOpen(true)}
+  >
+    Planos
+  </Button>
+  {isLogged ? (
+    <UserMenu />
+  ) : (
+    <Button
+      className="bg-white text-indigo-600 hover:bg-gray-100 rounded-full font-semibold"
+      onClick={() => setLocation("/login")}
+    >
+      Login
+    </Button>
+  )}
+</div>
