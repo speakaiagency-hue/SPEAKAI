@@ -32,6 +32,10 @@ const CREDIT_MAP: Record<string, number> = {
   "500_creditos": 500,
   "1000_creditos": 1000,
   "2000_creditos": 2000,
+
+  // Fallback para testes da Kiwify
+  produto: 50, // quando o webhook de teste manda "Produto"
+  "0": 50,     // quando o webhook de teste manda product_id = "0"
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
