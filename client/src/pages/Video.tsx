@@ -326,60 +326,73 @@ function VideoPageComponent() {
         </Card>
 
         {/* Preview Area */}
-        <div className="lg:col-span-7 space-y-6">
-          <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
-            {videoUrl ? (
-              <video 
-                src={videoUrl} 
-                className="w-full h-full object-cover" 
-                controls 
-                autoPlay 
-                loop 
-              />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1f2937] to-[#0f1117]">
-                {isGenerating ? (
-                  <div className="flex flex-col items-center gap-6">
-                    <div className="relative">
-                      <div className="w-20 h-20 border-4 border-indigo-500/20 rounded-full animate-spin" />
-                      <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                      <Film className="absolute inset-0 m-auto w-8 h-8 text-indigo-500 animate-pulse" />
-                    </div>
-                    <div className="text-center space-y-1">
-                      <p className="text-lg font-medium text-foreground animate-pulse">Criando sua obra-prima...</p>
-                      <p className="text-sm text-muted-foreground">Isso pode levar alguns segundos</p>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center space-y-4 p-6">
-                    <div className="w-24 h-24 rounded-full bg-[#1f2937] flex items-center justify-center mx-auto mb-2 border border-white/5">
-                      <Film className="w-10 h-10 opacity-30 text-indigo-400" />
-                    </div>
-                    <div>
-                      <p className="text-xl font-medium text-foreground">Preview do Vídeo</p>
-                      <p className="text-sm opacity-60 max-w-md mx-auto mt-2">
-                        Configure os parâmetros ao lado e clique em "Gerar" para visualizar o resultado.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Storyboard Preview */}
-          <div>
-            <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
-            <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((frame) => (
-                <div key={frame} className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm">
-                  <span className="text-xs text-muted-foreground group-hover:text-indigo-400">Frame {frame}</span>
-                </div>
-              ))}
+<div className="lg:col-span-7 space-y-6">
+  <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
+    {videoUrl ? (
+      <div className="flex flex-col sm:flex-row gap-4 p-4">
+        <video 
+          src={videoUrl} 
+          className="w-full h-full object-cover rounded-lg" 
+          controls 
+          autoPlay 
+          loop 
+        />
+        <Button
+          onClick={() => {
+            const link = document.createElement("a");
+            link.href = videoUrl;
+            link.download = "video.mp4";
+            link.click();
+          }}
+          className="w-full sm:w-auto bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold shadow-md hover:bg-indigo-700"
+        >
+          Download
+        </Button>
+      </div>
+    ) : (
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1f2937] to-[#0f1117]">
+        {isGenerating ? (
+          <div className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <div className="w-20 h-20 border-4 border-indigo-500/20 rounded-full animate-spin" />
+              <div className="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              <Film className="absolute inset-0 m-auto w-8 h-8 text-indigo-500 animate-pulse" />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-lg font-medium text-foreground animate-pulse">Criando sua obra-prima...</p>
+              <p className="text-sm text-muted-foreground">Isso pode levar alguns segundos</p>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="text-center space-y-4 p-6">
+            <div className="w-24 h-24 rounded-full bg-[#1f2937] flex items-center justify-center mx-auto mb-2 border border-white/5">
+              <Film className="w-10 h-10 opacity-30 text-indigo-400" />
+            </div>
+            <div>
+              <p className="text-xl font-medium text-foreground">Preview do Vídeo</p>
+              <p className="text-sm opacity-60 max-w-md mx-auto mt-2">
+                Configure os parâmetros ao lado e clique em "Gerar" para visualizar o resultado.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
+    )}
+  </div>
+
+  {/* Storyboard Preview */}
+  <div>
+    <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
+    <div className="grid grid-cols-4 gap-4">
+      {[1, 2, 3, 4].map((frame) => (
+        <div key={frame} className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm">
+          <span className="text-xs text-muted-foreground group-hover:text-indigo-400">Frame {frame}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+ </div>
     </div>
   );
 }
