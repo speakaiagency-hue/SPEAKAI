@@ -18,6 +18,22 @@ const CREDIT_COSTS = {
   video: 40,
 };
 
+// Mapeamento de produtos/plano → créditos fixos
+const CREDIT_MAP: Record<string, number> = {
+  // Planos
+  plano_basico: 150,
+  plano_pro: 200,
+  plano_premium: 190,
+
+  // Pacotes de créditos
+  "100_creditos": 100,
+  "200_creditos": 200,
+  "300_creditos": 300,
+  "500_creditos": 500,
+  "1000_creditos": 1000,
+  "2000_creditos": 2000,
+};
+
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
   const secret = process.env.KIWIFY_WEBHOOK_SECRET || "";
   if (!secret) return true;
@@ -34,23 +50,32 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Compra não aprovada" };
     }
 
-    // Calculate credits based on value (approximately 10 credits per R$ 1)
-    const creditsToAdd = Math.round(data.value * 10);
+    // Normaliza chave do produto (usa ID ou nome)
+    const productKey =
+      data.product_id?.toLowerCase() ||
+      data.product_name?.toLowerCase().replace(/\s+/g, "_");
 
-    // Find or create user by email
+    // Busca créditos fixos no mapa
+    const creditsToAdd = CREDIT_MAP[productKey] ?? 0;
+
+    if (creditsToAdd === 0) {
+      console.warn(`⚠️ Produto não reconhecido: ${productKey}`);
+      return { success: false, message: "Produto não reconhecido" };
+    }
+
+    // Procura usuário pelo e-mail
     let user = await storage.getUserByEmail(data.customer_email);
     if (!user) {
-      // Create user with email as username
+      // Cria novo usuário
       user = await storage.createUser({
-        username: data.customer_email,
+        username: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
         password: "kiwify_" + Date.now(),
       });
-      
-      // Update with email and name
+
       if (user) {
         await storage.updateUserProfile(user.id, {
-          email: data.customer_email,
-          name: data.customer_name,
+          email: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
+          name: data.customer_name || "Cliente Kiwify",
         });
       }
     }
@@ -59,10 +84,10 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Erro ao criar usuário" };
     }
 
-    // Add credits
+    // Adiciona créditos
     await storage.addCredits(user.id, creditsToAdd);
 
-    console.log(`✅ Kiwify purchase processed: ${creditsToAdd} credits added to user ${user.id}`);
+    console.log(`✅ Kiwify purchase processed: ${creditsToAdd} créditos adicionados para usuário ${user.id}`);
 
     return {
       success: true,
@@ -71,7 +96,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       creditsAdded: creditsToAdd,
     };
   } catch (error) {
-    console.error("Error handling Kiwify purchase:", error);
+    console.error("🔥 Erro ao processar compra:", error);
     return { success: false, message: "Erro ao processar compra" };
   }
 }
@@ -89,14 +114,14 @@ export async function deductCredits(userId: string, operationType: "chat" | "ima
       };
     }
 
-    console.log(`✅ Deducted ${cost} credits for ${operationType}. Remaining: ${result.credits}`);
+    console.log(`✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result.credits}`);
 
     return {
       success: true,
       creditsRemaining: result.credits,
     };
   } catch (error) {
-    console.error("Error deducting credits:", error);
+    console.error("🔥 Erro ao descontar créditos:", error);
     return { success: false, message: "Erro ao descontar créditos" };
   }
 }
