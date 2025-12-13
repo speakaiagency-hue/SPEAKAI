@@ -21,9 +21,9 @@ const CREDIT_COSTS = {
 // Mapeamento de produtos/plano → créditos fixos
 const CREDIT_MAP: Record<string, number> = {
   // Planos
-  basico: 150,
-  pro: 200,
-  premium: 190,
+  basico: 500,
+  pro: 1.500,
+  premium: 5.000,
 
   // Pacotes de créditos
   "100_creditos": 100,
