@@ -26,6 +26,9 @@ export async function creditsCheckMiddleware(req: Request, res: Response, next: 
       });
     }
 
+    // ➕ expõe créditos restantes para qualquer rota que venha depois
+    res.locals.creditsRemaining = req.userCredits;
+
     next();
   } catch (error) {
     console.error("Credits middleware error:", error);
