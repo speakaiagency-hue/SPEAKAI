@@ -13,7 +13,7 @@ export interface GenerateVideoParams {
 
 export async function generateVideo(params: GenerateVideoParams) {
   const rotator = getGeminiKeyRotator();
-
+  
   return await rotator.executeWithRotation(async (apiKey) => {
     const ai = new GoogleGenAI({ apiKey });
 
@@ -25,7 +25,7 @@ export async function generateVideo(params: GenerateVideoParams) {
 
     const generateVideoPayload: any = {
       model: "veo-3.1-generate-preview",
-      config,
+      config: config,
       prompt: params.prompt,
     };
 
@@ -34,67 +34,56 @@ export async function generateVideo(params: GenerateVideoParams) {
         imageBytes: params.imageBase64,
         mimeType: params.imageMimeType || "image/jpeg",
       };
-    } else if (params.mode === "reference-to-video" && params.referenceImages?.length) {
-      const referenceImagesPayload: any[] = params.referenceImages.map((img) => ({
-        image: {
-          imageBytes: img.base64,
-          mimeType: img.mimeType || "image/jpeg",
-        },
-        referenceType: VideoGenerationReferenceType.ASSET,
-      }));
+    } else if (
+      params.mode === "reference-to-video" &&
+      params.referenceImages?.length
+    ) {
+      const referenceImagesPayload: any[] = [];
+
+      for (const img of params.referenceImages) {
+        referenceImagesPayload.push({
+          image: {
+            imageBytes: img.base64,
+            mimeType: img.mimeType || "image/jpeg",
+          },
+          referenceType: VideoGenerationReferenceType.ASSET,
+        });
+      }
 
       if (referenceImagesPayload.length > 0) {
         generateVideoPayload.config.referenceImages = referenceImagesPayload;
       }
     }
 
-    console.log("📤 Payload enviado para Gemini:", JSON.stringify(generateVideoPayload, null, 2));
+    console.log("Submitting video generation request...");
+    let operation = await ai.models.generateVideos(generateVideoPayload);
 
-    let operation;
-    try {
-      operation = await ai.models.generateVideos(generateVideoPayload);
-    } catch (err) {
-      console.error("❌ Erro inicial ao chamar generateVideos:", err);
-      return { videoUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", error: "Falha ao iniciar geração" };
-    }
-
-    let attempts = 0;
-    while (!operation.done && attempts < 2) {
+    while (!operation.done) {
       await new Promise((resolve) => setTimeout(resolve, 10000));
-      console.log(`⏳ Tentativa ${attempts + 1}: aguardando vídeo...`);
-      try {
-        operation = await ai.operations.getVideosOperation({ operation });
-      } catch (err) {
-        console.error("❌ Erro ao consultar operação:", err);
-        break;
-      }
-      attempts++;
-    }
-
-    if (!operation.done) {
-      console.error("⚠️ Timeout: vídeo não finalizou em tempo hábil");
-      return { videoUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", error: "Timeout na geração" };
+      console.log("Generating video...");
+      operation = await ai.operations.getVideosOperation({ operation });
     }
 
     if (operation?.response) {
       const videos = operation.response.generatedVideos;
 
       if (!videos || videos.length === 0) {
-        console.error("⚠️ Nenhum vídeo gerado:", operation);
-        return { videoUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", error: "Nenhum vídeo gerado" };
+        if (operation.error) {
+          throw new Error(typeof operation.error === 'string' ? operation.error : JSON.stringify(operation.error));
+        }
+        throw new Error("Nenhum vídeo foi gerado");
       }
 
       const firstVideo = videos[0];
       if (!firstVideo?.video?.uri) {
-        console.error("⚠️ Vídeo sem URI:", firstVideo);
-        return { videoUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", error: "Vídeo sem URI" };
+        throw new Error("O vídeo gerado não possui URI");
       }
 
       let uriToParse = firstVideo.video.uri;
       try {
         uriToParse = decodeURIComponent(firstVideo.video.uri);
-      } catch {
-        console.warn("⚠️ Não foi possível decodificar URI");
+      } catch (e) {
+        console.warn("Could not decode video URI");
       }
 
       const url = new URL(uriToParse);
@@ -106,8 +95,10 @@ export async function generateVideo(params: GenerateVideoParams) {
         uri: finalUrl,
       };
     } else {
-      console.error("❌ Erro na resposta da operação:", operation.error || operation);
-      return { videoUrl: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", error: "Erro na resposta da operação" };
+      if (operation.error) {
+        throw new Error(typeof operation.error === 'string' ? operation.error : JSON.stringify(operation.error));
+      }
+      throw new Error("Nenhum vídeo foi gerado");
     }
   });
 }
