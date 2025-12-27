@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Save, Wand2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { Copy, Save, Wand2, RefreshCw, CheckCircle2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +15,24 @@ function PromptComponent() {
   const [qualityScore, setQualityScore] = useState(0);
   const [input, setInput] = useState("");
 
+  // estados para imagem
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImageData, setUploadedImageData] = useState<{ base64: string; mimeType: string } | null>(null);
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result as string;
+        const base64 = result.split(",")[1];
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // gerar prompt a partir de texto
   const handleGenerate = async () => {
     if (!input.trim()) {
       toast({ title: "Por favor, descreva o conteúdo primeiro", variant: "destructive" });
@@ -47,9 +65,66 @@ function PromptComponent() {
     }
   };
 
+  // gerar prompt a partir de imagem
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const base64 = await fileToBase64(file);
+      setUploadedImage(URL.createObjectURL(file));
+      setUploadedImageData({ base64, mimeType: file.type });
+
+      setIsGenerating(true);
+      const response = await fetch("/api/prompt/from-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
+        body: JSON.stringify({ imageBase64: base64, mimeType: file.type }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao gerar prompt da imagem");
+      }
+
+      const result = await response.json();
+      setGeneratedPrompt(result.prompt);
+      setQualityScore(Math.floor(Math.random() * 15) + 85);
+      toast({ title: "Prompt gerado a partir da imagem!" });
+    } catch (err) {
+      toast({ title: "Erro ao processar imagem", variant: "destructive" });
+      console.error("Image to prompt error:", err);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   const handleCopy = () => {
+    if (!generatedPrompt) return;
     navigator.clipboard.writeText(generatedPrompt);
     toast({ title: "Copiado!" });
+  };
+
+  const handleSave = async () => {
+    if (!generatedPrompt) {
+      toast({ title: "Nada para salvar", variant: "destructive" });
+      return;
+    }
+    try {
+      const response = await fetch("/api/prompt/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...getAuthHeader() },
+        body: JSON.stringify({ prompt: generatedPrompt, score: qualityScore }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Erro ao salvar prompt");
+      }
+      toast({ title: "Salvo na biblioteca!" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erro ao salvar";
+      toast({ title: message, variant: "destructive" });
+    }
   };
 
   return (
@@ -62,17 +137,46 @@ function PromptComponent() {
           Gerador de Prompt
         </h1>
         <p className="text-muted-foreground">
-          Descreva o que você precisa e deixe nossa IA criar o prompt perfeito.
+          Descreva o que você precisa ou envie uma imagem para gerar automaticamente.
         </p>
       </div>
 
-      {/* Main Input Area */}
+      {/* Upload de imagem */}
+      <div className="space-y-4">
+        <div className="border-2 border-dashed border-[#2d3748] rounded-lg p-6 hover:bg-[#1a1d24] transition-colors relative group cursor-pointer text-center bg-[#0f1117]/50">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          {uploadedImage ? (
+            <div className="relative w-full aspect-video rounded-md overflow-hidden">
+              <img src={uploadedImage} alt="Upload" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="text-white font-medium flex items-center gap-2">
+                  <Upload className="w-4 h-4" /> Trocar
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-3 py-4">
+              <div className="w-12 h-12 rounded-full bg-[#2d3748] flex items-center justify-center">
+                <Upload className="w-5 h-5 text-gray-400" />
+              </div>
+              <p className="text-sm font-medium text-gray-300">Clique para enviar uma imagem</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Input de texto */}
       <div className="space-y-4">
         <div className="relative bg-[#0f1117] p-1 rounded-xl border border-[#1f2937] shadow-2xl">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Descreva o conteúdo ou envie uma imagem acima para gerar automaticamente..."
+            placeholder="Descreva o conteúdo ou use uma imagem para gerar automaticamente..."
             className="min-h-[200px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
             maxLength={2000}
           />
@@ -121,7 +225,7 @@ function PromptComponent() {
                 <Copy className="w-4 h-4 mr-2" />
                 Copiar Texto
               </Button>
-              <Button variant="outline" className="flex-1 border-[#2d3748] hover:bg-[#2d3748]">
+              <Button variant="outline" className="flex-1 border-[#2d3748] hover:bg-[#2d3748]" onClick={handleSave}>
                 <Save className="w-4 h-4 mr-2" />
                 Salvar na Biblioteca
               </Button>
