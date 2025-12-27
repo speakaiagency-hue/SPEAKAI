@@ -1,92 +1,129 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ImagePage() {
   const [prompt, setPrompt] = useState("");
   const [aspectRatio, setAspectRatio] = useState("1:1");
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [resultImage, setResultImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Converte imagem para Base64
-  const convertToBase64 = (file: File): Promise<{ base64: string; mimeType: string }> => {
-    return new Promise((resolve, reject) => {
+  // Limpa URL de preview ao trocar imagem
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+    setResultImage(null);
+    setErrorMsg(null);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(f ? URL.createObjectURL(f) : null);
+  };
+
+  const fileToBase64 = (f: File): Promise<{ base64: string; mimeType: string }> =>
+    new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64 = (reader.result as string).split(",")[1]; // remove prefix data:
-        resolve({ base64, mimeType: file.type });
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.split(",")[1]; // remove prefixo
+        resolve({ base64, mimeType: f.type });
       };
       reader.onerror = reject;
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(f);
     });
-  };
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      setPreview(URL.createObjectURL(file));
-    }
-  };
 
   const handleGenerate = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    setResultImage(null);
+
     try {
       let imageBase64: string | undefined;
       let imageMimeType: string | undefined;
 
-      if (selectedImage) {
-        const converted = await convertToBase64(selectedImage);
-        imageBase64 = converted.base64;
-        imageMimeType = converted.mimeType;
+      if (file) {
+        const { base64, mimeType } = await fileToBase64(file);
+        imageBase64 = base64;
+        imageMimeType = mimeType;
       }
 
-      const response = await fetch("/api/image/generate", {
+      const res = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          aspectRatio,
-          imageBase64,
-          imageMimeType,
-        }),
+        body: JSON.stringify({ prompt, aspectRatio, imageBase64, imageMimeType }),
       });
 
-      const data = await response.json();
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.error || "Falha ao gerar imagem");
+        return;
+      }
+
       if (data.imageUrl) {
         setResultImage(data.imageUrl);
       } else {
-        alert(data.error || "Erro ao gerar imagem");
+        setErrorMsg("A resposta não continha uma imagem");
       }
     } catch (err) {
-      console.error("Erro:", err);
-      alert("Erro inesperado ao gerar imagem");
+      console.error(err);
+      setErrorMsg("Erro inesperado.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Gerador de Imagem</h1>
+    <div style={{ maxWidth: 720, margin: "40px auto", padding: 16 }}>
+      <h1>Gerar ou editar imagem</h1>
+
+      <label>Descrição</label>
       <textarea
-        placeholder="Digite sua descrição..."
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
+        placeholder="Digite sua instrução..."
+        rows={4}
+        style={{ width: "100%", marginBottom: 12 }}
       />
-      <select value={aspectRatio} onChange={(e) => setAspectRatio(e.target.value)}>
-        <option value="1:1">Quadrado (1:1)</option>
-        <option value="16:9">Paisagem (16:9)</option>
-        <option value="9:16">Retrato (9:16)</option>
+
+      <label>Proporção</label>
+      <select
+        value={aspectRatio}
+        onChange={(e) => setAspectRatio(e.target.value)}
+        style={{ width: "100%", marginBottom: 12 }}
+      >
+        <option value="1:1">1:1 (quadrado)</option>
+        <option value="16:9">16:9 (paisagem)</option>
+        <option value="9:16">9:16 (retrato)</option>
       </select>
 
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      {preview && <img src={preview} alt="Preview" style={{ maxWidth: "200px" }} />}
+      <label>Upload de imagem (opcional)</label>
+      <input type="file" accept="image/*" onChange={onFileChange} />
+      {previewUrl && (
+        <div style={{ margin: "12px 0" }}>
+          <img src={previewUrl} alt="Preview" style={{ maxWidth: "100%", borderRadius: 8 }} />
+        </div>
+      )}
 
-      <button onClick={handleGenerate}>
-        {selectedImage ? "Aplicar Mudanças" : "Gerar Imagem"}
+      <button onClick={handleGenerate} disabled={loading} style={{ marginTop: 12 }}>
+        {loading ? "Processando..." : file ? "Aplicar mudanças" : "Gerar imagem"}
       </button>
 
+      {errorMsg && (
+        <div style={{ marginTop: 12, color: "#c00" }}>
+          {errorMsg}
+        </div>
+      )}
+
       {resultImage && (
-        <div>
-          <h2>Resultado:</h2>
-          <img src={resultImage} alt="Resultado" style={{ maxWidth: "400px" }} />
+        <div style={{ marginTop: 16 }}>
+          <h2>Resultado</h2>
+          <img src={resultImage} alt="Resultado" style={{ maxWidth: "100%", borderRadius: 8 }} />
         </div>
       )}
     </div>
