@@ -2,8 +2,6 @@ import { useState } from "react";
 import { Image as ImageIcon, Download, Maximize2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getAuthHeader } from "@/lib/auth";
@@ -23,7 +21,7 @@ function ImagePageComponent() {
       toast({ title: "Digite um prompt primeiro", variant: "destructive" });
       return;
     }
-    
+
     setIsGenerating(true);
     try {
       const response = await fetch("/api/image/generate", {
@@ -41,10 +39,22 @@ function ImagePageComponent() {
       }
 
       const result = await response.json();
-      setGeneratedImages([result.imageUrl]);
+      console.log("API result:", result);
+
+      // Correção: verificar se retorna array ou campo único
+      if (Array.isArray(result.images)) {
+        setGeneratedImages(result.images);
+      } else if (result.imageUrl) {
+        setGeneratedImages([result.imageUrl]);
+      } else if (result.url) {
+        setGeneratedImages([result.url]);
+      } else {
+        throw new Error("Resposta da API não contém URL da imagem.");
+      }
+
       toast({ title: "Imagem gerada com sucesso!" });
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Ocorreu um erro inesperado.';
+      const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro inesperado.";
       toast({ title: errorMessage, variant: "destructive" });
       console.error("Image generation error:", err);
     } finally {
@@ -66,17 +76,17 @@ function ImagePageComponent() {
         </p>
       </div>
 
-      {/* Main Input Card */}
+      {/* Input */}
       <div className="space-y-4">
         <div className="bg-[#0f1117] p-1 rounded-xl border border-[#1f2937] shadow-2xl">
-          <Textarea 
+          <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Me conta o que você quer ver — eu transformo em imagem pra você rapidinho."
             className="min-h-[240px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
             maxLength={2000}
           />
-          
+
           <div className="flex items-end justify-between px-6 pb-4">
             {/* Aspect Ratio Selector */}
             <div className="flex items-center gap-2 bg-[#0f1117]">
@@ -86,8 +96,8 @@ function ImagePageComponent() {
                   onClick={() => setAspectRatio(ratio)}
                   className={cn(
                     "px-4 py-1.5 rounded-lg text-sm font-medium transition-all border",
-                    aspectRatio === ratio 
-                      ? "bg-[#6366f1] text-white border-[#6366f1]" 
+                    aspectRatio === ratio
+                      ? "bg-[#6366f1] text-white border-[#6366f1]"
                       : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
                   )}
                 >
@@ -103,7 +113,7 @@ function ImagePageComponent() {
           </div>
         </div>
 
-        <Button 
+        <Button
           className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white font-bold h-16 rounded-xl text-xl shadow-lg shadow-purple-900/20 transition-all duration-300 hover:scale-[1.01] flex items-center justify-center gap-3"
           onClick={handleGenerate}
           disabled={isGenerating}
@@ -123,15 +133,18 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-      {/* Gallery Section */}
+      {/* Gallery */}
       {generatedImages.length > 0 && (
         <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 mt-12">
           {generatedImages.map((src, i) => (
-            <div key={i} className="group relative aspect-video rounded-xl overflow-hidden border border-[#2d3748] shadow-xl bg-[#1a1d24]">
-              <img 
-                src={src} 
-                alt={`Generated ${i}`} 
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+            <div
+              key={i}
+              className="group relative aspect-video rounded-xl overflow-hidden border border-[#2d3748] shadow-xl bg-[#1a1d24]"
+            >
+              <img
+                src={src}
+                alt={`Generated ${i}`}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm">
                 <Button size="icon" variant="secondary" className="rounded-full h-12 w-12">
