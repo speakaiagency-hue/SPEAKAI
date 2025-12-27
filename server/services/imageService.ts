@@ -24,11 +24,15 @@ export async function createImageService() {
             },
           });
 
-          // Depois envia instrução do usuário (sem refinamento automático)
-          parts.push({ text: prompt || "Edite esta imagem mantendo todos os elementos originais." });
+          // Depois envia instrução do usuário
+          parts.push({
+            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+          });
         } else {
           // Geração só por texto
-          parts.push({ text: prompt || "Uma arte digital cinematográfica e detalhada" });
+          parts.push({
+            text: prompt || "Uma arte digital cinematográfica e detalhada",
+          });
         }
 
         const geminiResponse = await ai.models.generateContent({
@@ -37,7 +41,7 @@ export async function createImageService() {
           config: {
             imageConfig: { aspectRatio },
           },
-          // Se o SDK suportar, adicione para reduzir variação:
+          // Configuração conservadora para reduzir variação
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
