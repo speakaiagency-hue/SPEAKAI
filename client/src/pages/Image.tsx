@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Image as ImageIcon, Download, Maximize2, RefreshCw, UploadCloud } from "lucide-react";
+import {
+  Image as ImageIcon,
+  Download,
+  RefreshCw,
+  UploadCloud,
+  X
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +23,7 @@ function ImagePageComponent() {
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
@@ -98,6 +105,7 @@ function ImagePageComponent() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
+      {/* Header */}
       <div className="flex flex-col items-center text-center gap-2 mb-8">
         <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
           <span className="p-2 rounded-lg bg-purple-500/10 text-purple-500">
@@ -154,8 +162,6 @@ function ImagePageComponent() {
             <UploadCloud className="w-10 h-10 text-purple-500" />
             <span className="text-sm text-gray-400">Clique para enviar uma imagem</span>
           </label>
-
-          {/* Input real (funcional), mas escondido */}
           <input
             id="file-upload"
             type="file"
@@ -163,15 +169,11 @@ function ImagePageComponent() {
             onChange={onFileChange}
             className="hidden"
           />
-
-          {/* Nome do arquivo selecionado */}
           {file && (
             <div className="mt-2 text-sm text-gray-300 truncate">
               Arquivo selecionado: {file.name}
             </div>
           )}
-
-          {/* Preview */}
           {previewUrl && (
             <div className="mt-4">
               <img
@@ -204,31 +206,57 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-      {/* Gallery */}
+      {/* Gallery + downloads fora da imagem */}
       {generatedImages.length > 0 && (
-        <div className="grid grid-cols-2 gap-4 mt-12">
-          {generatedImages.map((src, i) => (
-            <div
-              key={i}
-              className="group relative aspect-video rounded-xl overflow-hidden border border-[#2d3748] shadow-xl bg-[#1a1d24]"
-            >
-              <img
-                src={src}
-                alt={`Generated ${i}`}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 backdrop-blur-sm">
-                <Button size="icon" variant="secondary" className="rounded-full h-12 w-12">
-                  <Maximize2 className="w-5 h-5" />
-                </Button>
-                <a href={src} download={`imagem-${i}.png`}>
-                  <Button size="icon" variant="secondary" className="rounded-full h-12 w-12">
-                    <Download className="w-5 h-5" />
-                  </Button>
-                </a>
+        <div className="space-y-6 mt-12">
+          <div className="grid grid-cols-2 gap-4">
+            {generatedImages.map((src, i) => (
+              <div
+                key={i}
+                className="group relative aspect-video rounded-xl overflow-hidden border border-[#2d3748] shadow-xl bg-[#1a1d24] cursor-pointer"
+                onClick={() => setFullscreenImage(src)}
+                title="Clique para ampliar"
+              >
+                <img
+                  src={src}
+                  alt={`Generated ${i}`}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+
+          {/* Botões de download fora das imagens */}
+          <div className="flex flex-wrap gap-3">
+            {generatedImages.map((src, i) => (
+              <a key={i} href={src} download={`imagem-${i}.png`}>
+                <Button variant="secondary" className="flex items-center gap-2">
+                  <Download className="w-4 h-4" />
+                  Baixar imagem {i + 1}
+                </Button>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal fullscreen */}
+      {fullscreenImage && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+          <div className="relative max-w-5xl w-full">
+            <button
+              onClick={() => setFullscreenImage(null)}
+              className="absolute -top-3 -right-3 bg-white/10 hover:bg-white/20 text-white rounded-full p-2 border border-white/20 transition"
+              aria-label="Fechar"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img
+              src={fullscreenImage}
+              alt="Imagem ampliada"
+              className="w-full h-auto rounded-xl border border-gray-700 object-contain max-h-[85vh]"
+            />
+          </div>
         </div>
       )}
     </div>
