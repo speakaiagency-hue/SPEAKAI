@@ -32,20 +32,14 @@ function PromptComponent() {
   };
 
   const handleGenerate = async () => {
-    // texto é opcional; só bloqueia se não tiver texto nem imagem
-    if (!input.trim() && !uploadedImageData) {
-      toast({ title: "Por favor, insira texto ou envie uma imagem", variant: "destructive" });
-      return;
-    }
-
     setIsGenerating(true);
     try {
       const response = await fetch("/api/prompt/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({
-          userInput: input.trim() || null,          // texto opcional
-          imageBase64: uploadedImageData?.base64 || null, // imagem opcional
+          userInput: input.trim() || null,                 // texto opcional
+          imageBase64: uploadedImageData?.base64 || null,  // imagem opcional
           mimeType: uploadedImageData?.mimeType || null,
         }),
       });
