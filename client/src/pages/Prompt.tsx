@@ -32,14 +32,20 @@ function PromptComponent() {
   };
 
   const handleGenerate = async () => {
+    // Caso queira permitir envio totalmente vazio, remova este bloco.
+    if (!input.trim() && !uploadedImageData) {
+      toast({ title: "Envie uma imagem ou escreva um texto (opcional, mas pelo menos um).", variant: "destructive" });
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const response = await fetch("/api/prompt/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({
-          userInput: input.trim() || null,                 // texto opcional
-          imageBase64: uploadedImageData?.base64 || null,  // imagem opcional
+          userInput: input.trim() || null,
+          imageBase64: uploadedImageData?.base64 || null,
           mimeType: uploadedImageData?.mimeType || null,
         }),
       });
@@ -50,7 +56,7 @@ function PromptComponent() {
       }
 
       const result = await response.json();
-      setGeneratedPrompt(result.prompt);
+      setGeneratedPrompt(result.prompt || "");
       setQualityScore(Math.floor(Math.random() * 15) + 85);
       toast({ title: "Prompt gerado com sucesso!" });
     } catch (error) {
@@ -92,7 +98,7 @@ function PromptComponent() {
           Gerador de Prompt
         </h1>
         <p className="text-muted-foreground">
-          Digite um texto (opcional) ou envie uma imagem para gerar automaticamente.
+          Digite um texto (opcional) ou envie uma imagem. Você pode usar um, o outro, ou ambos.
         </p>
       </div>
 
@@ -167,7 +173,7 @@ function PromptComponent() {
           )}
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              Resultado Otimizado
+              Resultado otimizado
               <CheckCircle2 className="w-5 h-5 text-green-500" />
             </CardTitle>
           </CardHeader>
@@ -178,11 +184,11 @@ function PromptComponent() {
             <div className="flex gap-3">
               <Button className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground" onClick={handleCopy}>
                 <Copy className="w-4 h-4 mr-2" />
-                Copiar Texto
+                Copiar texto
               </Button>
               <Button variant="outline" className="flex-1 border-[#2d3748] hover:bg-[#2d3748]">
                 <Save className="w-4 h-4 mr-2" />
-                Salvar na Biblioteca
+                Salvar na biblioteca
               </Button>
             </div>
           </CardContent>
