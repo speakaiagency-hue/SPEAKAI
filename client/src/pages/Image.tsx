@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Image as ImageIcon, Download, Maximize2, RefreshCw } from "lucide-react";
+import { Image as ImageIcon, Download, Maximize2, RefreshCw, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -37,7 +37,7 @@ function ImagePageComponent() {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
-        const base64 = dataUrl.split(",")[1]; // remove prefixo "data:*;base64,"
+        const base64 = dataUrl.split(",")[1];
         resolve({ base64, mimeType: f.type });
       };
       reader.onerror = reject;
@@ -76,7 +76,6 @@ function ImagePageComponent() {
         throw new Error(result.error || "Erro ao gerar imagem");
       }
 
-      // Normaliza diferentes formatos de resposta
       if (Array.isArray(result.images)) {
         setGeneratedImages(result.images);
       } else if (result.imageUrl) {
@@ -146,12 +145,33 @@ function ImagePageComponent() {
           </div>
         </div>
 
-        {/* Upload + preview */}
-        <div className="bg-[#0f1117] p-4 rounded-xl border border-[#1f2937] shadow-2xl">
-          <label className="block text-sm font-medium mb-2 text-gray-300">
-            Upload de imagem (opcional)
+        {/* Upload estilizado */}
+        <div className="bg-[#0f1117] p-4 rounded-xl border border-dashed border-[#2d3748] shadow-2xl">
+          <label
+            htmlFor="file-upload"
+            className="flex flex-col items-center justify-center gap-2 cursor-pointer py-10 rounded-xl transition hover:bg-[#1a1d24]"
+          >
+            <UploadCloud className="w-10 h-10 text-purple-500" />
+            <span className="text-sm text-gray-400">Clique para enviar uma imagem</span>
           </label>
-          <input type="file" accept="image/*" onChange={onFileChange} />
+
+          {/* Input real (funcional), mas escondido */}
+          <input
+            id="file-upload"
+            type="file"
+            accept="image/*"
+            onChange={onFileChange}
+            className="hidden"
+          />
+
+          {/* Nome do arquivo selecionado */}
+          {file && (
+            <div className="mt-2 text-sm text-gray-300 truncate">
+              Arquivo selecionado: {file.name}
+            </div>
+          )}
+
+          {/* Preview */}
           {previewUrl && (
             <div className="mt-4">
               <img
