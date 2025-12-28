@@ -32,7 +32,6 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      // Deduct credits
       const deductResult = await deductCredits(req.user!.id, "video");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
@@ -60,13 +59,11 @@ export async function registerRoutes(
         return res.status(400).json({ error: "ID da conversa é obrigatório" });
       }
 
-      // Deduct credits
       const deductResult = await deductCredits(req.user!.id, "chat");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
 
-      // Create or get chat instance
       if (!chatInstances.has(conversationId)) {
         chatInstances.set(conversationId, chatService.createChat(history));
       }
@@ -116,22 +113,27 @@ export async function registerRoutes(
     }
   });
 
-  // Prompt Generation API (Protected)
+  // ✅ Prompt Generation API (Protected) - atualizado
   app.post("/api/prompt/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const { userInput } = req.body;
+      const { userInput, imageBase64, mimeType } = req.body;
 
-      if (!userInput || !userInput.trim()) {
-        return res.status(400).json({ error: "Descrição é obrigatória" });
+      // Agora aceita texto OU imagem
+      if (!userInput?.trim() && !imageBase64) {
+        return res.status(400).json({ error: "Envie uma imagem ou um texto" });
       }
 
-      // Deduct credits
       const deductResult = await deductCredits(req.user!.id, "prompt");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
 
-      const result = await promptService.generateCreativePrompt(userInput);
+      const result = await promptService.generateCreativePrompt({
+        userText: userInput,
+        imageBase64,
+        mimeType,
+      });
+
       res.json({ prompt: result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
       console.error("Prompt generation error:", error);
@@ -140,7 +142,7 @@ export async function registerRoutes(
     }
   });
 
-  // ✅ Image Generation API (Protected) - atualizado
+  // ✅ Image Generation API (Protected)
   app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { prompt, aspectRatio = "1:1", imageBase64, imageMimeType } = req.body;
@@ -149,7 +151,6 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
       }
 
-      // Deduct credits
       const deductResult = await deductCredits(req.user!.id, "image");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
