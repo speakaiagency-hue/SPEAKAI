@@ -22,8 +22,8 @@ const CREDIT_COSTS = {
 const CREDIT_MAP: Record<string, number> = {
   // Planos
   basico: 500,
-  pro: 1.500,
-  premium: 5.000,
+  pro: 1500,      // corrigido
+  premium: 5000,  // corrigido
 
   // Pacotes de créditos
   "100_creditos": 100,
@@ -50,8 +50,14 @@ export async function verifyKiwifySignature(payload: string, signature: string):
 
 export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
   try {
-    if (data.status !== "approved") {
-      return { success: false, message: "Compra não aprovada" };
+    // Aceitar múltiplos status válidos
+    if (!["approved", "paid", "completed"].includes(data.status)) {
+      return { success: false, message: `Compra com status inválido: ${data.status}` };
+    }
+
+    // Garantir que temos e-mail válido
+    if (!data.customer_email) {
+      return { success: false, message: "E-mail do cliente ausente" };
     }
 
     // Normaliza chave do produto (usa ID ou nome)
@@ -72,13 +78,13 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     if (!user) {
       // Cria novo usuário
       user = await storage.createUser({
-        username: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
+        username: data.customer_email,
         password: "kiwify_" + Date.now(),
       });
 
       if (user) {
         await storage.updateUserProfile(user.id, {
-          email: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
+          email: data.customer_email,
           name: data.customer_name || "Cliente Kiwify",
         });
       }
