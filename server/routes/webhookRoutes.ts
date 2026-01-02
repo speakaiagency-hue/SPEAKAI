@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from "express";
-import express from "express";
+import bodyParser from "body-parser";
 import {
   handleKiwifyPurchase,
   verifyKiwifySignature,
@@ -12,11 +12,15 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
   // 🔗 Kiwify Webhook Endpoint
   app.post(
     "/api/webhook/kiwify",
-    express.raw({ type: "application/json" }), // captura corpo cru para validar assinatura
+    bodyParser.json({
+      verify: (req: any, res, buf) => {
+        req.rawBody = buf.toString(); // salva corpo cru para validar assinatura
+      },
+    }),
     async (req: Request, res: Response) => {
       try {
         const signature = req.headers["x-kiwify-signature"] as string;
-        const payload = req.body.toString(); // corpo cru
+        const payload = (req as any).rawBody; // corpo cru para validação
 
         // Log para confirmar recebimento
         console.log("📩 Webhook recebido da Kiwify (raw):", payload);
@@ -30,8 +34,8 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
           }
         }
 
-        // Parse do JSON após validação
-        const body = JSON.parse(payload);
+        // Agora req.body já é objeto JSON parseado
+        const body = req.body;
 
         // Garantir que temos e-mail do cliente
         if (!body.customer?.email) {
