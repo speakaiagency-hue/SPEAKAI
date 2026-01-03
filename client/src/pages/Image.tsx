@@ -204,7 +204,7 @@ function ImagePageComponent() {
             </>
           )}
         </Button>
-      </div>
+          </div>
 
       {/* Gallery + downloads fora da imagem */}
       {generatedImages.length > 0 && (
@@ -263,4 +263,5 @@ function ImagePageComponent() {
   );
 }
 
+// ✅ Protege a página com verificação de login e créditos
 export default withMembershipCheck(ImagePageComponent);
