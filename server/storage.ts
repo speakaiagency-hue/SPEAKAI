@@ -14,7 +14,7 @@ async function getDb() {
 
     db = drizzle(pool);
 
-    // Garantir que as tabelas existam
+    // ✅ Garantir que as tabelas existam
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -59,11 +59,11 @@ export interface IStorage {
   updateUserAvatar(id: string, avatar: string): Promise<User | undefined>;
   updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined>;
   updateUserPassword(id: string, password: string): Promise<User | undefined>;
-  getUserCredits(userId: string): Promise<any>;
+  getUserCredits(userId: string): Promise<{ credits: number; totalUsed: number; totalPurchased: number } | null>;
   addCredits(userId: string, amount: number): Promise<any>;
   deductCredits(userId: string, amount: number): Promise<any>;
 
-  // 👇 novos métodos para idempotência
+  // 👇 novos métodos para idempotência de compras
   hasProcessedPurchase(purchaseId: string): Promise<boolean>;
   markPurchaseProcessed(purchaseId: string, userId?: string): Promise<void>;
 }
