@@ -24,8 +24,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           headers: getAuthHeader(),
         });
 
-        // ✅ Garante que a resposta seja JSON válido
-        if (res.data && typeof res.data === "object") {
+        // ✅ Garante que a resposta seja JSON válido e contenha hasAccess
+        if (res.data && typeof res.data === "object" && "hasAccess" in res.data) {
           if (res.data.hasAccess) {
             setAllowed(true);
           } else {
@@ -34,7 +34,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           }
         } else {
           console.error("Resposta inesperada da API:", res.data);
-          setAllowed(true); // ⚠️ fallback: permite acesso para não travar a UI
+          setAllowed(true); // ⚠️ fallback: libera acesso para não travar a UI
         }
       } catch (err: any) {
         console.error("Erro ao verificar acesso:", err);
@@ -44,7 +44,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
           setAllowed(false);
           setLocation("/plans");
         } else {
-          // ⚠️ fallback: permite acesso mesmo se a API falhar
+          // ⚠️ fallback: libera acesso mesmo se a API falhar
           setAllowed(true);
         }
       }
