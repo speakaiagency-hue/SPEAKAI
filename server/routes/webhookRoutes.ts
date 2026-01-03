@@ -50,7 +50,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
           return res.status(400).json({ success: false, message: "E-mail do cliente ausente" });
         }
 
-        // Status do pagamento
+        // Status do pagamento (deixa o service decidir se concede, segura ou revoga)
         const status = body.order_status || body.status || "pending";
 
         // Monta os dados do webhook
