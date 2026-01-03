@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { getAuthHeader, isAuthenticated } from "@/lib/auth";
 import { useLocation } from "wouter";
 
-export function withAccessCheck<P extends object>(
+export function withMembershipCheck<P extends object>(
   Component: React.ComponentType<P>
 ) {
   return function ProtectedComponent(props: P) {
     const [, setLocation] = useLocation();
-    const [hasAccess, setHasAccess] = useState(false);
+    const [hasMembership, setHasMembership] = useState(false);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -16,30 +16,30 @@ export function withAccessCheck<P extends object>(
         return;
       }
 
-      checkAccess();
+      checkMembership();
     }, []);
 
-    const checkAccess = async () => {
+    const checkMembership = async () => {
       try {
-        const response = await fetch("/api/auth/check-access", {
+        const response = await fetch("/api/auth/check-membership", {
           headers: getAuthHeader(),
         });
         if (response.ok) {
           const data = await response.json();
-          if (!data.hasAccess) {
-            console.log("❌ Sem créditos, redirecionando para planos");
-            setLocation("/plans");
+          if (!data.hasMembership) {
+            console.log("No membership, redirecting to home");
+            setLocation("/");
           } else {
-            console.log("✅ Acesso liberado com créditos");
-            setHasAccess(true);
+            console.log("✅ Membership granted");
+            setHasMembership(true);
           }
         } else {
-          console.error("Check access failed:", response.status);
-          setLocation("/plans");
+          console.error("Membership check failed:", response.status);
+          setLocation("/");
         }
       } catch (error) {
-        console.error("Error checking access:", error);
-        setLocation("/plans");
+        console.error("Error checking membership:", error);
+        setLocation("/");
       } finally {
         setLoading(false);
       }
@@ -48,18 +48,15 @@ export function withAccessCheck<P extends object>(
     if (loading) {
       return (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-muted-foreground">Verificando créditos...</div>
+          <div className="text-muted-foreground">Verificando acesso...</div>
         </div>
       );
     }
 
-    if (!hasAccess) {
+    if (!hasMembership) {
       return null;
     }
 
     return <Component {...props} />;
   };
 }
-
-// ✅ Alias para compatibilidade
-export const withMembershipCheck = withAccessCheck;

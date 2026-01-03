@@ -24,7 +24,7 @@ function ChatComponent() {
     {
       id: "1",
       role: "assistant",
-      content: "Olá! Eu sou Speak AI, seu assistente de autoajuda compassivo e empático. Como posso ajudar você hoje?",
+      content: "Olá! Eu sou Speak AI. Como posso ajudar você hoje?",
       timestamp: new Date(),
     },
   ]);
@@ -123,7 +123,7 @@ function ChatComponent() {
         <div>
           <h1 className="text-3xl font-heading font-bold flex items-center gap-2">
             <span className="p-2 rounded-lg bg-primary/10 text-primary"><Bot className="w-6 h-6" /></span>
-            Chat IA
+            Chat
           </h1>
         </div>
         <div className="flex items-center gap-3">

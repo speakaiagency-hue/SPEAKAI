@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Video, Clapperboard, Film, Upload, PlayCircle, ArrowRight, X, Plus } from "lucide-react";
+import { Video, Film, Upload, ArrowRight, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
-const VIDEO_COST = 20;
+const VIDEO_COST = 40;
 
 interface ImageData {
   base64: string;
@@ -21,7 +21,7 @@ function VideoPageComponent() {
   const { toast } = useToast();
   const [isGenerating, setIsGenerating] = useState(false);
   const [videoUrl, setVideoUrl] = useState("");
-  const [creationMode, setCreationMode] = useState("text-to-video");
+  const [creationMode, setCreationMode] = useState<"text-to-video" | "image-to-video" | "reference-to-video">("text-to-video");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageData, setUploadedImageData] = useState<ImageData | null>(null);
   const [referenceImages, setReferenceImages] = useState<string[]>([]);
@@ -160,18 +160,20 @@ function VideoPageComponent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Controls - Styled to match screenshot */}
+        {/* Controls */}
         <Card className="lg:col-span-5 border-border/50 shadow-xl bg-[#0f1117] border-[#1f2937] h-fit overflow-hidden">
           <CardContent className="p-6 space-y-6">
-            
-            {/* Creation Mode Dropdown */}
+            {/* Modo de Criação */}
             <div className="space-y-2">
               <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Modo de Criação</Label>
-              <Select value={creationMode} onValueChange={(val) => {
-                setCreationMode(val);
-                setUploadedImage(null);
-                setReferenceImages([]);
-              }}>
+              <Select
+                value={creationMode}
+                onValueChange={(val: "text-to-video" | "image-to-video" | "reference-to-video") => {
+                  setCreationMode(val);
+                  setUploadedImage(null);
+                  setReferenceImages([]);
+                }}
+              >
                 <SelectTrigger className="w-full bg-[#1a1d24] border-[#2d3748] text-foreground h-12 rounded-lg focus:ring-indigo-500/50">
                   <SelectValue placeholder="Selecione o modo" />
                 </SelectTrigger>
@@ -183,17 +185,17 @@ function VideoPageComponent() {
               </Select>
             </div>
 
-            {/* Input Area based on Mode */}
+            {/* Área de entrada baseada no modo */}
             <div className="space-y-4">
-              {/* Image Upload for image-to-video mode */}
+              {/* Upload para image-to-video */}
               {creationMode === "image-to-video" && (
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Upload da Imagem</Label>
                   <div className="border-2 border-dashed border-[#2d3748] rounded-lg p-6 hover:bg-[#1a1d24] transition-colors relative group cursor-pointer text-center bg-[#1a1d24]/50">
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleImageUpload} 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     {uploadedImage ? (
@@ -215,31 +217,7 @@ function VideoPageComponent() {
                 </div>
               )}
 
-              {/* Prompt field for all modes */}
-              <div className="space-y-2">
-                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                  {creationMode === "text-to-video" 
-                    ? "Prompt" 
-                    : creationMode === "image-to-video" 
-                    ? "Descreva o que deve acontecer no vídeo" 
-                    : "Descreva o vídeo baseado nas referências"}
-                </Label>
-                <Textarea 
-                  ref={textareaRef}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder={
-                    creationMode === "text-to-video" 
-                      ? "Descreva o vídeo que você quer criar..." 
-                      : creationMode === "image-to-video" 
-                      ? "Ex: A pessoa começa a sorrir e acenar..." 
-                      : "Ex: Um vídeo no estilo das referências, com movimento suave..."
-                  } 
-                  className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
-                />
-              </div>
-
-              {/* Reference images for reference-to-video mode */}
+              {/* Referências para reference-to-video */}
               {creationMode === "reference-to-video" && (
                 <div className="space-y-2">
                   <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Upload de Referências (Max 3)</Label>
@@ -247,7 +225,7 @@ function VideoPageComponent() {
                     {referenceImages.map((img, idx) => (
                       <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-[#2d3748] group">
                         <img src={img} alt={`Ref ${idx}`} className="w-full h-full object-cover" />
-                        <button 
+                        <button
                           onClick={() => removeReference(idx)}
                           className="absolute top-1 right-1 bg-black/60 p-1 rounded-full text-white hover:bg-red-500/80 transition-colors opacity-0 group-hover:opacity-100"
                         >
@@ -257,10 +235,10 @@ function VideoPageComponent() {
                     ))}
                     {referenceImages.length < 3 && (
                       <div className="aspect-square border-2 border-dashed border-[#2d3748] rounded-lg hover:bg-[#1a1d24] transition-colors relative cursor-pointer flex flex-col items-center justify-center gap-2 group">
-                        <input 
-                          type="file" 
-                          accept="image/*" 
-                          onChange={handleReferenceUpload} 
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleReferenceUpload}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                         />
                         <div className="w-8 h-8 rounded-full bg-[#2d3748] flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -272,9 +250,33 @@ function VideoPageComponent() {
                   </div>
                 </div>
               )}
+
+              {/* Prompt para todos os modos */}
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                  {creationMode === "text-to-video"
+                    ? "Prompt"
+                    : creationMode === "image-to-video"
+                    ? "Descreva o que deve acontecer no vídeo"
+                    : "Descreva o vídeo baseado nas referências"}
+                </Label>
+                <Textarea
+                  ref={textareaRef}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder={
+                    creationMode === "text-to-video"
+                      ? "Descreva o vídeo que você quer criar..."
+                      : creationMode === "image-to-video"
+                      ? "Ex: A pessoa começa a sorrir e acenar..."
+                      : "Ex: Um vídeo no estilo das referências, com movimento suave..."
+                  }
+                  className="h-32 resize-none bg-[#1a1d24] border-[#2d3748] text-foreground rounded-lg focus:ring-indigo-500/50 placeholder:text-muted-foreground/50 p-4"
+                />
+              </div>
             </div>
 
-            {/* Format and Resolution Row */}
+            {/* Formato e Resolução */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Formato</Label>
@@ -302,8 +304,8 @@ function VideoPageComponent() {
               </div>
             </div>
 
-            {/* Generate Button */}
-            <Button 
+            {/* Botão Gerar */}
+            <Button
               className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-indigo-500/20 h-14 rounded-lg text-lg mt-4 transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-3"
               onClick={handleGenerate}
               disabled={isGenerating}
@@ -315,7 +317,7 @@ function VideoPageComponent() {
                 </span>
               ) : (
                 <>
-                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">20 ⚡</span>
+                  <span className="text-xs font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">{VIDEO_COST} ⚡</span>
                   <span className="flex items-center gap-2">
                     Gerar <ArrowRight className="w-5 h-5" />
                   </span>
@@ -325,16 +327,16 @@ function VideoPageComponent() {
           </CardContent>
         </Card>
 
-        {/* Preview Area */}
+        {/* Preview */}
         <div className="lg:col-span-7 space-y-6">
           <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-border/50 shadow-2xl relative group ring-1 ring-white/10">
             {videoUrl ? (
-              <video 
-                src={videoUrl} 
-                className="w-full h-full object-cover" 
-                controls 
-                autoPlay 
-                loop 
+              <video
+                src={videoUrl}
+                className="w-full h-full object-cover rounded-lg"
+                controls
+                autoPlay
+                loop
               />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground bg-[#0f1117] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#1f2937] to-[#0f1117]">
@@ -367,17 +369,22 @@ function VideoPageComponent() {
             )}
           </div>
 
-          {/* Storyboard Preview */}
-          <div>
-            <Label className="mb-3 block text-muted-foreground font-medium">Frames Gerados</Label>
-            <div className="grid grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map((frame) => (
-                <div key={frame} className="aspect-video rounded-lg bg-[#1f2937] border border-white/5 flex items-center justify-center group hover:border-indigo-500/50 transition-colors cursor-pointer shadow-sm">
-                  <span className="text-xs text-muted-foreground group-hover:text-indigo-400">Frame {frame}</span>
-                </div>
-              ))}
+          {/* Download abaixo do vídeo */}
+          {videoUrl && (
+            <div className="mt-4 flex flex-col sm:flex-row gap-4">
+              <Button
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = videoUrl;
+                  link.download = "video.mp4";
+                  link.click();
+                }}
+                className="w-full sm:w-auto bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold shadow-md hover:bg-indigo-700"
+              >
+                Download
+              </Button>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

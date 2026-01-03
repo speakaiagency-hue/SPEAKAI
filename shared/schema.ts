@@ -1,9 +1,8 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean, decimal } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// ✅ Tabela de usuários
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
@@ -11,10 +10,9 @@ export const users = pgTable("users", {
   email: text("email"),
   name: text("name"),
   avatar: text("avatar"),
-  status: text("status").default("active"), // "active" | "inactive"
+  status: text("status").default("active"),
 });
 
-// ✅ Tabela de créditos por usuário
 export const userCredits = pgTable("user_credits", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
@@ -25,25 +23,22 @@ export const userCredits = pgTable("user_credits", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// ✅ Tabela de transações de créditos
 export const creditTransactions = pgTable("credit_transactions", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
   type: text("type").notNull(), // "purchase", "usage", "refund", "admin"
   amount: integer("amount").notNull(),
   description: text("description"),
-  kiwifyPurchaseId: text("kiwify_purchase_id"), // id da compra na Kiwify
+  kiwifyPurchaseId: text("kiwify_purchase_id"),
   operationType: text("operation_type"), // "chat", "image", "prompt", "video"
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// ✅ Schemas para validação com Zod
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
 });
 
-// ✅ Tipos inferidos
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type UserCredits = typeof userCredits.$inferSelect;

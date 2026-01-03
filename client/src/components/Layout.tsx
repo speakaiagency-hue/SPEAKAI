@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PlansModal } from "./PlansModal";
-import { CreditsModal } from "./CreditsModal"; // ✅ agora correto
+import { CreditsModal } from "./CreditsModal";
 import { UserMenu } from "./UserMenu";
 import { isAuthenticated, getAuthHeader } from "@/lib/auth";
 
@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.add("dark");
     setIsLogged(isAuthenticated());
-
+    
     if (isAuthenticated()) {
       checkMembership();
       const interval = setInterval(checkMembership, 10000);
@@ -207,12 +207,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-           {/* Main Content */}
+      {/* Main Content */}
       <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0">
         {/* Top Bar with Créditos and Planos */}
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
           <div></div>
-          <div className="flex items-center gap-3">
+                   <div className="flex items-center gap-3">
             {isLogged && hasMembership && credits !== null && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
                 <Zap className="w-4 h-4" />
@@ -261,13 +261,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Conteúdo principal */}
         <div className="max-w-7xl mx-auto p-6 lg:p-12 animate-in fade-in duration-500 slide-in-from-bottom-4 md:mt-20">
           {children}
         </div>
       </main>
-
-      {/* Modais */}
       <PlansModal open={plansOpen} onOpenChange={setPlansOpen} />
       <CreditsModal open={creditsOpen} onOpenChange={setCreditsOpen} />
     </div>

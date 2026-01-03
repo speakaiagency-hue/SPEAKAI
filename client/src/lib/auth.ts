@@ -38,9 +38,5 @@ export const isAuthenticated = (): boolean => {
 
 export const getAuthHeader = () => {
   const token = getAuthToken();
-  const headers: Record<string, string> = { Accept: "application/json" };
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-  return headers;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 };

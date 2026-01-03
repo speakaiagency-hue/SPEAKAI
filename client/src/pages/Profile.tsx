@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, Mail, Lock, Camera, LogOut, Coins } from "lucide-react";
+import { User, Mail, Lock, Camera, LogOut, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,8 +7,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { getUser, clearAuth, getAuthHeader } from "@/lib/auth";
-import { CreditsDisplay } from "@/components/CreditsDisplay";
-import { CreditsModal } from "@/components/CreditsModal";
 
 export default function Profile() {
   const { toast } = useToast();
@@ -21,10 +19,6 @@ export default function Profile() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // 🔑 controle do modal de créditos
-  const [modalOpen, setModalOpen] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   if (!user) {
     setLocation("/login");
@@ -140,12 +134,6 @@ export default function Profile() {
     setLocation("/login");
   };
 
-  // 🔑 callback para atualizar créditos após compra
-  const handleCreditsUpdated = () => {
-    setRefreshKey((prev) => prev + 1);
-    toast({ title: "Créditos atualizados!" });
-  };
-
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <h1 className="text-3xl font-heading font-bold">Meu Perfil</h1>
@@ -180,29 +168,6 @@ export default function Profile() {
             <Camera className="w-4 h-4 mr-2" />
             Mudar Foto
           </Button>
-        </CardContent>
-      </Card>
-
-      {/* Créditos */}
-      <Card className="border-border/50 bg-card/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Coins className="w-5 h-5" />
-            Meus Créditos
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <CreditsDisplay
-            key={refreshKey}
-            operationCost={0}
-            operationName="Saldo Atual"
-            onBuyCredits={() => setModalOpen(true)}
-          />
-          <CreditsModal
-            open={modalOpen}
-            onOpenChange={setModalOpen}
-            onCreditsUpdated={handleCreditsUpdated}
-          />
         </CardContent>
       </Card>
 
@@ -243,7 +208,7 @@ export default function Profile() {
                   className="bg-secondary/30"
                 />
               </div>
-                            <Button
+              <Button
                 onClick={handleUpdateInfo}
                 disabled={isLoading}
                 className="w-full bg-indigo-600 hover:bg-indigo-700"
