@@ -22,8 +22,8 @@ const CREDIT_COSTS = {
 const CREDIT_MAP: Record<string, number> = {
   // Planos
   basico: 500,
-  pro: 1.500,
-  premium: 5.000,
+  pro: 1500,
+  premium: 5000,
 
   // Pacotes de créditos
   "100_creditos": 100,
@@ -56,8 +56,9 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     // Normaliza chave do produto (usa ID ou nome)
     const productKey =
-      data.product_id?.toLowerCase() ||
-      data.product_name?.toLowerCase().replace(/\s+/g, "_");
+      (data.product_id?.toLowerCase() ||
+        data.product_name?.toLowerCase()?.replace(/\s+/g, "_") ||
+        "produto");
 
     // Busca créditos fixos no mapa
     const creditsToAdd = CREDIT_MAP[productKey] ?? 0;
@@ -67,6 +68,18 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Produto não reconhecido" };
     }
 
+    // Idempotência: verificar se já processamos esse purchase_id
+    const alreadyProcessed = await storage.hasProcessedPurchase?.(data.purchase_id);
+    if (alreadyProcessed) {
+      console.log(`ℹ️ Compra ${data.purchase_id} já processada, ignorando duplicata.`);
+      return {
+        success: true,
+        message: "Compra já processada",
+        userId: alreadyProcessed.userId,
+        creditsAdded: 0,
+      };
+    }
+
     // Procura usuário pelo e-mail
     let user = await storage.getUserByEmail(data.customer_email);
     if (!user) {
@@ -74,6 +87,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       user = await storage.createUser({
         username: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
         password: "kiwify_" + Date.now(),
+        provider: "kiwify",
       });
 
       if (user) {
@@ -90,6 +104,9 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     // Adiciona créditos
     await storage.addCredits(user.id, creditsToAdd);
+
+    // Registrar evento para idempotência
+    await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd);
 
     console.log(`✅ Kiwify purchase processed: ${creditsToAdd} créditos adicionados para usuário ${user.id}`);
 
@@ -123,6 +140,7 @@ export async function deductCredits(userId: string, operationType: "chat" | "ima
     return {
       success: true,
       creditsRemaining: result.credits,
+      cost,
     };
   } catch (error) {
     console.error("🔥 Erro ao descontar créditos:", error);
