@@ -7,7 +7,7 @@ interface CreditsDisplayProps {
   operationCost: number;
   operationName: string;
   creditsAfterOperation?: number;
-  onBuyCredits?: () => void; // 🔑 nova prop para abrir o CreditsModal
+  onBuyCredits?: () => void; // 🔑 abre o CreditsModal
 }
 
 export function CreditsDisplay({
@@ -33,6 +33,8 @@ export function CreditsDisplay({
       if (response.ok) {
         const data = await response.json();
         setCredits(data.credits);
+      } else {
+        console.error("Erro ao buscar créditos:", response.status);
       }
     } catch (error) {
       console.error("Error fetching credits:", error);
@@ -42,11 +44,11 @@ export function CreditsDisplay({
   };
 
   const hasEnoughCredits = credits !== null && credits >= operationCost;
-  const lowCredits = credits !== null && credits <= 50; // 🔑 nova regra
+  const lowCredits = credits !== null && credits <= 50; // 🔑 regra de alerta
 
   return (
     <div className="space-y-2">
-      {/* Credits Balance - Minimalista */}
+      {/* Saldo de Créditos */}
       <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
         <span className="text-xs text-muted-foreground">Disponível</span>
         <div
@@ -59,7 +61,7 @@ export function CreditsDisplay({
         </div>
       </div>
 
-      {/* Operation Cost - Minimalista */}
+      {/* Custo da Operação */}
       <div
         className={cn(
           "flex items-center justify-between p-2 rounded text-xs",
@@ -70,7 +72,7 @@ export function CreditsDisplay({
         <span className="font-semibold">-{operationCost}</span>
       </div>
 
-      {/* Low or Insufficient Credits Warning */}
+      {/* Aviso de Créditos Baixos ou Insuficientes */}
       {!loading && (lowCredits || !hasEnoughCredits) && (
         <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 flex flex-col gap-2">
           <div className="flex items-start gap-2">
@@ -82,7 +84,7 @@ export function CreditsDisplay({
             </div>
           </div>
           <button
-            onClick={onBuyCredits} // 🔑 abre o CreditsModal
+            onClick={onBuyCredits}
             className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1 cursor-pointer"
             data-testid="button-buy-credits"
           >
@@ -92,7 +94,7 @@ export function CreditsDisplay({
         </div>
       )}
 
-      {/* After Operation Credits */}
+      {/* Créditos após operação */}
       {creditsAfterOperation !== undefined && (
         <div className="flex items-center justify-between p-2 rounded text-xs bg-green-500/5 text-green-400">
           <span>Após operação</span>
