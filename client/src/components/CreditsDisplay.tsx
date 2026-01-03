@@ -21,19 +21,27 @@ export function CreditsDisplay({
 
   useEffect(() => {
     fetchCredits();
-    const interval = setInterval(fetchCredits, 2000);
+    const interval = setInterval(fetchCredits, 5000); // atualiza a cada 5s
     return () => clearInterval(interval);
   }, [creditsAfterOperation]);
 
   const fetchCredits = async () => {
     try {
-      // ✅ Endpoint correto para verificar créditos
       const response = await fetch("/api/auth/check-access", {
         headers: getAuthHeader(),
       });
-      if (response.ok) {
-        const data = await response.json();
-        setCredits(data.credits); // backend retorna { credits, hasAccess }
+
+      if (!response.ok) {
+        console.error("Erro ao buscar créditos:", response.status);
+        return;
+      }
+
+      // ✅ Garante que a resposta seja JSON
+      const data = await response.json().catch(() => null);
+      if (data && typeof data === "object" && "credits" in data) {
+        setCredits(data.credits); // backend deve retornar { credits, hasAccess }
+      } else {
+        console.error("Resposta inesperada da API de créditos:", data);
       }
     } catch (error) {
       console.error("Erro ao buscar créditos:", error);
@@ -43,7 +51,7 @@ export function CreditsDisplay({
   };
 
   const hasEnoughCredits = credits !== null && credits >= operationCost;
-  const lowCredits = credits !== null && credits <= 50; // 🔑 alerta de saldo baixo
+  const lowCredits = credits !== null && credits <= 50; // alerta de saldo baixo
 
   return (
     <div className="space-y-2">
@@ -56,7 +64,7 @@ export function CreditsDisplay({
             loading ? "text-gray-500" : hasEnoughCredits ? "text-green-400" : "text-red-400"
           )}
         >
-          {loading ? "..." : credits}
+          {loading ? "..." : credits ?? 0}
         </div>
       </div>
 
@@ -83,7 +91,7 @@ export function CreditsDisplay({
             </div>
           </div>
           <button
-            onClick={onBuyCredits} // 🔑 abre o CreditsModal
+            onClick={onBuyCredits}
             className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1 cursor-pointer"
             data-testid="button-buy-credits"
           >
