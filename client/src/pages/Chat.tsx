@@ -9,7 +9,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
-import { withMembershipCheck } from "@/components/ProtectedGenerator"; // ✅ agora funciona
+import { ProtectedRoute } from "@/components/ProtectedRoute"; // ✅ agora usando ProtectedRoute
 
 type Message = {
   id: string;
@@ -34,6 +34,7 @@ function ChatComponent() {
   const { toast } = useToast();
   const conversationIdRef = useRef(Date.now().toString());
 
+  // Auto scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -192,23 +193,22 @@ function ChatComponent() {
               </div>
             ))}
             {isTyping && (
-  <div className="flex gap-4">
-    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
-      <Sparkles className="w-5 h-5 animate-pulse text-primary" />
-    </div>
-    <div className="bg-secondary/50 p-4 rounded-2xl rounded-tl-sm flex items-center gap-1">
-      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-    </div>
-  </div>
-)}
-
+              <div className="flex gap-4">
+                <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 animate-pulse text-primary" />
+                </div>
+                <div className="bg-secondary/50 p-4 rounded-2xl rounded-tl-sm flex items-center gap-1">
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                </div>
+              </div>
+            )}
             <div ref={scrollRef} />
           </div>
         </ScrollArea>
 
-        {/* Input area */}
+               {/* Input area */}
         <div className="p-4 bg-background/50 border-t border-border/50 backdrop-blur-md">
           <div className="max-w-4xl mx-auto relative">
             <Input
@@ -233,4 +233,11 @@ function ChatComponent() {
   );
 }
 
-export default withMembershipCheck(ChatComponent);
+// ✅ Protege a rota com verificação de login e créditos
+export default function ChatPage() {
+  return (
+    <ProtectedRoute>
+      <ChatComponent />
+    </ProtectedRoute>
+  );
+}
