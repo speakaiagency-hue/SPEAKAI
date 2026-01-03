@@ -15,7 +15,8 @@ export const getAuthToken = (): string | null => {
     const token = localStorage.getItem("authToken");
     if (!token || token === "undefined" || token === "null") return null;
     return token;
-  } catch {
+  } catch (error) {
+    console.error("Erro ao recuperar token:", error);
     return null;
   }
 };
@@ -28,8 +29,14 @@ export const getUser = (): User | null => {
   try {
     const user = localStorage.getItem("user");
     if (!user || user === "undefined" || user === "null") return null;
-    return JSON.parse(user);
-  } catch {
+
+    const parsed = JSON.parse(user);
+    if (parsed && typeof parsed === "object" && "id" in parsed) {
+      return parsed as User;
+    }
+    return null;
+  } catch (error) {
+    console.error("Erro ao recuperar usuário:", error);
     return null;
   }
 };
@@ -39,7 +46,9 @@ export const getUser = (): User | null => {
  */
 export const setAuthToken = (token: string, user: User) => {
   try {
-    if (!token) throw new Error("Token inválido");
+    if (!token || token === "undefined" || token === "null") {
+      throw new Error("Token inválido");
+    }
     localStorage.setItem("authToken", token);
     localStorage.setItem("user", JSON.stringify(user));
   } catch (error) {
