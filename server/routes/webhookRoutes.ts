@@ -22,7 +22,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         const signature = req.headers["x-kiwify-signature"] as string;
         const payload = (req as any).rawBody; // corpo cru para validação
 
-        // Log para confirmar recebimento
+        // Log do corpo cru
         console.log("📩 Webhook recebido da Kiwify (raw):", payload);
 
         // Validação da assinatura
@@ -37,8 +37,17 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         // Agora req.body já é objeto JSON parseado
         const body = req.body;
 
-        // Garantir que temos e-mail do cliente
-        if (!body.customer?.email) {
+        // 🔎 Log do JSON completo para inspeção
+        console.log("📝 Webhook JSON parseado:", JSON.stringify(body, null, 2));
+
+        // Garantir que temos e-mail do cliente (ou tentar outros campos)
+        const customerEmail =
+          body.customer?.email ||
+          body.buyer_email ||
+          body.email ||
+          null;
+
+        if (!customerEmail) {
           console.error("❌ Webhook sem e-mail do cliente, não é possível adicionar créditos");
           return res.status(400).json({ success: false, message: "E-mail do cliente ausente" });
         }
@@ -52,9 +61,9 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
         // Monta os dados do webhook
         const webhookData: KiwifyWebhookData = {
-          purchase_id: body.purchase_id || body.id || `purchase_${Date.now()}`,
-          customer_email: body.customer.email,
-          customer_name: body.customer?.name || "Cliente Kiwify",
+          purchase_id: body.purchase_id || body.id || body.order_id || `purchase_${Date.now()}`,
+          customer_email: customerEmail,
+          customer_name: body.customer?.name || body.name || "Cliente Kiwify",
           product_name: body.product?.name || body.product_name || "Produto",
           product_id: body.product?.id || body.product_id || "0",
           value: parseFloat(body.value || body.total || "0"),
