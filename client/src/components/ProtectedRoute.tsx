@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { useLocation } from "wouter";
-import { isAuthenticated, getAuthHeader } from "@/lib/auth"; // ✅ trocado getToken por getAuthHeader
+import { isAuthenticated, getAuthHeader } from "@/lib/auth";
 import axios from "axios";
 
 interface ProtectedRouteProps {
@@ -18,39 +18,48 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       return;
     }
 
-    // Verifica créditos no backend
     const checkAccess = async () => {
       try {
         const res = await axios.get("/api/auth/check-access", {
-          headers: getAuthHeader(), // ✅ usa getAuthHeader
+          headers: getAuthHeader(),
         });
 
-        if (res.data.hasAccess) {
-          setAllowed(true);
+        // ✅ Garante que a resposta seja JSON válido
+        if (res.data && typeof res.data === "object") {
+          if (res.data.hasAccess) {
+            setAllowed(true);
+          } else {
+            setAllowed(false);
+            setLocation("/plans");
+          }
         } else {
-          setAllowed(false);
-          setLocation("/plans"); // redireciona para página de planos/compras
+          console.error("Resposta inesperada da API:", res.data);
+          setAllowed(true); // ⚠️ fallback: permite acesso para não travar a UI
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error("Erro ao verificar acesso:", err);
-        setAllowed(false);
-        setLocation("/plans");
+
+        // ✅ Se for erro 402 (Payment Required), redireciona para planos
+        if (err.response?.status === 402) {
+          setAllowed(false);
+          setLocation("/plans");
+        } else {
+          // ⚠️ fallback: permite acesso mesmo se a API falhar
+          setAllowed(true);
+        }
       }
     };
 
     checkAccess();
   }, [setLocation]);
 
-  // Enquanto verifica, não renderiza nada
   if (allowed === null) {
     return <div>Carregando...</div>;
   }
 
-  // Se não tiver acesso, não renderiza
   if (!allowed) {
     return null;
   }
 
-  // Se tiver acesso, renderiza os filhos
   return <>{children}</>;
 }
