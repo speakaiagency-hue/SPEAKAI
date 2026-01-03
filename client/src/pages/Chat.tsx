@@ -192,22 +192,18 @@ function ChatComponent() {
               </div>
             ))}
             {isTyping && (
-                              <div className="bg-secondary/50 p-4 rounded-2xl rounded-tl-sm flex items-center gap-1">
-                  <div
-                    className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-                    style={{ animationDelay: "0ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-                    style={{ animationDelay: "150ms" }}
-                  />
-                  <div
-                    className="w-2 h-2 bg-primary/50 rounded-full animate-bounce"
-                    style={{ animationDelay: "300ms" }}
-                  />
-                </div>
-              </div>
-            )}
+  <div className="flex gap-4">
+    <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
+      <Sparkles className="w-5 h-5 animate-pulse text-primary" />
+    </div>
+    <div className="bg-secondary/50 p-4 rounded-2xl rounded-tl-sm flex items-center gap-1">
+      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+      <div className="w-2 h-2 bg-primary/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+    </div>
+  </div>
+)}
+
             <div ref={scrollRef} />
           </div>
         </ScrollArea>
