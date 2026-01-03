@@ -36,8 +36,16 @@ export function CreditsDisplay({
         return;
       }
 
-      // ✅ Garante que a resposta seja JSON
-      const data = await response.json().catch(() => null);
+      let data: any = null;
+      try {
+        data = await response.json();
+      } catch {
+        // Se não for JSON, tenta ler como texto para logar
+        const text = await response.text();
+        console.error("Resposta inesperada da API de créditos (não é JSON):", text);
+        return;
+      }
+
       if (data && typeof data === "object" && "credits" in data) {
         setCredits(data.credits); // backend deve retornar { credits, hasAccess }
       } else {
