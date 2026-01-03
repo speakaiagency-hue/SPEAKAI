@@ -7,16 +7,16 @@ import {
 } from "../services/webhookService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import type { IStorage } from "../storage";
+import express from "express";
 
 export async function registerWebhookRoutes(app: Express, storage: IStorage, kiwifyService: any) {
-  // Kiwify Webhook Endpoint
-  app.post("/api/webhook/kiwify", async (req: Request, res: Response) => {
+  // ✅ Kiwify Webhook Endpoint com express.raw
+  app.post("/api/webhook/kiwify", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
     try {
       const signature = req.headers["x-kiwify-signature"] as string;
-      const payload = JSON.stringify(req.body);
+      const payload = req.body.toString();
 
-      // Log para confirmar recebimento
-      console.log("📩 Webhook recebido da Kiwify:", req.body);
+      console.log("📩 Webhook recebido da Kiwify:", payload);
 
       // Validação da assinatura
       if (signature && process.env.KIWIFY_WEBHOOK_SECRET) {
@@ -27,21 +27,21 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         }
       }
 
-      // Monta os dados do webhook com fallback para evitar erro de username vazio
+      const parsed = JSON.parse(payload);
       const fallbackEmail = `kiwify_${Date.now()}@placeholder.com`;
+
       const webhookData: KiwifyWebhookData = {
-        purchase_id: req.body.purchase_id || req.body.id || `purchase_${Date.now()}`,
-        customer_email: req.body.customer?.email || req.body.email || fallbackEmail,
-        customer_name: req.body.customer?.name || req.body.name || "Cliente Kiwify",
-        product_name: req.body.product?.name || req.body.product_name || "Produto",
-        product_id: req.body.product?.id || req.body.product_id || "0",
-        value: parseFloat(req.body.value || req.body.total || "0"),
-        status: req.body.status || "approved",
+        purchase_id: parsed.purchase_id || parsed.id || `purchase_${Date.now()}`,
+        customer_email: parsed.customer?.email || parsed.email || fallbackEmail,
+        customer_name: parsed.customer?.name || parsed.name || "Cliente Kiwify",
+        product_name: parsed.product?.name || parsed.product_name || "Produto",
+        product_id: parsed.product?.id || parsed.product_id || "0",
+        value: parseFloat(parsed.value || parsed.total || "0"),
+        status: parsed.status || "approved",
       };
 
       console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
 
-      // Processa a compra
       const result = await handleKiwifyPurchase(webhookData);
 
       if (result.success) {
@@ -68,7 +68,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
     }
   });
 
-  // Endpoint para consultar créditos do usuário
+  // ✅ Endpoint para consultar créditos do usuário
   app.get("/api/credits/balance", authMiddleware, async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(req.user!.id);
