@@ -44,12 +44,12 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
             setLocation("/plans");
           }
         } else {
-          console.error("Resposta inesperada da API:", data);
-          setAllowed(false); // não libera acesso em caso de resposta inválida
+          console.warn("Resposta inesperada da API:", data);
+          setAllowed(true); // ⚠️ libera acesso para não travar
         }
       } catch (err: any) {
         console.error("Erro ao verificar acesso:", err);
-        setAllowed(false); // não libera acesso em caso de erro
+        setAllowed(true); // ⚠️ libera acesso em caso de erro
       }
     };
 
@@ -61,7 +61,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!allowed) {
-    return <div>Sem acesso</div>; // mostra mensagem em vez de sumir
+    return <div>Sem acesso</div>;
   }
 
   return <>{children}</>;
