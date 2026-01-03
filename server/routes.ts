@@ -7,7 +7,6 @@ import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
 import { authMiddleware } from "./middleware/authMiddleware";
 import { deductCredits } from "./services/webhookService";
-import { registerWebhookRoutes } from "./routes/webhookRoutes"; // ✅ IMPORTA O WEBHOOK
 
 // Store chat instances per session
 const chatInstances = new Map<string, any>();
@@ -20,19 +19,20 @@ export async function registerRoutes(
   const promptService = await createPromptService();
   const imageService = await createImageService();
 
-  // ✅ REGISTRA AS ROTAS DE WEBHOOK
-  await registerWebhookRoutes(app, storage, null);
+  // ⚠️ Removido registerWebhookRoutes daqui
+  // O webhook já é registrado em index.ts para evitar duplicação
 
   // Video Generation API (Protected)
   app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const params: GenerateVideoParams = req.body;
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
+      const params: GenerateVideoParams = req.body;
       if (!params.prompt) {
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      const deductResult = await deductCredits(req.user!.id, "video");
+      const deductResult = await deductCredits(req.user.id, "video");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
@@ -49,17 +49,13 @@ export async function registerRoutes(
   // Chat API - Send Message (Protected)
   app.post("/api/chat/send-message", authMiddleware, async (req: Request, res: Response) => {
     try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
+
       const { conversationId, message, history } = req.body;
+      if (!message) return res.status(400).json({ error: "Mensagem é obrigatória" });
+      if (!conversationId) return res.status(400).json({ error: "ID da conversa é obrigatório" });
 
-      if (!message) {
-        return res.status(400).json({ error: "Mensagem é obrigatória" });
-      }
-
-      if (!conversationId) {
-        return res.status(400).json({ error: "ID da conversa é obrigatório" });
-      }
-
-      const deductResult = await deductCredits(req.user!.id, "chat");
+      const deductResult = await deductCredits(req.user.id, "chat");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
@@ -83,10 +79,7 @@ export async function registerRoutes(
   app.post("/api/chat/generate-title", async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
-
-      if (!text) {
-        return res.status(400).json({ error: "Texto é obrigatório" });
-      }
+      if (!text) return res.status(400).json({ error: "Texto é obrigatório" });
 
       const title = await chatService.generateTitle(text);
       res.json({ title });
@@ -101,10 +94,7 @@ export async function registerRoutes(
   app.post("/api/chat/clear-session", async (req: Request, res: Response) => {
     try {
       const { conversationId } = req.body;
-
-      if (!conversationId) {
-        return res.status(400).json({ error: "ID da conversa é obrigatório" });
-      }
+      if (!conversationId) return res.status(400).json({ error: "ID da conversa é obrigatório" });
 
       chatInstances.delete(conversationId);
       res.json({ success: true });
@@ -113,17 +103,17 @@ export async function registerRoutes(
     }
   });
 
-  // ✅ Prompt Generation API (Protected) - atualizado
+  // Prompt Generation API (Protected)
   app.post("/api/prompt/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const { userInput, imageBase64, mimeType } = req.body;
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      // Agora aceita texto OU imagem
+      const { userInput, imageBase64, mimeType } = req.body;
       if (!userInput?.trim() && !imageBase64) {
         return res.status(400).json({ error: "Envie uma imagem ou um texto" });
       }
 
-      const deductResult = await deductCredits(req.user!.id, "prompt");
+      const deductResult = await deductCredits(req.user.id, "prompt");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
@@ -136,41 +126,4 @@ export async function registerRoutes(
 
       res.json({ prompt: result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
-      console.error("Prompt generation error:", error);
-      const message = error instanceof Error ? error.message : "Erro ao gerar prompt";
-      res.status(500).json({ error: message });
-    }
-  });
-
-  // ✅ Image Generation API (Protected)
-  app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
-    try {
-      const { prompt, aspectRatio = "1:1", imageBase64, imageMimeType } = req.body;
-
-      if ((!prompt || !prompt.trim()) && !imageBase64) {
-        return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
-      }
-
-      const deductResult = await deductCredits(req.user!.id, "image");
-      if (!deductResult.success) {
-        return res.status(402).json(deductResult);
-      }
-
-      const result = await imageService.generateImage(
-        prompt,
-        aspectRatio,
-        imageBase64 && imageMimeType
-          ? { data: imageBase64, mimeType: imageMimeType }
-          : undefined
-      );
-
-      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
-    } catch (error) {
-      console.error("Image generation error:", error);
-      const message = error instanceof Error ? error.message : "Erro ao gerar imagem";
-      res.status(500).json({ error: message });
-    }
-  });
-
-  return httpServer;
-}
+      console.error("Prompt generation
