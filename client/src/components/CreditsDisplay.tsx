@@ -1,4 +1,4 @@
-import { Coins, AlertCircle, Plus } from "lucide-react";
+import { AlertCircle, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { getAuthHeader } from "@/lib/auth";
 import { cn } from "@/lib/utils";
@@ -7,7 +7,7 @@ interface CreditsDisplayProps {
   operationCost: number;
   operationName: string;
   creditsAfterOperation?: number;
-  onBuyCredits?: () => void; // 🔑 nova prop para abrir o CreditsModal
+  onBuyCredits?: () => void; // 🔑 abre o CreditsModal
 }
 
 export function CreditsDisplay({
@@ -27,7 +27,7 @@ export function CreditsDisplay({
 
   const fetchCredits = async () => {
     try {
-      // ✅ Agora usamos o endpoint /api/auth/check-access
+      // ✅ Endpoint correto para verificar créditos
       const response = await fetch("/api/auth/check-access", {
         headers: getAuthHeader(),
       });
@@ -36,18 +36,18 @@ export function CreditsDisplay({
         setCredits(data.credits); // backend retorna { credits, hasAccess }
       }
     } catch (error) {
-      console.error("Error fetching credits:", error);
+      console.error("Erro ao buscar créditos:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const hasEnoughCredits = credits !== null && credits >= operationCost;
-  const lowCredits = credits !== null && credits <= 50; // 🔑 regra de alerta
+  const lowCredits = credits !== null && credits <= 50; // 🔑 alerta de saldo baixo
 
   return (
     <div className="space-y-2">
-      {/* Credits Balance */}
+      {/* Saldo de Créditos */}
       <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
         <span className="text-xs text-muted-foreground">Disponível</span>
         <div
@@ -60,7 +60,7 @@ export function CreditsDisplay({
         </div>
       </div>
 
-      {/* Operation Cost */}
+      {/* Custo da Operação */}
       <div
         className={cn(
           "flex items-center justify-between p-2 rounded text-xs",
@@ -71,7 +71,7 @@ export function CreditsDisplay({
         <span className="font-semibold">-{operationCost}</span>
       </div>
 
-      {/* Low or Insufficient Credits Warning */}
+      {/* Aviso de Créditos Baixos ou Insuficientes */}
       {!loading && (lowCredits || !hasEnoughCredits) && (
         <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 flex flex-col gap-2">
           <div className="flex items-start gap-2">
@@ -83,7 +83,7 @@ export function CreditsDisplay({
             </div>
           </div>
           <button
-            onClick={onBuyCredits}
+            onClick={onBuyCredits} // 🔑 abre o CreditsModal
             className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1 cursor-pointer"
             data-testid="button-buy-credits"
           >
@@ -93,7 +93,7 @@ export function CreditsDisplay({
         </div>
       )}
 
-      {/* After Operation Credits */}
+      {/* Créditos Após Operação */}
       {creditsAfterOperation !== undefined && (
         <div className="flex items-center justify-between p-2 rounded text-xs bg-green-500/5 text-green-400">
           <span>Após operação</span>
