@@ -10,10 +10,11 @@ const httpServer = createServer(app);
 
 declare module "http" {
   interface IncomingMessage {
-    rawBody: unknown;
+    rawBody: Buffer;
   }
 }
 
+// Middleware global para JSON
 app.use(
   express.json({
     limit: "50mb",
@@ -36,10 +37,11 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+// Logger de requisições
 app.use((req, res, next) => {
   const start = Date.now();
   const pathReq = req.path;
-  let capturedJsonResponse: Record<string, any> | undefined = undefined;
+  let capturedJsonResponse: Record<string, any> | undefined;
 
   const originalResJson = res.json;
   res.json = function (bodyJson, ...args) {
@@ -54,7 +56,6 @@ app.use((req, res, next) => {
       if (capturedJsonResponse) {
         logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
       }
-
       log(logLine);
     }
   });
@@ -80,6 +81,10 @@ app.use((req, res, next) => {
   console.log("✅ Webhook da Kiwify registrado em /api/webhook/kiwify");
 
   // Middleware de créditos para rotas protegidas
+  function protectedRoute(req: Request, res: Response, next: NextFunction) {
+    authMiddleware(req, res, () => creditsCheckMiddleware(req, res, next));
+  }
+
   app.use((req, res, next) => {
     if (
       req.path.startsWith("/api/chat") ||
@@ -87,10 +92,9 @@ app.use((req, res, next) => {
       req.path.startsWith("/api/prompt") ||
       req.path.startsWith("/api/video")
     ) {
-      authMiddleware(req, res, () => creditsCheckMiddleware(req, res, next));
-    } else {
-      next();
+      return protectedRoute(req, res, next);
     }
+    next();
   });
 
   // ➕ Nova rota de download segura
@@ -101,7 +105,6 @@ app.use((req, res, next) => {
       return res.status(404).json({ message: "Vídeo não encontrado" });
     }
 
-    // Força download com nome amigável
     res.download(filePath, "Video gerado.mp4");
   });
 
@@ -113,8 +116,8 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    console.error("🔥 Express error:", err);
     res.status(status).json({ message });
-    throw err;
   });
 
   // Static ou Vite
