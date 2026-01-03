@@ -1,4 +1,12 @@
-import { type User, type InsertUser, users, userCredits, creditTransactions } from "@shared/schema";
+import {
+  type User,
+  type InsertUser,
+  users,
+  userCredits,
+  creditTransactions,
+  type UserCredits,
+  type CreditTransaction,
+} from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { eq } from "drizzle-orm";
@@ -59,13 +67,13 @@ export interface IStorage {
   updateUserAvatar(id: string, avatar: string): Promise<User | undefined>;
   updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined>;
   updateUserPassword(id: string, password: string): Promise<User | undefined>;
-  getUserCredits(userId: string): Promise<{ credits: number; totalUsed: number; totalPurchased: number } | null>;
-  addCredits(userId: string, amount: number): Promise<any>;
-  deductCredits(userId: string, amount: number): Promise<any>;
+  getUserCredits(userId: string): Promise<UserCredits | null>;
+  addCredits(userId: string, amount: number): Promise<UserCredits>;
+  deductCredits(userId: string, amount: number): Promise<UserCredits | null>;
 
   // 👇 novos métodos para idempotência de compras
   hasProcessedPurchase(purchaseId: string): Promise<boolean>;
-  markPurchaseProcessed(purchaseId: string, userId?: string): Promise<void>;
+  markPurchaseProcessed(purchaseId: string, userId?: string): Promise<CreditTransaction | void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -111,20 +119,13 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async getUserCredits(userId: string) {
+  async getUserCredits(userId: string): Promise<UserCredits | null> {
     const database = await getDb();
     const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-    if (credits[0]) {
-      return {
-        credits: credits[0].credits,
-        totalUsed: credits[0].totalUsed,
-        totalPurchased: credits[0].totalPurchased,
-      };
-    }
-    return null;
+    return credits[0] || null;
   }
 
-  async addCredits(userId: string, amount: number) {
+  async addCredits(userId: string, amount: number): Promise<UserCredits> {
     const database = await getDb();
     let credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
 
@@ -154,7 +155,7 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async deductCredits(userId: string, amount: number) {
+  async deductCredits(userId: string, amount: number): Promise<UserCredits | null> {
     const database = await getDb();
     const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
 
@@ -186,16 +187,18 @@ export class DatabaseStorage implements IStorage {
     return !!tx[0];
   }
 
-  async markPurchaseProcessed(purchaseId: string, userId?: string): Promise<void> {
+  async markPurchaseProcessed(purchaseId: string, userId?: string): Promise<CreditTransaction | void> {
     const database = await getDb();
-    await database.insert(creditTransactions).values({
+    const result = await database.insert(creditTransactions).values({
       userId: userId || "system",
       type: "purchase",
       amount: 0,
       description: "Compra processada",
       kiwifyPurchaseId: purchaseId,
       operationType: "processed",
-    });
+    }).returning();
+
+    return result[0];
   }
 }
 
