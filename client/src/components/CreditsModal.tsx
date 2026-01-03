@@ -1,105 +1,97 @@
-import { AlertCircle, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
-import { getAuthHeader } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useLocation } from "wouter";
+import { useState } from "react";
+import { isAuthenticated } from "@/lib/auth";
 
-interface CreditsDisplayProps {
-  operationCost: number;
-  operationName: string;
-  creditsAfterOperation?: number;
-  onBuyCredits?: () => void; // 🔑 abre o CreditsModal
+interface CreditsModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onCreditsUpdated?: () => void; // 🔑 callback para atualizar saldo após compra
 }
 
-export function CreditsDisplay({
-  operationCost,
-  operationName,
-  creditsAfterOperation,
-  onBuyCredits,
-}: CreditsDisplayProps) {
-  const [credits, setCredits] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
+const creditPlans = [
+  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00", kiwifyLink: "https://pay.kiwify.com.br/b25quAR" },
+  { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00", kiwifyLink: "https://pay.kiwify.com.br/OHJeYkb" },
+  { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00", kiwifyLink: "https://pay.kiwify.com.br/Ypa4tzr" },
+  { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 277,00", popular: true, kiwifyLink: "https://kiwify.app/iRNfqB9" },
+  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 517,00", kiwifyLink: "https://pay.kiwify.com.br/zbugEDV" },
+  { id: 6, credits: 2000, originalPrice: "R$ 1.147,00", price: "R$ 977,00", kiwifyLink: "https://kiwify.app/LFJ342L" },
+];
 
-  useEffect(() => {
-    fetchCredits();
-    const interval = setInterval(fetchCredits, 2000);
-    return () => clearInterval(interval);
-  }, [creditsAfterOperation]);
+export function CreditsModal({ open, onOpenChange, onCreditsUpdated }: CreditsModalProps) {
+  const [, setLocation] = useLocation();
+  const [isLogged] = useState(() => isAuthenticated());
 
-  const fetchCredits = async () => {
-    try {
-      // ✅ Agora usamos o endpoint /api/auth/check-access
-      const response = await fetch("/api/auth/check-access", {
-        headers: getAuthHeader(),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCredits(data.credits); // backend retorna { credits, hasAccess }
+  const handleBuy = (kiwifyLink: string) => {
+    if (!isLogged) {
+      const encodedUrl = encodeURIComponent(kiwifyLink);
+      setLocation(`/signup?redirect=${encodedUrl}`);
+      onOpenChange(false);
+    } else {
+      window.open(kiwifyLink, "_blank");
+      onOpenChange(false);
+      if (onCreditsUpdated) {
+        onCreditsUpdated();
       }
-    } catch (error) {
-      console.error("Error fetching credits:", error);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const hasEnoughCredits = credits !== null && credits >= operationCost;
-  const lowCredits = credits !== null && credits <= 50; // 🔑 regra de alerta
-
   return (
-    <div className="space-y-2">
-      {/* Credits Balance */}
-      <div className="flex items-center justify-between p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-        <span className="text-xs text-muted-foreground">Disponível</span>
-        <div
-          className={cn(
-            "text-lg font-bold",
-            loading ? "text-gray-500" : hasEnoughCredits ? "text-green-400" : "text-red-400"
-          )}
-        >
-          {loading ? "..." : credits}
-        </div>
-      </div>
-
-      {/* Operation Cost */}
-      <div
-        className={cn(
-          "flex items-center justify-between p-2 rounded text-xs",
-          hasEnoughCredits ? "text-blue-400" : "text-red-400"
-        )}
-      >
-        <span>Custo {operationName}</span>
-        <span className="font-semibold">-{operationCost}</span>
-      </div>
-
-      {/* Low or Insufficient Credits Warning */}
-      {!loading && (lowCredits || !hasEnoughCredits) && (
-        <div className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 flex flex-col gap-2">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-3 h-3 text-red-400 mt-0.5 shrink-0" />
-            <div className="text-xs text-red-400">
-              {lowCredits
-                ? "Seu saldo está baixo. Compre mais créditos!"
-                : `Precisa de ${operationCost} créditos. Compre mais!`}
-            </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 border-border/50 shadow-2xl shadow-indigo-500/20">
+        <DialogHeader className="text-center space-y-4 pb-6">
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className="w-6 h-6 text-indigo-400 animate-pulse" />
+            <DialogTitle className="text-4xl font-bold bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
+              Pacotes de Créditos
+            </DialogTitle>
+            <Sparkles className="w-6 h-6 text-purple-400 animate-pulse" />
           </div>
-          <button
-            onClick={onBuyCredits} // 🔑 abre o CreditsModal
-            className="w-full h-8 text-xs bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-lg flex items-center justify-center gap-1 cursor-pointer"
-            data-testid="button-buy-credits"
-          >
-            <Plus className="w-3 h-3" />
-            Comprar Créditos
-          </button>
-        </div>
-      )}
+          <p className="text-muted-foreground text-lg text-center">
+            Transforme créditos em conteúdo inteligente com IA
+          </p>
+        </DialogHeader>
 
-      {/* After Operation Credits */}
-      {creditsAfterOperation !== undefined && (
-        <div className="flex items-center justify-between p-2 rounded text-xs bg-green-500/5 text-green-400">
-          <span>Após operação</span>
-          <span className="font-semibold">{creditsAfterOperation}</span>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 py-8">
+          {creditPlans.map((plan) => (
+            <div
+              key={plan.id}
+              className={`relative rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
+                plan.popular
+                  ? "border-indigo-500 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-slate-900 shadow-lg shadow-indigo-500/40"
+                  : "border-border/50 bg-gradient-to-br from-slate-800/50 to-slate-900/50 hover:border-indigo-400/80 hover:shadow-lg hover:shadow-indigo-500/10"
+              } p-6 flex flex-col h-full group min-h-64`}
+            >
+              <div className="mb-4">
+                <div className="text-3xl font-bold text-indigo-300 mb-1 text-center">{plan.credits}</div>
+                <p className="text-xs text-muted-foreground text-center">Créditos</p>
+              </div>
+
+              <div className="mb-6 space-y-2">
+                <div className="text-sm line-through text-muted-foreground text-center">{plan.originalPrice}</div>
+                <div className="text-2xl font-bold text-white text-center">{plan.price}</div>
+              </div>
+
+              <button
+                onClick={() => handleBuy(plan.kiwifyLink)}
+                className={`w-full h-9 font-semibold transition-all duration-300 text-sm rounded-lg flex items-center justify-center ${
+                  plan.popular
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/40 text-white"
+                    : "border border-indigo-500/50 text-indigo-300 hover:text-white hover:bg-indigo-500/10 hover:border-indigo-400"
+                }`}
+                data-testid={`button-buy-credits-${plan.id}`}
+              >
+                {isLogged ? "Comprar" : "Cadastrar"}
+              </button>
+            </div>
+          ))}
         </div>
-      )}
-    </div>
+
+        <div className="border-t border-border/50 pt-6 text-center">
+          <p className="text-xs text-muted-foreground">✓ Liberdade total de uso • Suporte personalizado</p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
