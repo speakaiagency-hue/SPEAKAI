@@ -15,11 +15,10 @@ export async function createKiwifyService() {
   const clientId = process.env.KIWIFY_CLIENT_ID;
   const accountId = process.env.KIWIFY_ACCOUNT_ID;
   
-  // Check if Kiwify credentials are configured
   const hasKiwifyConfig = clientSecret && clientId && accountId;
 
   if (!hasKiwifyConfig) {
-    console.warn("Kiwify credentials not fully configured. Using development mode.");
+    console.warn("⚠️ Kiwify credentials not fully configured. Using development mode.");
   }
 
   return {
@@ -27,29 +26,25 @@ export async function createKiwifyService() {
       try {
         const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
           headers: {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${clientSecret}`,
           },
-          params: {
-            email: email,
-          },
+          params: { email },
         });
 
-        if (!response.data || !response.data.data || response.data.data.length === 0) {
+        if (!response.data?.data?.length) {
           return false;
         }
 
         const customer = response.data.data[0];
         
-        // Check if customer has access to the product
         if (customer.status !== "active") {
           return false;
         }
 
-        // Verify if customer purchased the product
         const hasPurchase = await this.checkPurchase(customer.id, productId);
         return hasPurchase;
       } catch (error) {
-        console.error("Error validating customer with Kiwify:", error);
+        console.error("❌ Error validating customer with Kiwify:", error);
         throw new Error("Erro ao validar cliente");
       }
     },
@@ -60,12 +55,12 @@ export async function createKiwifyService() {
           `${KIWIFY_API_URL}/customers/${customerId}/purchases`,
           {
             headers: {
-              Authorization: `Bearer ${apiKey}`,
+              Authorization: `Bearer ${clientSecret}`,
             },
           }
         );
 
-        if (!response.data || !response.data.data) {
+        if (!response.data?.data) {
           return false;
         }
 
@@ -73,7 +68,7 @@ export async function createKiwifyService() {
           (purchase: any) => purchase.product_id === productId && purchase.status === "approved"
         );
       } catch (error) {
-        console.error("Error checking purchase:", error);
+        console.error("❌ Error checking purchase:", error);
         return false;
       }
     },
@@ -81,7 +76,6 @@ export async function createKiwifyService() {
     async hasAnyPurchase(email: string): Promise<boolean> {
       try {
         if (!hasKiwifyConfig) {
-          // In dev mode, admin has access
           return email === "speakai.agency@gmail.com";
         }
 
@@ -92,7 +86,7 @@ export async function createKiwifyService() {
           params: { email },
         });
 
-        if (!response.data?.data || response.data.data.length === 0) {
+        if (!response.data?.data?.length) {
           return false;
         }
 
@@ -114,7 +108,7 @@ export async function createKiwifyService() {
           (purchase: any) => purchase.status === "approved"
         );
       } catch (error) {
-        console.error("Error checking any purchase:", error);
+        console.error("❌ Error checking any purchase:", error);
         return false;
       }
     },
@@ -122,12 +116,10 @@ export async function createKiwifyService() {
     async authenticateUser(email: string, password: string): Promise<KiwifyUser | null> {
       try {
         if (!hasKiwifyConfig) {
-          // Development mode without Kiwify config
-          // Accept the dev credentials
           if (email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
             return {
               id: "dev-user-001",
-              email: "speakai.agency@gmail.com",
+              email,
               name: "Speak AI Admin",
               status: "active",
               products: [],
@@ -136,54 +128,31 @@ export async function createKiwifyService() {
           return null;
         }
 
-        // Try to authenticate with Kiwify API using Client Credentials flow
-        try {
-          // First, try to verify customer exists and get their info
-          const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
-            headers: {
-              Authorization: `Bearer ${clientSecret}`,
-            },
-            params: {
-              email: email,
-            },
-          });
+        const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
+          headers: {
+            Authorization: `Bearer ${clientSecret}`,
+          },
+          params: { email },
+        });
 
-          if (!response.data || !response.data.data || response.data.data.length === 0) {
-            return null;
-          }
-
-          const customer = response.data.data[0];
-
-          // Note: Kiwify API doesn't directly verify passwords
-          // Password verification would need to be done through OAuth or custom backend
-          // For now, we verify the customer exists and is active
-          if (customer.status === "active") {
-            return {
-              id: customer.id,
-              email: customer.email,
-              name: customer.name,
-              status: customer.status,
-              products: customer.products || [],
-            };
-          }
-          return null;
-        } catch (apiError: any) {
-          console.error("Kiwify API error:", apiError.response?.status, apiError.response?.data);
-          
-          // Fallback for development: accept the predefined dev credentials
-          if (email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
-            return {
-              id: "dev-user-001",
-              email: "speakai.agency@gmail.com",
-              name: "Speak AI Admin",
-              status: "active",
-              products: [],
-            };
-          }
+        if (!response.data?.data?.length) {
           return null;
         }
-      } catch (error) {
-        console.error("Error authenticating user:", error);
+
+        const customer = response.data.data[0];
+
+        if (customer.status === "active") {
+          return {
+            id: customer.id,
+            email: customer.email,
+            name: customer.name,
+            status: customer.status,
+            products: customer.products || [],
+          };
+        }
+        return null;
+      } catch (error: any) {
+        console.error("❌ Kiwify API error:", error.response?.status, error.response?.data);
         return null;
       }
     },
