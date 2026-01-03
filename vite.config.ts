@@ -3,12 +3,14 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
 import { metaImagesPlugin } from "./vite-plugin-meta-images";
+import tailwindcss from "@tailwindcss/vite"; // <-- importa o plugin do Tailwind
 
 export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
     metaImagesPlugin(),
+    tailwindcss(), // <-- adiciona o Tailwind aqui
     // Plugins da Replit só em ambiente de desenvolvimento
     ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID
       ? []
