@@ -9,7 +9,7 @@ import { authMiddleware } from "../middleware/authMiddleware";
 import type { IStorage } from "../storage";
 
 export async function registerWebhookRoutes(app: Express, storage: IStorage, kiwifyService: any) {
-  // 🔗 Kiwify Webhook Endpoint
+  // 🔗 Endpoint do Webhook da Kiwify
   app.post(
     "/api/webhook/kiwify",
     bodyParser.json({
@@ -22,7 +22,6 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         const signature = req.headers["x-kiwify-signature"] as string;
         const payload = (req as any).rawBody; // corpo cru para validação
 
-        // Log do corpo cru
         console.log("📩 Webhook recebido da Kiwify (raw):", payload);
 
         // Validação da assinatura
@@ -36,14 +35,12 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
         // Agora req.body já é objeto JSON parseado
         const body = req.body;
-
-        // 🔎 Log do JSON completo para inspeção
         console.log("📝 Webhook JSON parseado:", JSON.stringify(body, null, 2));
 
-        // Captura o e-mail do cliente (Customer.email é o campo correto)
+        // Captura o e-mail do cliente
         const customerEmail =
-          body.Customer?.email || // campo correto
-          body.customer?.email || // fallback se vier minúsculo
+          body.Customer?.email ||
+          body.customer?.email ||
           body.buyer_email ||
           body.email ||
           null;
@@ -53,36 +50,58 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
           return res.status(400).json({ success: false, message: "E-mail do cliente ausente" });
         }
 
-        // Validar status do pagamento
-        const status = body.order_status || body.status;
-        if (!["paid", "completed", "approved"].includes(status)) {
-          console.warn("⚠️ Status não reconhecido:", status);
-          return res.status(400).json({ success: false, message: "Status inválido" });
-        }
+        // Status do pagamento
+        const status = body.order_status || body.status || "pending";
 
         // Monta os dados do webhook
         const webhookData: KiwifyWebhookData = {
           purchase_id: body.purchase_id || body.id || body.order_id || `purchase_${Date.now()}`,
           customer_email: customerEmail,
-          customer_name: body.Customer?.full_name || body.customer?.name || body.name || "Cliente Kiwify",
-          product_name: body.Product?.product_name || body.product?.name || body.product_name || "Produto",
-          product_id: body.Product?.product_id || body.product?.id || body.product_id || "0",
-          value: parseFloat(body.Commissions?.charge_amount || body.value || body.total || "0"),
+          customer_name:
+            body.Customer?.full_name ||
+            body.customer?.name ||
+            body.name ||
+            "Cliente Kiwify",
+          product_name:
+            body.Product?.product_name ||
+            body.product?.name ||
+            body.product_name ||
+            "Produto",
+          product_id:
+            body.Product?.product_id ||
+            body.product?.id ||
+            body.product_id ||
+            "0",
+          product_offer_id:
+            body.Product?.product_offer_id ||
+            body.product_offer_id ||
+            body.offer_id ||
+            "",
+          checkout_link: body.checkout_link || body.short_link || body.link || "",
+          value: parseFloat(
+            body.Commissions?.charge_amount ||
+              body.value ||
+              body.total ||
+              "0"
+          ),
           status,
+          raw: body,
         };
 
         console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
 
         // Processa a compra
-        const result = await handleKiwifyPurchase(webhookData);
+        const result = await handleKiwifyPurchase(webhookData, storage);
 
         if (result.success) {
-          console.log(`✅ Créditos adicionados: ${result.creditsAdded} para usuário ${result.userId}`);
+          console.log(
+            `✅ Créditos adicionados: ${result.creditsAdded ?? 0} para usuário ${result.userId}`
+          );
           return res.status(200).json({
             success: true,
             message: result.message,
             userId: result.userId,
-            creditsAdded: result.creditsAdded,
+            creditsAdded: result.creditsAdded ?? 0,
           });
         } else {
           console.warn("⚠️ Falha ao processar compra:", result.message);
