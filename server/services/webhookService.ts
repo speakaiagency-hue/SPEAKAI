@@ -18,24 +18,14 @@ const CREDIT_COSTS = {
   video: 40,
 };
 
-// Mapeamento de produtos/plano → créditos fixos
+// Mapeamento de produtos → créditos fixos (IDs reais da Kiwify)
 const CREDIT_MAP: Record<string, number> = {
-  // Planos
-  basico: 500,
-  pro: 1500,
-  premium: 5000,
-
-  // Pacotes de créditos
-  "100_creditos": 100,
-  "200_creditos": 200,
-  "300_creditos": 300,
-  "500_creditos": 500,
-  "1000_creditos": 1000,
-  "2000_creditos": 2000,
-
-  // Fallback para testes da Kiwify
-  produto: 50,
-  "0": 50,
+  "b25quAR": 100,   // Pacote 100 créditos
+  "OHJeYkb": 200,   // Pacote 200 créditos
+  "Ypa4tzr": 300,   // Pacote 300 créditos
+  "iRNfqB9": 500,   // Pacote 500 créditos
+  "zbugEDV": 1000,  // Pacote 1000 créditos
+  "LFJ342L": 2000,  // Pacote 2000 créditos
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -54,21 +44,16 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Compra não aprovada" };
     }
 
-    // Normaliza chave do produto (usa ID ou nome)
-    const productKey =
-      (data.product_id?.toLowerCase() ||
-        data.product_name?.toLowerCase()?.replace(/\s+/g, "_") ||
-        "produto");
+    // Usa diretamente o product_id como chave
+    const productKey = data.product_id;
 
-    // Busca créditos fixos no mapa
     const creditsToAdd = CREDIT_MAP[productKey] ?? 0;
-
     if (creditsToAdd === 0) {
       console.warn(`⚠️ Produto não reconhecido: ${productKey}`);
       return { success: false, message: "Produto não reconhecido" };
     }
 
-    // Idempotência: verificar se já processamos esse purchase_id
+    // Idempotência
     const alreadyProcessed = await storage.hasProcessedPurchase?.(data.purchase_id);
     if (alreadyProcessed) {
       console.log(`ℹ️ Compra ${data.purchase_id} já processada, ignorando duplicata.`);
@@ -83,7 +68,6 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     // Procura usuário pelo e-mail
     let user = await storage.getUserByEmail(data.customer_email);
     if (!user) {
-      // Cria novo usuário
       user = await storage.createUser({
         username: data.customer_email || `kiwify_${Date.now()}@placeholder.com`,
         password: "kiwify_" + Date.now(),
@@ -105,7 +89,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     // Adiciona créditos
     await storage.addCredits(user.id, creditsToAdd);
 
-    // Registrar evento para idempotência
+    // Registrar evento
     await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd);
 
     console.log(`✅ Kiwify purchase processed: ${creditsToAdd} créditos adicionados para usuário ${user.id}`);
