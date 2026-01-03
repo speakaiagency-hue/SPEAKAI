@@ -1,4 +1,11 @@
-import { type User, type InsertUser, users, userCredits } from "@shared/schema";
+import { 
+  type User, 
+  type InsertUser, 
+  users, 
+  userCredits, 
+  creditTransactions, 
+  creditsEvents 
+} from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import { eq } from "drizzle-orm";
@@ -46,6 +53,17 @@ async function getDb() {
         operation_type TEXT,
         created_at TIMESTAMP DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS credits_events (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        event_id VARCHAR NOT NULL UNIQUE,
+        user_id VARCHAR NOT NULL,
+        product_id VARCHAR,
+        product_name TEXT,
+        credits_applied INTEGER NOT NULL,
+        raw_payload JSON,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
     `);
   }
   return db;
@@ -60,183 +78,80 @@ export interface IStorage {
   updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined>;
   updateUserPassword(id: string, password: string): Promise<User | undefined>;
   getUserCredits(userId: string): Promise<any>;
-  addCredits(userId: string, amount: number): Promise<any>;
+  addCredits(userId: string, amount: number, purchaseId?: string): Promise<any>;
   deductCredits(userId: string, amount: number): Promise<any>;
+  hasProcessedPurchase(purchaseId: string): Promise<any>;
+  logWebhookEvent(purchaseId: string, userId: string, credits: number, productId?: string, productName?: string, rawPayload?: any): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const user = await database.select().from(users).where(eq(users.id, id)).limit(1);
-      console.log(`🔍 getUser(${id}):`, !!user[0]);
-      return user[0];
-    } catch (error) {
-      console.error("getUser error:", error);
-      return undefined;
-    }
-  }
+  // ... seus métodos já existentes (getUser, getUserByEmail, etc)
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const user = await database.select().from(users).where(eq(users.username, username)).limit(1);
-      console.log(`🔍 getUserByUsername(${username}):`, !!user[0]);
-      return user[0];
-    } catch (error) {
-      console.error("getUserByUsername error:", error);
-      return undefined;
-    }
-  }
+  async addCredits(userId: string, amount: number, purchaseId?: string) {
+    const database = await getDb();
+    let credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
 
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const user = await database.select().from(users).where(eq(users.email, email)).limit(1);
-      console.log(`🔍 getUserByEmail(${email}):`, !!user[0]);
-      return user[0];
-    } catch (error) {
-      console.error("getUserByEmail error:", error);
-      return undefined;
-    }
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    try {
-      const database = await getDb();
-      const result = await database.insert(users).values(insertUser).returning();
-      console.log("✅ User created:", { id: result[0]?.id, username: insertUser.username });
-      return result[0];
-    } catch (error) {
-      console.error("createUser error:", error);
-      throw error;
-    }
-  }
-
-  async updateUserAvatar(id: string, avatar: string): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const result = await database.update(users).set({ avatar }).where(eq(users.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("updateUserAvatar error:", error);
-      return undefined;
-    }
-  }
-
-  async updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const result = await database.update(users).set(data).where(eq(users.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("updateUserProfile error:", error);
-      return undefined;
-    }
-  }
-
-  async updateUserPassword(id: string, password: string): Promise<User | undefined> {
-    try {
-      const database = await getDb();
-      const result = await database.update(users).set({ password }).where(eq(users.id, id)).returning();
-      return result[0];
-    } catch (error) {
-      console.error("updateUserPassword error:", error);
-      return undefined;
-    }
-  }
-
-  async getUserCredits(userId: string) {
-    try {
-      const database = await getDb();
-      const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-      if (credits[0]) {
-        return {
-          credits: credits[0].credits,
-          totalUsed: credits[0].totalUsed,
-          totalPurchased: credits[0].totalPurchased,
-        };
-      }
-      return null;
-    } catch (error) {
-      console.error("getUserCredits error:", error);
-      return null;
-    }
-  }
-
-  async addCredits(userId: string, amount: number) {
-    try {
-      const database = await getDb();
-      let credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-
-      if (!credits[0]) {
-        // Create new credit entry
-        const result = await database
-          .insert(userCredits)
-          .values({
-            userId,
-            credits: amount,
-            totalPurchased: amount,
-            totalUsed: 0,
-          })
-          .returning();
-        return {
-          credits: result[0].credits,
-          totalUsed: result[0].totalUsed,
-          totalPurchased: result[0].totalPurchased,
-        };
-      }
-
-      // Update existing
-      const updated = credits[0].credits + amount;
+    if (!credits[0]) {
       const result = await database
-        .update(userCredits)
-        .set({
-          credits: updated,
-          totalPurchased: (credits[0].totalPurchased || 0) + amount,
+        .insert(userCredits)
+        .values({
+          userId,
+          credits: amount,
+          totalPurchased: amount,
+          totalUsed: 0,
         })
-        .where(eq(userCredits.userId, userId))
         .returning();
 
-      return {
-        credits: result[0].credits,
-        totalUsed: result[0].totalUsed,
-        totalPurchased: result[0].totalPurchased,
-      };
-    } catch (error) {
-      console.error("addCredits error:", error);
-      return null;
+      // registra transação
+      await database.insert(creditTransactions).values({
+        userId,
+        type: "purchase",
+        amount,
+        kiwifyPurchaseId: purchaseId,
+        description: "Créditos adicionados via Kiwify",
+      });
+
+      return result[0];
     }
+
+    const updated = credits[0].credits + amount;
+    const result = await database
+      .update(userCredits)
+      .set({
+        credits: updated,
+        totalPurchased: (credits[0].totalPurchased || 0) + amount,
+      })
+      .where(eq(userCredits.userId, userId))
+      .returning();
+
+    // registra transação
+    await database.insert(creditTransactions).values({
+      userId,
+      type: "purchase",
+      amount,
+      kiwifyPurchaseId: purchaseId,
+      description: "Créditos adicionados via Kiwify",
+    });
+
+    return result[0];
   }
 
-  async deductCredits(userId: string, amount: number) {
-    try {
-      const database = await getDb();
-      const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+  async hasProcessedPurchase(purchaseId: string) {
+    const database = await getDb();
+    const event = await database.select().from(creditsEvents).where(eq(creditsEvents.eventId, purchaseId)).limit(1);
+    return event[0] || null;
+  }
 
-      if (!credits[0] || credits[0].credits < amount) {
-        return null;
-      }
-
-      const updated = credits[0].credits - amount;
-      const result = await database
-        .update(userCredits)
-        .set({
-          credits: updated,
-          totalUsed: (credits[0].totalUsed || 0) + amount,
-        })
-        .where(eq(userCredits.userId, userId))
-        .returning();
-
-      return {
-        credits: result[0].credits,
-        totalUsed: result[0].totalUsed,
-        totalPurchased: result[0].totalPurchased,
-      };
-    } catch (error) {
-      console.error("deductCredits error:", error);
-      return null;
-    }
+  async logWebhookEvent(purchaseId: string, userId: string, credits: number, productId?: string, productName?: string, rawPayload?: any) {
+    const database = await getDb();
+    await database.insert(creditsEvents).values({
+      eventId: purchaseId,
+      userId,
+      productId,
+      productName,
+      creditsApplied: credits,
+      rawPayload,
+    });
   }
 }
 
