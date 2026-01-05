@@ -126,4 +126,39 @@ export async function registerRoutes(
 
       res.json({ prompt: result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
-      console.error("Prompt generation
+      console.error("Prompt generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar prompt";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // Image Generation API (Protected)
+  app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
+
+      const { prompt, transparentBackground } = req.body;
+      if (!prompt?.trim()) {
+        return res.status(400).json({ error: "Prompt é obrigatório" });
+      }
+
+      const deductResult = await deductCredits(req.user.id, "image");
+      if (!deductResult.success) {
+        return res.status(402).json(deductResult);
+      }
+
+      const result = await imageService.generateImage({
+        prompt,
+        transparentBackground,
+      });
+
+      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
+    } catch (error) {
+      console.error("Image generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar imagem";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  return httpServer;
+}
