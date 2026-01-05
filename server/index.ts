@@ -73,7 +73,7 @@ app.use((req, res, next) => {
 
   const kiwifyService = await createKiwifyService();
 
-  // Rotas de autenticação
+  // Rotas de autenticação (passando storage)
   await registerAuthRoutes(app);
 
   // Rotas de webhook (Kiwify)
