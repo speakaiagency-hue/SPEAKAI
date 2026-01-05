@@ -114,4 +114,60 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       if (!avatar) return res.status(400).json({ error: "Avatar é obrigatório" });
 
       const updatedUser = await storage.updateUserAvatar(req.user!.id, avatar);
-      if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado"
+      if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado" });
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Avatar update error:", error);
+      res.status(500).json({ error: "Erro ao atualizar avatar" });
+    }
+  });
+
+  // Update User Profile (Protected)
+  app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const { name, email } = req.body;
+      if (!name || !email) return res.status(400).json({ error: "Nome e email são obrigatórios" });
+
+      const updatedUser = await storage.updateUserProfile(req.user!.id, { name, email });
+      if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado" });
+
+      res.json({ user: updatedUser });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ error: "Erro ao atualizar perfil" });
+    }
+  });
+
+  // Change Password (Protected)
+  app.post("/api/auth/change-password", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Senha atual e nova senha são obrigatórias" });
+      }
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "Nova senha deve ter no mínimo 6 caracteres" });
+      }
+
+      const user = await storage.getUser(req.user!.id);
+      if (!user || !user.password) {
+        return res.status(404).json({ error: "Usuário não encontrado" });
+      }
+
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) {
+        return res.status(401).json({ error: "Senha atual incorreta" });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updated = await storage.updateUserPassword(req.user!.id, hashedPassword);
+      if (!updated) return res.status(404).json({ error: "Usuário não encontrado" });
+
+      res.json({ success: true, message: "Senha alterada com sucesso" });
+    } catch (error) {
+      console.error("Password change error:", error);
+      res.status(500).json({ error: "Erro ao alterar senha" });
+    }
+  });
+} // <-- ESTA CHAVE FINAL FECHA A FUNÇÃO registerAuthRoutes
