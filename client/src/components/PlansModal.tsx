@@ -27,7 +27,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: false,
-    url: "https://pay.kiwify.com.br/KRTMqIF", // 🔗 link específico do plano Básico
+    url: "https://pay.kiwify.com.br/jM0siPY", // 🔗 link específico do plano Básico
   },
   {
     id: "pro",
