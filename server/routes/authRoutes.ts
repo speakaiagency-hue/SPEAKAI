@@ -65,11 +65,18 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
 
       const user = await storage.getUserByEmail(email);
 
-      if (!user || !user.password) {
+      if (!user || !user.password || typeof user.password !== "string") {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      let passwordMatch = false;
+      try {
+        passwordMatch = await bcrypt.compare(password, user.password);
+      } catch (err) {
+        console.error("Erro ao comparar senha:", err);
+        return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
       if (!passwordMatch) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
@@ -170,4 +177,4 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       res.status(500).json({ error: "Erro ao alterar senha" });
     }
   });
-} // <-- ESTA CHAVE FINAL FECHA A FUNÇÃO registerAuthRoutes
+}
