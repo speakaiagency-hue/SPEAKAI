@@ -20,13 +20,20 @@ const CREDIT_COSTS = {
 
 // Mapeamento de produtos → créditos fixos (IDs reais da Kiwify)
 const CREDIT_MAP: Record<string, number> = {
+  // Pacotes de créditos
   "b25quAR": 100,   // Pacote 100 créditos
   "OHJeYkb": 200,   // Pacote 200 créditos
   "Ypa4tzr": 300,   // Pacote 300 créditos
   "iRNfqB9": 500,   // Pacote 500 créditos
   "zbugEDV": 1000,  // Pacote 1000 créditos
   "LFJ342L": 2000,  // Pacote 2000 créditos
+
+  // Planos (IDs extraídos dos links do PlansModal.tsx)
+  "jM0siPY": 500,    // Plano Básico → 500 créditos
+  "q0rFdNB": 1500,   // Plano Pro → 1500 créditos
+  "KFXdvJv": 5000    // Plano Premium → 5000 créditos
 };
+
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
   const secret = process.env.KIWIFY_WEBHOOK_SECRET || "";
