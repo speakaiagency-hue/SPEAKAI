@@ -34,7 +34,6 @@ const CREDIT_MAP: Record<string, number> = {
   "KFXdvJv": 5000    // Plano Premium → 5000 créditos
 };
 
-
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
   const secret = process.env.KIWIFY_WEBHOOK_SECRET || "";
   if (!secret) return true;
