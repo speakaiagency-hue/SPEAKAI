@@ -1,13 +1,13 @@
 import type { Express, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { generateToken, authMiddleware } from "../middleware/authMiddleware";
-import { storage } from "../storage";
+import type { IStorage } from "../storage";
 import { createKiwifyService } from "../services/kiwifyService";
 
-export async function registerAuthRoutes(app: Express) {
+export async function registerAuthRoutes(app: Express, storage: IStorage) {
   const kiwifyService = await createKiwifyService();
 
-  // Register endpoint
+  // Register endpoint - create new user with hashed password
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
       const { email, password, name } = req.body;
@@ -33,9 +33,9 @@ export async function registerAuthRoutes(app: Express) {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const newUser = await storage.createUser({ 
-        username: email, 
-        password: hashedPassword
+      const newUser = await storage.createUser({
+        username: email,
+        password: hashedPassword,
       });
 
       if (newUser) {
@@ -88,7 +88,7 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Check membership
+  // Check membership (Protected)
   app.get("/api/auth/check-membership", authMiddleware, async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(req.user!.id);
@@ -109,7 +109,7 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Update Avatar
+  // Update User Avatar (Protected)
   app.post("/api/auth/update-avatar", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { avatar } = req.body;
@@ -125,7 +125,7 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Update Profile
+  // Update User Profile (Protected)
   app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { name, email } = req.body;
@@ -141,7 +141,7 @@ export async function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Change Password
+  // Change Password (Protected)
   app.post("/api/auth/change-password", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;
