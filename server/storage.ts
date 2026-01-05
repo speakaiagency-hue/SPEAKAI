@@ -85,7 +85,53 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // ... seus métodos já existentes (getUser, getUserByEmail, etc)
+  async getUser(id: string): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.id, id)).limit(1);
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.username, username)).limit(1);
+    return result[0];
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.email, email)).limit(1);
+    return result[0];
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const database = await getDb();
+    const result = await database.insert(users).values(user).returning();
+    return result[0];
+  }
+
+  async updateUserAvatar(id: string, avatar: string): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.update(users).set({ avatar }).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  async updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.update(users).set(data).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  async updateUserPassword(id: string, password: string): Promise<User | undefined> {
+    const database = await getDb();
+    const result = await database.update(users).set({ password }).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  async getUserCredits(userId: string): Promise<any> {
+    const database = await getDb();
+    const result = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+    return result[0];
+  }
 
   async addCredits(userId: string, amount: number, purchaseId?: string) {
     const database = await getDb();
@@ -102,7 +148,6 @@ export class DatabaseStorage implements IStorage {
         })
         .returning();
 
-      // registra transação
       await database.insert(creditTransactions).values({
         userId,
         type: "purchase",
@@ -124,13 +169,40 @@ export class DatabaseStorage implements IStorage {
       .where(eq(userCredits.userId, userId))
       .returning();
 
-    // registra transação
     await database.insert(creditTransactions).values({
       userId,
       type: "purchase",
       amount,
       kiwifyPurchaseId: purchaseId,
       description: "Créditos adicionados via Kiwify",
+    });
+
+    return result[0];
+  }
+
+  async deductCredits(userId: string, amount: number) {
+    const database = await getDb();
+    const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
+
+    if (!credits[0] || credits[0].credits < amount) {
+      return null;
+    }
+
+    const updated = credits[0].credits - amount;
+    const result = await database
+      .update(userCredits)
+      .set({
+        credits: updated,
+        totalUsed: (credits[0].totalUsed || 0) + amount,
+      })
+      .where(eq(userCredits.userId, userId))
+      .returning();
+
+    await database.insert(creditTransactions).values({
+      userId,
+      type: "deduction",
+      amount,
+      description: "Créditos deduzidos",
     });
 
     return result[0];
