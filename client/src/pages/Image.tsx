@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
+import { queryClient } from "@/lib/queryClient"; // ✅ corrigido
 
 const IMAGE_COST = 7;
 
@@ -92,6 +93,9 @@ function ImagePageComponent() {
       } else {
         throw new Error("Resposta da API não contém URL da imagem.");
       }
+
+      // ✅ opcional: invalidar cache se usar react-query
+      queryClient.invalidateQueries({ queryKey: ["images"] });
 
       toast({ title: "Imagem processada com sucesso!" });
     } catch (err) {
@@ -204,7 +208,7 @@ function ImagePageComponent() {
             </>
           )}
         </Button>
-      </div>
+            </div>
 
       {/* Gallery + downloads fora da imagem */}
       {generatedImages.length > 0 && (
