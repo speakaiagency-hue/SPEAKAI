@@ -40,7 +40,7 @@ export async function createImageService() {
           contents: [
             {
               role: "user",
-              parts: parts, // ✅ agora está no formato correto
+              parts: parts, // ✅ formato correto: array com role + parts
             },
           ],
           config: {
