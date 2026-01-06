@@ -206,7 +206,7 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-      {/* Gallery + downloads fora da imagem */}
+            {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
           <div className="grid grid-cols-2 gap-4">
@@ -226,7 +226,7 @@ function ImagePageComponent() {
             ))}
           </div>
 
-          {/* Botões de download fora das imagens */}
+          {/* Botões de download */}
           <div className="flex flex-wrap gap-3">
             {generatedImages.map((src, i) => (
               <a key={i} href={src} download={`imagem-${i}.png`}>
