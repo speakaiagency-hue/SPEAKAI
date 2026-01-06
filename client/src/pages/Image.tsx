@@ -206,7 +206,7 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-           {/* Gallery + downloads fora da imagem */}
+      {/* Gallery + downloads fora da imagem */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
           <div className="grid grid-cols-2 gap-4">
