@@ -1,48 +1,64 @@
 import { GoogleGenAI } from "@google/genai";
-import { AspectRatio } from "../types";
+import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
 
 export async function createImageService() {
+  const rotator = getGeminiKeyRotator();
+
   return {
     async generateImage(
       prompt: string,
-      aspectRatio: AspectRatio = "1:1"
+      aspectRatio: string = "1:1",
+      inputImage?: { data: string; mimeType: string }
     ): Promise<{ imageUrl: string; model: string }> {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      return await rotator.executeWithRotation(async (apiKey) => {
+        const ai = new GoogleGenAI({ apiKey });
 
-      // Apenas texto para geração
-      const parts = [
-        {
-          text: prompt || "Uma arte digital cinematográfica e detalhada",
-        },
-      ];
+        const parts: any[] = [];
 
-      const geminiResponse = await ai.models.generateContent({
-        model: "gemini-2.5-flash-image",
-        contents: [
-          {
-            role: "user",
-            parts,
+        if (inputImage) {
+          // Primeiro envia a imagem
+          parts.push({
+            inlineData: {
+              data: inputImage.data,
+              mimeType: inputImage.mimeType,
+            },
+          });
+
+          // Depois envia instrução do usuário
+          parts.push({
+            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+          });
+        } else {
+          // Geração só por texto
+          parts.push({
+            text: prompt || "Uma arte digital cinematográfica e detalhada",
+          });
+        }
+
+        const geminiResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash-image",
+          contents: [
+            {
+              role: "user",
+              parts,
+            },
+          ],
+          config: {
+            imageConfig: { aspectRatio },
           },
-        ],
-        config: {
-          imageConfig: { aspectRatio },
-        },
-        generationConfig: {
-          temperature: 0.2,
-          topP: 0.8,
-          topK: 40,
-        },
-      });
+          generationConfig: {
+            temperature: 0.2,
+            topP: 0.8,
+            topK: 40,
+          },
+        });
 
-      console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
+        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
-      if (
-        geminiResponse.candidates &&
-        geminiResponse.candidates[0] &&
-        geminiResponse.candidates[0].content &&
-        geminiResponse.candidates[0].content.parts
-      ) {
-        for (const part of geminiResponse.candidates[0].content.parts) {
+        const candidate = geminiResponse.candidates?.[0];
+        if (!candidate) throw new Error("A IA não respondeu. Tente novamente.");
+
+        for (const part of candidate.content.parts) {
           if (part.inlineData) {
             const base64EncodeString: string = part.inlineData.data || "";
             const mimeType = part.inlineData.mimeType;
@@ -52,9 +68,10 @@ export async function createImageService() {
             };
           }
         }
-      }
 
-      throw new Error("A resposta da API não continha uma imagem.");
+        throw new Error("A resposta da API não continha uma imagem.");
+      });
     },
   };
 }
+
