@@ -16,7 +16,6 @@ export async function createImageService() {
         const parts: any[] = [];
 
         if (inputImage) {
-          // Primeiro envia a imagem
           parts.push({
             inlineData: {
               data: inputImage.data,
@@ -24,14 +23,12 @@ export async function createImageService() {
             },
           });
 
-          // Depois envia instrução do usuário
           parts.push({
-            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+            text: typeof prompt === "string" ? prompt : "Edite esta imagem mantendo todos os elementos originais.",
           });
         } else {
-          // Geração só por texto
           parts.push({
-            text: prompt || "Uma arte digital cinematográfica e detalhada",
+            text: typeof prompt === "string" ? prompt : "Uma arte digital cinematográfica e detalhada",
           });
         }
 
@@ -54,7 +51,6 @@ export async function createImageService() {
           },
         });
 
-        // Debug opcional
         console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
         if (
