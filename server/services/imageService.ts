@@ -35,13 +35,18 @@ export async function createImageService() {
           });
         }
 
+        // ✅ Correção: contents precisa ser um array com role + parts
         const geminiResponse = await ai.models.generateContent({
           model: "gemini-2.5-flash-image",
-          contents: { parts },
+          contents: [
+            {
+              role: "user",
+              parts,
+            },
+          ],
           config: {
             imageConfig: { aspectRatio },
           },
-          // Configuração conservadora para reduzir variação
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
@@ -49,7 +54,7 @@ export async function createImageService() {
           },
         });
 
-        // Debug opcional: logar resposta completa
+        // Debug opcional
         console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
         if (
