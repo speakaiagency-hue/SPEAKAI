@@ -1,78 +1,56 @@
 import { GoogleGenAI } from "@google/genai";
-import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
+import { AspectRatio, ImageInput } from "../types";
 
-export async function createImageService() {
-  const rotator = getGeminiKeyRotator();
+export const generateImage = async (
+  prompt: string,
+  aspectRatio: AspectRatio,
+  inputImage?: ImageInput
+): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  return {
-    async generateImage(
-      prompt: string,
-      aspectRatio: string = "1:1",
-      inputImage?: { data: string; mimeType: string }
-    ): Promise<{ imageUrl: string; model: string }> {
-      return await rotator.executeWithRotation(async (apiKey) => {
-        const ai = new GoogleGenAI({ apiKey });
+  const parts: any[] = [];
 
-        const parts: any[] = [];
+  if (inputImage) {
+    parts.push({
+      inlineData: {
+        data: inputImage.data,
+        mimeType: inputImage.mimeType,
+      },
+    });
 
-        if (inputImage) {
-          parts.push({
-            inlineData: {
-              data: inputImage.data,
-              mimeType: inputImage.mimeType,
-            },
-          });
+    const refinedPrompt = prompt
+      ? `Edite esta imagem seguindo esta instrução: ${prompt}. Preserve as características principais e o realismo.`
+      : "Melhore a qualidade desta imagem mantendo os elementos originais.";
 
-          parts.push({
-            text: typeof prompt === "string" ? prompt : "Edite esta imagem mantendo todos os elementos originais.",
-          });
-        } else {
-          parts.push({
-            text: typeof prompt === "string" ? prompt : "Uma arte digital cinematográfica e detalhada",
-          });
-        }
+    parts.push({ text: refinedPrompt });
+  } else {
+    parts.push({ text: prompt || "Uma arte digital cinematográfica e detalhada" });
+  }
 
-        // ✅ Correção: contents precisa ser um array com role + parts
-        const geminiResponse = await ai.models.generateContent({
-          model: "gemini-2.5-flash-image",
-          contents: [
-            {
-              role: "user",
-              parts,
-            },
-          ],
-          config: {
-            imageConfig: { aspectRatio },
-          },
-          generationConfig: {
-            temperature: 0.2,
-            topP: 0.8,
-            topK: 40,
-          },
-        });
-
-        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
-
-        if (
-          geminiResponse.candidates &&
-          geminiResponse.candidates[0] &&
-          geminiResponse.candidates[0].content &&
-          geminiResponse.candidates[0].content.parts
-        ) {
-          for (const part of geminiResponse.candidates[0].content.parts) {
-            if (part.inlineData) {
-              const base64EncodeString: string = part.inlineData.data || "";
-              const mimeType = part.inlineData.mimeType;
-              return {
-                imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
-                model: "Gemini Flash",
-              };
-            }
-          }
-        }
-
-        throw new Error("A resposta da API não continha uma imagem.");
-      });
+  // ✅ Correção: contents precisa ser um array com role + parts
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash-image",
+    contents: [
+      {
+        role: "user",
+        parts: parts,
+      },
+    ],
+    config: {
+      imageConfig: {
+        aspectRatio: aspectRatio,
+      },
     },
-  };
-}
+  });
+
+  const candidate = response.candidates?.[0];
+  if (!candidate) throw new Error("A IA não respondeu. Tente novamente.");
+
+  for (const part of candidate.content.parts) {
+    if (part.inlineData) {
+      return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+    }
+  }
+
+  throw new Error("Não foi possível extrair a imagem da resposta.");
+};
