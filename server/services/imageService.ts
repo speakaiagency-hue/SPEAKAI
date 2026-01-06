@@ -37,15 +37,11 @@ export async function createImageService() {
 
         const geminiResponse = await ai.models.generateContent({
           model: "gemini-2.5-flash-image",
-          contents: [
-            {
-              role: "user",
-              parts,
-            },
-          ],
+          contents: { parts },
           config: {
             imageConfig: { aspectRatio },
           },
+          // Configuração conservadora para reduzir variação
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
@@ -53,19 +49,24 @@ export async function createImageService() {
           },
         });
 
+        // Debug opcional: logar resposta completa
         console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
-        const candidate = geminiResponse.candidates?.[0];
-        if (!candidate) throw new Error("A IA não respondeu. Tente novamente.");
-
-        for (const part of candidate.content.parts) {
-          if (part.inlineData) {
-            const base64EncodeString: string = part.inlineData.data || "";
-            const mimeType = part.inlineData.mimeType;
-            return {
-              imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
-              model: "Gemini Flash",
-            };
+        if (
+          geminiResponse.candidates &&
+          geminiResponse.candidates[0] &&
+          geminiResponse.candidates[0].content &&
+          geminiResponse.candidates[0].content.parts
+        ) {
+          for (const part of geminiResponse.candidates[0].content.parts) {
+            if (part.inlineData) {
+              const base64EncodeString: string = part.inlineData.data || "";
+              const mimeType = part.inlineData.mimeType;
+              return {
+                imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
+                model: "Gemini Flash",
+              };
+            }
           }
         }
 
