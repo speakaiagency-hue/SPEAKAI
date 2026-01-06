@@ -19,9 +19,6 @@ export async function registerRoutes(
   const promptService = await createPromptService();
   const imageService = await createImageService();
 
-  // ⚠️ Removido registerWebhookRoutes daqui
-  // O webhook já é registrado em index.ts para evitar duplicação
-
   // Video Generation API (Protected)
   app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
@@ -132,14 +129,14 @@ export async function registerRoutes(
     }
   });
 
-  // Image Generation API (Protected)
+  // ✅ Image Generation API (Protected) corrigida
   app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const { prompt, transparentBackground } = req.body;
-      if (!prompt?.trim()) {
-        return res.status(400).json({ error: "Prompt é obrigatório" });
+      const { prompt, aspectRatio = "1:1", imageBase64, imageMimeType } = req.body;
+      if ((!prompt || !prompt.trim()) && !imageBase64) {
+        return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
       }
 
       const deductResult = await deductCredits(req.user.id, "image");
@@ -147,10 +144,13 @@ export async function registerRoutes(
         return res.status(402).json(deductResult);
       }
 
-      const result = await imageService.generateImage({
+      const result = await imageService.generateImage(
         prompt,
-        transparentBackground,
-      });
+        aspectRatio,
+        imageBase64 && imageMimeType
+          ? { data: imageBase64, mimeType: imageMimeType }
+          : undefined
+      );
 
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
