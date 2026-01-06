@@ -1,104 +1,77 @@
-import { GoogleGenAI, VideoGenerationReferenceType } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
 
-export interface GenerateVideoParams {
-  prompt: string;
-  mode: "text-to-video" | "image-to-video" | "reference-to-video";
-  aspectRatio?: "16:9" | "9:16";
-  resolution?: "720p" | "1080p";
-  imageBase64?: string;
-  imageMimeType?: string;
-  referenceImages?: Array<{ base64: string; mimeType: string }>;
-}
-
-export async function generateVideo(params: GenerateVideoParams) {
+export async function createImageService() {
   const rotator = getGeminiKeyRotator();
-  
-  return await rotator.executeWithRotation(async (apiKey) => {
-    const ai = new GoogleGenAI({ apiKey });
 
-    const config: any = {
-      numberOfVideos: 1,
-      resolution: params.resolution || "720p",
-      aspectRatio: params.aspectRatio || "16:9",
-    };
+  return {
+    async generateImage(
+      prompt: string,
+      aspectRatio: string = "1:1",
+      inputImage?: { data: string; mimeType: string }
+    ): Promise<{ imageUrl: string; model: string }> {
+      return await rotator.executeWithRotation(async (apiKey) => {
+        const ai = new GoogleGenAI({ apiKey });
 
-    const generateVideoPayload: any = {
-      model: "veo-3.1-generate-preview",
-      config: config,
-      prompt: params.prompt,
-    };
+        const parts: any[] = [];
 
-    if (params.mode === "image-to-video" && params.imageBase64) {
-      generateVideoPayload.image = {
-        imageBytes: params.imageBase64,
-        mimeType: params.imageMimeType || "image/jpeg",
-      };
-    } else if (
-      params.mode === "reference-to-video" &&
-      params.referenceImages?.length
-    ) {
-      const referenceImagesPayload: any[] = [];
+        if (inputImage) {
+          // Primeiro envia a imagem
+          parts.push({
+            inlineData: {
+              data: inputImage.data,
+              mimeType: inputImage.mimeType,
+            },
+          });
 
-      for (const img of params.referenceImages) {
-        referenceImagesPayload.push({
-          image: {
-            imageBytes: img.base64,
-            mimeType: img.mimeType || "image/jpeg",
-          },
-          referenceType: VideoGenerationReferenceType.ASSET,
-        });
-      }
-
-      if (referenceImagesPayload.length > 0) {
-        generateVideoPayload.config.referenceImages = referenceImagesPayload;
-      }
-    }
-
-    console.log("Submitting video generation request...");
-    let operation = await ai.models.generateVideos(generateVideoPayload);
-
-    while (!operation.done) {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
-      console.log("Generating video...");
-      operation = await ai.operations.getVideosOperation({ operation });
-    }
-
-    if (operation?.response) {
-      const videos = operation.response.generatedVideos;
-
-      if (!videos || videos.length === 0) {
-        if (operation.error) {
-          throw new Error(typeof operation.error === 'string' ? operation.error : JSON.stringify(operation.error));
+          // Depois envia instrução do usuário
+          parts.push({
+            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+          });
+        } else {
+          // Geração só por texto
+          parts.push({
+            text: prompt || "Uma arte digital cinematográfica e detalhada",
+          });
         }
-        throw new Error("Nenhum vídeo foi gerado");
-      }
 
-      const firstVideo = videos[0];
-      if (!firstVideo?.video?.uri) {
-        throw new Error("O vídeo gerado não possui URI");
-      }
+        const geminiResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash-image",
+          contents: { parts },
+          config: {
+            imageConfig: { aspectRatio },
+          },
+          // Configuração conservadora para reduzir variação
+          generationConfig: {
+            temperature: 0.2,
+            topP: 0.8,
+            topK: 40,
+          },
+        });
 
-      let uriToParse = firstVideo.video.uri;
-      try {
-        uriToParse = decodeURIComponent(firstVideo.video.uri);
-      } catch (e) {
-        console.warn("Could not decode video URI");
-      }
+        // Debug opcional: logar resposta completa
+        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
-      const url = new URL(uriToParse);
-      url.searchParams.set("key", apiKey);
-      const finalUrl = url.toString();
+        if (
+          geminiResponse.candidates &&
+          geminiResponse.candidates[0] &&
+          geminiResponse.candidates[0].content &&
+          geminiResponse.candidates[0].content.parts
+        ) {
+          for (const part of geminiResponse.candidates[0].content.parts) {
+            if (part.inlineData) {
+              const base64EncodeString: string = part.inlineData.data || "";
+              const mimeType = part.inlineData.mimeType;
+              return {
+                imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
+                model: "Gemini Flash",
+              };
+            }
+          }
+        }
 
-      return {
-        videoUrl: finalUrl,
-        uri: finalUrl,
-      };
-    } else {
-      if (operation.error) {
-        throw new Error(typeof operation.error === 'string' ? operation.error : JSON.stringify(operation.error));
-      }
-      throw new Error("Nenhum vídeo foi gerado");
-    }
-  });
+        throw new Error("A resposta da API não continha uma imagem.");
+      });
+    },
+  };
 }
