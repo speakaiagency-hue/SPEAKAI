@@ -37,7 +37,12 @@ export async function createImageService() {
 
         const geminiResponse = await ai.models.generateContent({
           model: "gemini-2.5-flash-image",
-          contents: { parts },
+          contents: [
+            {
+              role: "user",
+              parts: parts, // ✅ agora está no formato correto
+            },
+          ],
           config: {
             imageConfig: { aspectRatio },
           },
