@@ -1,0 +1,104 @@
+// src/components/VideoGrid.tsx
+import React, { useState } from "react";
+import { Play } from "lucide-react";
+import VideoPlayerModal from "@/components/VideoPlayerModal";
+
+const VideoGrid: React.FC = () => {
+  const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null);
+
+  const items = [
+    {
+      id: 1,
+      title: "Avatar Falante",
+      description: "Vídeos com falas naturais.",
+      thumbnail: "https://images.unsplash.com/photo-1616593871253-5b958b281346?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    },
+    {
+      id: 2,
+      title: "Clonagem de Voz",
+      description: "Sua voz ou vozes premium.",
+      thumbnail: "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    },
+    {
+      id: 3,
+      title: "Legendas IA",
+      description: "Legendas dinâmicas rápidas.",
+      thumbnail: "https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    },
+    {
+      id: 4,
+      title: "Edição Viral",
+      description: "Otimizado para Reels e TikTok.",
+      thumbnail: "https://images.unsplash.com/photo-1574717432722-a0f94a3da58c?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+    },
+    {
+      id: 5,
+      title: "Roteiro Mágico",
+      description: "Scripts persuasivos virais.",
+      thumbnail: "https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
+    },
+    {
+      id: 6,
+      title: "Tradução Global",
+      description: "Dobra para +50 idiomas.",
+      thumbnail: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80",
+      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
+    },
+  ];
+
+  return (
+    <div className="w-full max-w-[98%] mx-auto px-2 md:px-4 pb-20 relative z-20">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 md:gap-3 lg:gap-4">
+        {items.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => setSelectedVideo({ url: item.videoUrl, title: item.title })}
+            className="group relative bg-surface/40 backdrop-blur-sm border border-border/50 rounded-xl overflow-hidden hover:border-primary/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] cursor-pointer"
+          >
+            <div className="relative aspect-[9/16] w-full overflow-hidden bg-black/50">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/10 to-transparent z-10 opacity-90" />
+
+              <img
+                src={item.thumbnail}
+                alt={item.title}
+                className="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-110 transition-transform duration-700"
+              />
+
+              <div className="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 backdrop-blur-xl flex items-center justify-center border border-white/20 group-hover:bg-primary group-hover:border-primary transition-all duration-300">
+                  <Play className="w-4 h-4 text-white" />
+                </div>
+              </div>
+
+              <div className="absolute bottom-0 left-0 w-full p-2 md:p-3 z-30">
+                <h3 className="text-[11px] md:text-sm font-bold text-white mb-0.5 group-hover:text-primary transition-colors drop-shadow-md leading-tight line-clamp-1">
+                  {item.title}
+                </h3>
+                <p className="text-[9px] md:text-[10px] text-slate-400 leading-tight opacity-90 group-hover:opacity-100 transition-opacity line-clamp-2">
+                  {item.description}
+                </p>
+              </div>
+            </div>
+            <div className="absolute inset-0 rounded-xl ring-1 ring-white/0 group-hover:ring-white/10 transition-all duration-300 pointer-events-none" />
+          </div>
+        ))}
+      </div>
+
+      {selectedVideo && (
+        <VideoPlayerModal
+          isOpen={!!selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+          videoUrl={selectedVideo.url}
+          title={selectedVideo.title}
+        />
+      )}
+    </div>
+  );
+};
+
+export default VideoGrid;
