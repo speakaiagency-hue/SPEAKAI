@@ -99,7 +99,6 @@
   }
 }
 
-
 /* Transparent Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
@@ -134,5 +133,15 @@
   }
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-400;
+  }
+
+  /* 🔥 Marquee Animation para Showcase */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
   }
 }
