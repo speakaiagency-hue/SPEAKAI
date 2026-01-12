@@ -31,7 +31,10 @@ const CREDIT_MAP: Record<string, number> = {
   // Planos (IDs extraídos dos links do PlansModal.tsx)
   "jM0siPY": 500,    // Plano Básico
   "q0rFdNB": 1500,   // Plano Pro
-  "KFXdvJv": 5000    // Plano Premium
+  "KFXdvJv": 5000,   // Plano Premium
+
+  // Novo produto da Kiwify (Speak AI Influencer)
+  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000,
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -79,7 +82,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     // ✅ Adicionar créditos ao usuário existente
     await storage.addCredits(user.id, creditsToAdd);
-    await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd);
+    await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd, data.product_id, data.product_name, data);
 
     console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
 
