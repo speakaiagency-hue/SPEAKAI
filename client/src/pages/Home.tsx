@@ -74,7 +74,8 @@ const Home: React.FC = () => {
           />
         </div>
 
-        <div id="showcase-photos" className="border-t border-white/5 pt-8">
+        {/* Removida a borda superior */}
+        <div id="showcase-photos" className="pt-8">
           <Showcase
             title="Criações em Fotos"
             subtitle="Imagens de alta resolução e realismo extremo para qualquer projeto visual."
