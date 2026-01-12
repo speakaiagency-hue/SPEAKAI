@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Hero from "@/components/Hero";
 import Showcase from "@/components/Showcase";
 import VideoGrid from "@/components/VideoGrid";
-import { MOCK_VIDEOS, MOCK_PHOTOS } from "@/lib/constants";
+import { MOCK_VIDEOS, MOCK_PHOTOS } from "@/constants";
 
 const autoThemes = [
   {
