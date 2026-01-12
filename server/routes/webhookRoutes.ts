@@ -29,14 +29,15 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
       const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
       const fallbackEmail = `kiwify_${Date.now()}@placeholder.com`;
 
+      // ✅ Corrigido para usar Product e Customer com P maiúsculo
       const webhookData: KiwifyWebhookData = {
-        purchase_id: parsed.purchase_id || parsed.id || `purchase_${Date.now()}`,
-        customer_email: parsed.customer?.email || parsed.email || fallbackEmail,
-        customer_name: parsed.customer?.name || parsed.name || "Cliente Kiwify",
-        product_name: parsed.product?.name || parsed.product_name || "Produto",
-        product_id: parsed.product?.id || parsed.product_id || "0",
-        value: parseFloat(parsed.value || parsed.total || "0"),
-        status: parsed.status || "approved",
+        purchase_id: parsed.purchase_id || parsed.order_id || parsed.id || `purchase_${Date.now()}`,
+        customer_email: parsed.Customer?.email || parsed.customer?.email || parsed.email || fallbackEmail,
+        customer_name: parsed.Customer?.full_name || parsed.customer?.name || parsed.name || "Cliente Kiwify",
+        product_name: parsed.Product?.product_name || parsed.product?.name || parsed.product_name || "Produto",
+        product_id: parsed.Product?.product_id || parsed.product?.id || parsed.product_id || "0",
+        value: parseFloat(parsed.Commissions?.charge_amount || parsed.value || parsed.total || "0"),
+        status: parsed.order_status === "paid" ? "approved" : parsed.status || "pending",
       };
 
       console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
