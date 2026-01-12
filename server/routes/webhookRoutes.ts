@@ -3,18 +3,17 @@ import {
   handleKiwifyPurchase,
   verifyKiwifySignature,
   KiwifyWebhookData,
-  deductCredits,
 } from "../services/webhookService";
 import { authMiddleware } from "../middleware/authMiddleware";
 import type { IStorage } from "../storage";
 import express from "express";
 
 export async function registerWebhookRoutes(app: Express, storage: IStorage, kiwifyService: any) {
-  // ✅ Kiwify Webhook Endpoint com express.raw
+  // ✅ Kiwify Webhook Endpoint com express.raw para validar assinatura
   app.post("/api/webhook/kiwify", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
     try {
       const signature = req.headers["x-kiwify-signature"] as string;
-      const payload = req.body.toString();
+      const payload = req.body instanceof Buffer ? req.body.toString("utf8") : req.body;
 
       console.log("📩 Webhook recebido da Kiwify:", payload);
 
@@ -27,7 +26,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
         }
       }
 
-      const parsed = JSON.parse(payload);
+      const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
       const fallbackEmail = `kiwify_${Date.now()}@placeholder.com`;
 
       const webhookData: KiwifyWebhookData = {
