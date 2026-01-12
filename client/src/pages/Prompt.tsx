@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Save, Wand2, RefreshCw, CheckCircle2, Upload } from "lucide-react";
+import { Copy, Wand2, RefreshCw, CheckCircle2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -175,14 +175,10 @@ function PromptComponent() {
             <div className="bg-[#1a1d24] p-6 rounded-xl border border-[#2d3748] font-mono text-sm leading-relaxed whitespace-pre-wrap shadow-inner text-gray-300">
               {generatedPrompt}
             </div>
-            <div className="flex gap-3">
-              <Button className="flex-1 bg-secondary hover:bg-secondary/80 text-secondary-foreground" onClick={handleCopy}>
+            <div className="flex justify-center">
+              <Button className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3" onClick={handleCopy}>
                 <Copy className="w-4 h-4 mr-2" />
                 Copiar texto
-              </Button>
-              <Button variant="outline" className="flex-1 border-[#2d3748] hover:bg-[#2d3748]">
-                <Save className="w-4 h-4 mr-2" />
-                Salvar na biblioteca
               </Button>
             </div>
           </CardContent>
