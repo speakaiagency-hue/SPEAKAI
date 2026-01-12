@@ -1,223 +1,93 @@
-import { useState } from "react";
-import { Link } from "wouter";
-import { ArrowRight, MessageSquare, Type, Video as VideoIcon, Video, Copy, Check } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+// src/pages/Home.tsx
+import React, { useState, useEffect } from "react";
+import Hero from "@/components/Hero";
+import Showcase from "@/components/Showcase";
+import VideoGrid from "@/components/VideoGrid";
+import { MOCK_VIDEOS, MOCK_PHOTOS } from "@/lib/constants";
 
-export default function Home() {
-  const { toast } = useToast();
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+const autoThemes = [
+  {
+    id: "midnight-depth",
+    bg: "bg-black",
+    orb1: "bg-purple-900/10",
+    orb2: "bg-blue-900/10",
+    accent: "bg-slate-800/5",
+  },
+  {
+    id: "nebula-glow",
+    bg: "bg-[#1a0b2e]",
+    orb1: "bg-fuchsia-600/40",
+    orb2: "bg-purple-600/30",
+    accent: "bg-pink-500/20",
+  },
+  {
+    id: "ocean-depth",
+    bg: "bg-[#020817]",
+    orb1: "bg-cyan-900/20",
+    orb2: "bg-blue-900/30",
+    accent: "bg-indigo-900/10",
+  },
+];
 
-  // Vídeos de demonstração (links externos)
- const VIDEO_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/Video.mp4";
-const IMAGE_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/imagem.mp4";
-  const PROMPT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/prompt.mp4";
-  const CHAT_VIDEO_URL = "https://speakia.ai/wp-content/uploads/2025/12/chat.mp4";
+const Home: React.FC = () => {
+  const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
 
-  // Prompts
-  const prompts = [
-    {
-      id: "1",
-      title: "Elegância Rosa nas Ruas de Paris",
-      prompt:
-        "Uma mulher de 25 anos, magra e com corpo definido, exibe um estilo único ao caminhar pelas ruas charmosas de Paris...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/g695xbvax5oi_download.mp4",
-    },
-    {
-      id: "2",
-      title: "Noite Parisiense em Quatro Rodas",
-      prompt:
-        "Uma mulher de 32 anos, alta e elegante, com cabelos castanhos ondulados e pele bronzeada, dirige um carro esportivo...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/gcnx0c60umv7_download.mp4",
-    },
-    {
-      id: "3",
-      title: "A Voz da Confiança na Medicina",
-      prompt:
-        "Um médico de 35 anos, alto e de postura firme, veste um jaleco branco impecável enquanto percorre os corredores...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/cmst2m3osuub_download.mp4",
-    },
-    {
-      id: "4",
-      title: "Força e Amor em Movimento",
-      prompt:
-        "Um casal jovem, ambos com cerca de 28 anos, treina lado a lado em uma academia moderna e bem iluminada...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/1jlkbvi6sawj_download.mp4",
-    },
-    {
-      id: "5",
-      title: "Escuta que Transforma",
-      prompt:
-        "Uma psicóloga de 29 anos, com postura calma e acolhedora, recebe um paciente em seu consultório moderno...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/dpvzgpzancy0_download.mp4",
-    },
-    {
-      id: "6",
-      title: "A Autoridade da Justiça",
-      prompt:
-        "Um juiz de 48 anos, de postura firme e olhar atento, está sentado à frente de um tribunal imponente...",
-      video: "https://speakia.ai/wp-content/uploads/2025/12/d354qjq08um2_download.mp4",
-    },
-  ];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentThemeIndex(
+        (prevIndex) => (prevIndex + 1) % autoThemes.length
+      );
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleCopy = (promptText: string, id: string) => {
-    navigator.clipboard.writeText(promptText);
-    setCopiedId(id);
-    toast({ title: "Prompt copiado!" });
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
- // Módulos
-  const modules = [
-    {
-      title: "Geração de Vídeo",
-      description: "Crie vídeos curtos e storyboards a partir de descrições textuais.",
-      href: "/video",
-      icon: Video,
-      video: VIDEO_VIDEO_URL,
-      color: "text-red-500",
-      bg: "bg-red-500/10",
-    },
-    {
-      title: "Geração de Imagem",
-      description: "Transforme texto em imagens incríveis com estilos variados e alta resolução.",
-      href: "/image",
-      icon: VideoIcon,
-      video: IMAGE_VIDEO_URL,
-      color: "text-purple-500",
-      bg: "bg-purple-500/10",
-    },
-    {
-      title: "Gerador de Prompt",
-      description: "Crie prompts perfeitos para coding, marketing e design com templates prontos.",
-      href: "/prompt",
-      icon: Type,
-      video: PROMPT_VIDEO_URL,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
-    },
-    {
-      title: "Chat IA",
-      description: "Converse com uma inteligência artificial avançada com contexto e memória.",
-      href: "/chat",
-      icon: MessageSquare,
-      video: CHAT_VIDEO_URL,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-    },
-  ];
+  const theme = autoThemes[currentThemeIndex];
 
   return (
-    <div className="space-y-12 relative">
-      {/* Hero Section */}
-      <section className="text-center space-y-6 py-12 relative overflow-hidden rounded-3xl bg-gradient-to-b from-primary/5 to-transparent border border-primary/10">
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20"></div>
-        <div className="relative z-10 max-w-3xl mx-auto px-4 text-[15px]">
-          <h1 className="text-5xl md:text-6xl font-heading font-bold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-foreground/60">
-            Crie seu próprio<br />
-            <span className="text-primary">Influencer com Speak AI</span>
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Transforme seu celular em uma agência, e deixe que a Speak AI faça tudo pra você!
-          </p>
-        </div>
-      </section>
+    <div
+      className={`min-h-screen relative selection:bg-primary/30 selection:text-white transition-colors duration-[3000ms] ease-in-out ${theme.bg}`}
+    >
+      {/* Background Orbs */}
+      <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <div
+          className={`absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] animate-pulse-slow transition-all duration-[3000ms] ease-in-out ${theme.orb1}`}
+        ></div>
+        <div
+          className={`absolute bottom-[10%] right-[-5%] w-[600px] h-[600px] rounded-full blur-[120px] animate-pulse-slow transition-all duration-[3000ms] ease-in-out ${theme.orb2}`}
+          style={{ animationDelay: "2s" }}
+        ></div>
+        <div
+          className={`absolute top-[40%] left-[50%] transform -translate-x-1/2 w-[800px] h-[400px] rounded-full blur-[100px] transition-all duration-[3000ms] ease-in-out ${theme.accent}`}
+        ></div>
+      </div>
 
-      {/* Modules Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-        {modules.map((module) => (
-          <Link key={module.href} href={module.href} className="group">
-            <Card className="h-full overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm hover:border-primary/50 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
-              <div className="relative h-48 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent z-10" />
-                <video
-                  src={module.video}
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  onContextMenu={(e) => e.preventDefault()}
-                />
-                <div
-                  className={`absolute top-4 left-4 p-3 rounded-xl ${module.bg} backdrop-blur-md z-20 border border-white/10`}
-                >
-                  <module.icon className={`w-6 h-6 ${module.color}`} />
-                </div>
-              </div>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between font-heading text-2xl">
-                  {module.title}
-                  <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </CardTitle>
-                <CardDescription className="text-base">{module.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </section>
+      <main className="animate-fade-in relative z-10 pt-8">
+        <Hero />
 
-      {/* Prompts Library Section */}
-      <section className="space-y-6 mt-16 pt-12 border-t border-border/30">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-heading font-bold">Biblioteca de Prompts</h2>
-          <p className="text-muted-foreground">
-            Prompts prontos para você copiar e usar em qualquer ferramenta de IA
-          </p>
+        <VideoGrid />
+
+        <div id="showcase-videos">
+          <Showcase
+            title="Criações em Vídeos"
+            subtitle="Conteúdos dinâmicos e virais gerados 100% por inteligência artificial."
+            projects={MOCK_VIDEOS}
+          />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {prompts.map((item) => (
-            <Card
-              key={item.id}
-              className="bg-[#1a1d24] border-[#2d3748] hover:border-primary/50 transition-all duration-300 flex flex-col overflow-hidden"
-            >
-              {/* Video Preview */}
-              <div className="h-40 overflow-hidden bg-[#0f1117]">
-                <video
-                  src={item.video}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  autoPlay
-                                   muted
-                  loop
-                  playsInline
-                  onContextMenu={(e) => e.preventDefault()}
-                />
-              </div>
-
-              <CardHeader className="pb-2">
-                <CardTitle className="text-base text-white">{item.title}</CardTitle>
-              </CardHeader>
-
-              <CardContent className="flex-1 flex flex-col">
-                <p className="text-xs text-gray-400 leading-relaxed flex-1 mb-4">
-                  {item.prompt}
-                </p>
-                <Button
-                  size="sm"
-                  onClick={() => handleCopy(item.prompt, item.id)}
-                  className={`w-full transition-all text-xs ${
-                    copiedId === item.id
-                      ? "bg-green-600 hover:bg-green-600"
-                      : "bg-indigo-600 hover:bg-indigo-700"
-                  }`}
-                >
-                  {copiedId === item.id ? (
-                    <>
-                      <Check className="w-3 h-3 mr-1" /> Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3 h-3 mr-1" /> Copiar
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+        <div id="showcase-photos" className="border-t border-white/5 pt-8">
+          <Showcase
+            title="Criações em Fotos"
+            subtitle="Imagens de alta resolução e realismo extremo para qualquer projeto visual."
+            projects={MOCK_PHOTOS}
+            gradientFrom="#f472b6"
+            gradientTo="#ec4899"
+          />
         </div>
-      </section>
+
+        <div className="pb-20"></div>
+      </main>
     </div>
   );
-}
+};
+
+export default Home;
