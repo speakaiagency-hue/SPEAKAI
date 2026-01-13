@@ -150,4 +150,19 @@
   .paused-marquee {
     animation-play-state: paused; /* classe para pausar */
   }
+
+  /* Orientação para vídeos no modal */
+  @media (orientation: portrait) {
+    .video-orientation {
+      max-height: 70vh; /* limita altura em pé */
+      object-fit: contain;
+    }
+  }
+
+  @media (orientation: landscape) {
+    .video-orientation {
+      max-height: 90vh; /* amplia no modo deitado */
+      object-fit: cover;
+    }
+  }
 }
