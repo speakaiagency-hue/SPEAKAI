@@ -1,4 +1,4 @@
-import { useLocation, Link } from "wouter";
+import { useLocation } from "wouter";
 import { MessageSquare, Type, Image as ImageIcon, Video, LayoutDashboard, Menu, Zap } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -94,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground transition-colors duration-300">
+    <div className="min-h-screen w-full flex flex-col md:flex-row bg-background text-foreground transition-colors duration-300">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col fixed h-full z-50 glass bg-background/80 backdrop-blur-xl transition-all duration-300">
         <div className="p-4 flex items-center justify-start h-auto py-3">
@@ -207,11 +207,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-            {/* Main Content */}
-      <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0">
-        {/* Top Bar sem borda */}
+           {/* Main Content */}
+      <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0 bg-background">
+        {/* Top Bar (desktop) sem borda */}
         <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl items-center justify-between px-6 z-30">
-          <div></div>
+          <div />
           <div className="flex items-center gap-3">
             {isLogged && hasMembership && credits !== null && (
               <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 font-semibold text-indigo-400">
@@ -223,13 +223,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Button
                 variant="outline"
                 disabled={!hasMembership}
-                className={`rounded-full transition-all ${
+                className={cn(
+                  "rounded-full transition-all",
                   hasMembership
                     ? "text-foreground hover:bg-secondary/50 cursor-pointer"
                     : "text-muted-foreground/50 cursor-not-allowed opacity-50"
-                }`}
+                )}
                 onClick={() => hasMembership && setCreditsOpen(true)}
-                title={hasMembership ? "Clique para gerenciar créditos" : "Compre um plano para ver créditos"}
+                title={
+                  hasMembership
+                    ? "Clique para gerenciar créditos"
+                    : "Compre um plano para ver créditos"
+                }
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Créditos
@@ -261,7 +266,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        {/* Conteúdo principal */}
+        {/* Container do conteúdo das páginas */}
         <div className="max-w-7xl mx-auto p-6 lg:p-12 animate-in fade-in duration-500 slide-in-from-bottom-4 md:mt-20">
           {children}
         </div>
