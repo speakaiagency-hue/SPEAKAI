@@ -110,9 +110,19 @@ Keep entire video grounded in realism and emotional storytelling.
   },
   {
     id: 'v5',
-    title: 'Motion Graphics',
-    description: 'Animações complexas geradas instantaneamente para seus projetos.',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+    title: 'Determinação Compartilhada',
+    description: 'Create a realistic video set in a modern, naturally lit gym featuring wooden floors, large windows, and exposed brick columns. The background should include gym equipment like elliptical machines and weight stations, with sunlight streaming in to create soft shadows and natural ambiance.
+
+In the foreground, two women are exercising side by side on individual black exercise mats:
+
+On the left, a fair-skinned redhead with long, wavy hair and visible freckles is wearing a fitted black workout outfit. She is performing realistic push-ups, with her hands placed shoulder-width apart on the mat. Her body stays aligned from head to heels, and she lowers and lifts herself in smooth, controlled motion. Her arms and core engage naturally with each repetition, and her facial expression shows calm determination and physical effort.
+
+On the right, a woman with medium to tan skin and dark hair tied back is wearing a black sports bra and matching shorts. She is doing traditional abdominal sit-ups with her feet flat on the floor, knees bent, and hands behind her head. She lifts her torso smoothly toward her knees and returns back down in a steady rhythm. Her movements should appear fluid and physically accurate, showing slight torso twist and abdominal engagement.
+
+Add realistic gym details such as water bottles and small white towels placed beside them. Their movements should be synchronized but independent, with a static camera angle at eye-level capturing the entire scene from a natural perspective.
+
+Ensure realistic lighting, subtle background activity, and overall consistency with a real-life training session.',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.15.41.mp4',
     messagesCount: 0
   },
   {
