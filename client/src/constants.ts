@@ -15,17 +15,15 @@ export const SUGGESTION_CHIPS = [
 export const MOCK_VIDEOS = [
   {
     id: 'v1',
-    title: 'Avatares & Voz',
-    description: 'Dê vida à sua marca com influenciadores digitais ultra-realistas e clonagem de voz.',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    title: 'Dentista falando na cadeira',
+    description: 'Vídeo curto estilo reels mostrando um dentista homem de 35 anos, pele clara, cabelo castanho curto e barba bem aparada. Ele está sentado na cadeira odontológica, usando jaleco branco impecável e máscara abaixada no pescoço. Fala diretamente para a câmera com sorriso confiante, em consultório moderno com paredes claras e equipamentos odontológicos ao fundo. Iluminação suave e profissional.',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2884.mp4',
     messagesCount: 0
   },
   {
     id: 'v2',
     title: 'Gerador de Reels',
     description: 'Vídeos curtos e magnéticos com roteiros otimizados para viralização rápida.',
-    imageUrl: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
     messagesCount: 0
   },
@@ -33,7 +31,6 @@ export const MOCK_VIDEOS = [
     id: 'v3',
     title: 'Tradução Global',
     description: 'Dobre seus vídeos para mais de 50 idiomas mantendo sua voz original.',
-    imageUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
     messagesCount: 0
   },
@@ -41,7 +38,6 @@ export const MOCK_VIDEOS = [
     id: 'v4',
     title: 'Cinematografia IA',
     description: 'Crie cenas cinematográficas a partir de descrições simples de texto.',
-    imageUrl: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
     messagesCount: 0
   },
@@ -57,7 +53,6 @@ export const MOCK_VIDEOS = [
     id: 'v6',
     title: 'Deepfake Ético',
     description: 'Troca de rostos para produções profissionais com consentimento e segurança.',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
     messagesCount: 0
   }
