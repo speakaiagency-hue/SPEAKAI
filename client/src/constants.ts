@@ -1,4 +1,3 @@
-
 export const APP_NAME = "Lasy";
 export const MODEL_NAME = "imagen-4.0-generate-001"; 
 
@@ -37,91 +36,54 @@ export const MOCK_VIDEOS = [
   {
     id: 'v4',
     title: 'O Valor de Cada Instante',
-    description: 'Create a cinematic one-take video showing a single woman talking directly to the camera. As she speaks, her appearance gradually ages in real-time — transitioning seamlessly from age 30 to age 70 without cuts or sudden morphing. The transformation should be natural, fluid, and emotionally resonant.
+    description: `Create a cinematic one-take video showing a single woman talking directly to the camera. As she speaks, her appearance gradually ages in real-time — transitioning seamlessly from age 30 to age 70 without cuts or sudden morphing. The transformation should be natural, fluid, and emotionally resonant.
 
 CHARACTER – YOUNG TO OLD
-
 Ethnicity / Look: Latina or Mediterranean features. Medium to deep olive-toned skin with natural glow.
-
 Hair (Start): Long, rich dark brown hair with soft waves, loose and healthy.
-
 Hair (End): Gray or salt-and-pepper version of same hairstyle — either shorter or pulled into a low bun.
-
 Eyes: Warm brown, expressive and soulful.
-
 Facial structure: High cheekbones, full lips, subtle jawline.
-
 Makeup (Start): Natural glam – light foundation, soft blush, glossed lips.
-
 Makeup (End): Minimal makeup or none – allowing natural aging features like wrinkles, smile lines, and age spots to appear.
-
 Expression: Calm and reflective throughout, with emotional depth increasing as time passes.
 
 OUTFIT
-
 A timeless outfit that remains consistent during the transition — for example:
-
 Cream knit sweater or blouse, neutral trousers, delicate earrings.
-
-The outfit should feel classic and age-agnostic — fitting both versions of her.
-
 Fabric should subtly wrinkle or soften over time to match her aging.
 
 DIALOGUE (Portuguese – spoken naturally)
-
-SPOKEN TEXT (Portuguese - BR):
 "Se eu pudesse dizer uma coisa pra mim mesma... é que nada dura pra sempre. Nem o que dói, nem o que brilha. Mas tudo vale a pena."
 
-(Translation: "If I could say one thing to myself… it’s that nothing lasts forever. Not what hurts, not what shines. But it’s all worth it.")
-
-Her voice should remain the same tone — warm, emotional — but can subtly deepen or gain texture as she ages.
-
 CAMERA & TRANSITION
-
 Shot: Medium close-up, centered. Locked-off camera — no cuts.
-
 Lens: 50mm or 85mm for intimacy.
-
 Lighting: Warm soft light from one side — golden hour or indoor diffused sunlight.
-
-Background: Neutral, cozy environment — soft-focus interior (e.g., curtain, plants, bookshelf). No time-specific details that would contradict the transition.
+Background: Neutral, cozy environment — soft-focus interior (e.g., curtain, plants, bookshelf).
 
 Transition Technique:
 Aging occurs in real-time, gradually: skin texture changes, fine lines appear, hair shifts from brown to gray, posture subtly alters.
-
 No magical effect or digital “morph” — aim for a realistic, time-lapse-style transformation.
 
 AUDIO
-
 Ambient sound: Light room tone, no noise distractions.
-
-Music (optional): Gentle piano or ambient strings fading in subtly near the end, evoking emotion without overpowering her voice.
-
-Notes:
-
-No glitch effects.
-No subtitles.
-No abrupt visual shifts.
-Keep entire video grounded in realism and emotional storytelling.
-
-— mature, poetic, timeless.',
+Music (optional): Gentle piano or ambient strings fading in subtly near the end.`,
     videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.02.52.mp4',
     messagesCount: 0
   },
   {
     id: 'v5',
     title: 'Determinação Compartilhada',
-    description: 'Create a realistic video set in a modern, naturally lit gym featuring wooden floors, large windows, and exposed brick columns. The background should include gym equipment like elliptical machines and weight stations, with sunlight streaming in to create soft shadows and natural ambiance.
+    description: `Create a realistic video set in a modern, naturally lit gym featuring wooden floors, large windows, and exposed brick columns. The background should include gym equipment like elliptical machines and weight stations, with sunlight streaming in to create soft shadows and natural ambiance.
 
 In the foreground, two women are exercising side by side on individual black exercise mats:
 
-On the left, a fair-skinned redhead with long, wavy hair and visible freckles is wearing a fitted black workout outfit. She is performing realistic push-ups, with her hands placed shoulder-width apart on the mat. Her body stays aligned from head to heels, and she lowers and lifts herself in smooth, controlled motion. Her arms and core engage naturally with each repetition, and her facial expression shows calm determination and physical effort.
+On the left, a fair-skinned redhead with long, wavy hair and visible freckles is wearing a fitted black workout outfit. She is performing realistic push-ups, with her hands placed shoulder-width apart on the mat. Her body stays aligned from head to heels, and she lowers and lifts herself in smooth, controlled motion.
 
-On the right, a woman with medium to tan skin and dark hair tied back is wearing a black sports bra and matching shorts. She is doing traditional abdominal sit-ups with her feet flat on the floor, knees bent, and hands behind her head. She lifts her torso smoothly toward her knees and returns back down in a steady rhythm. Her movements should appear fluid and physically accurate, showing slight torso twist and abdominal engagement.
+On the right, a woman with medium to tan skin and dark hair tied back is wearing a black sports bra and matching shorts. She is doing traditional abdominal sit-ups with her feet flat on the floor, knees bent, and hands behind her head. She lifts her torso smoothly toward her knees and returns back down in a steady rhythm.
 
-Add realistic gym details such as water bottles and small white towels placed beside them. Their movements should be synchronized but independent, with a static camera angle at eye-level capturing the entire scene from a natural perspective.
-
-Ensure realistic lighting, subtle background activity, and overall consistency with a real-life training session.',
+Add realistic gym details such as water bottles and small white towels placed beside them. Their movements should be synchronized but independent, with a static camera angle at eye-level capturing the entire scene.`,
     videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.15.41.mp4',
     messagesCount: 0
   },
@@ -163,7 +125,7 @@ export const MOCK_PHOTOS = [
     imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2891.png',
     messagesCount: 0
   },
-  {
+    {
     id: 'p5',
     title: 'Mulher de Negócios',
     description: 'Foto corporativa de mulher de 38 anos, pele morena, cabelo castanho médio liso, estilo clássico. Roupa executiva feminina (blazer cinza e blusa social azul), fundo de escritório moderno com janelas amplas. Postura firme, olhar determinado, iluminação profissional.',
