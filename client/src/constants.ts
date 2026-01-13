@@ -22,16 +22,16 @@ export const MOCK_VIDEOS = [
   },
   {
     id: 'v2',
-    title: 'Gerador de Reels',
-    description: 'Vídeos curtos e magnéticos com roteiros otimizados para viralização rápida.',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    title: 'Adicionar roupa na IA',
+    description: 'Uma mulher de 28 anos, pele morena clara, cabelo longo e liso castanho escuro. Ela aparece em um fundo neutro e recebe diferentes roupas em transição: muda de um vestido elegante para um look fitness. Mantém expressão alegre e descontraída, com iluminação clara em estilo estúdio. Quero que a transição aconteça como se as roupas estivessem ao lado dela e se encaixassem naturalmente em seu corpo.',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2885.mp4',
     messagesCount: 0
   },
   {
     id: 'v3',
-    title: 'Tradução Global',
-    description: 'Dobre seus vídeos para mais de 50 idiomas mantendo sua voz original.',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+    title: 'IA mostrando um produto na mão',
+    description: 'Um homem de 30 anos, pele de tom médio, cabelo curto preto e sorriso leve. Ele segura um creme facial na mão direita e o apresenta à câmera com postura confiante. Veste roupa casual moderna (camiseta preta), em um fundo minimalista branco, com iluminação suave em estilo comercial.',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2886.mp4',
     messagesCount: 0
   },
   {
