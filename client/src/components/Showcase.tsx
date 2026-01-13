@@ -59,9 +59,7 @@ const Showcase: React.FC<ShowcaseProps> = ({
           className={`flex w-max animate-marquee py-4 ${
             paused ? "[animation-play-state:paused]" : ""
           } group-hover:[animation-play-state:paused]`}
-          onTouchStart={() => setPaused(true)}
-          onTouchEnd={() => setPaused(false)}
-          onTouchCancel={() => setPaused(false)}
+          onTouchStart={() => setPaused(prev => !prev)} // toggle no mobile
         >
           {marqueeProjects.map((project, index) => (
             <div
