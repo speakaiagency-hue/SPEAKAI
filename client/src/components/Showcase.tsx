@@ -60,7 +60,10 @@ const Showcase: React.FC<ShowcaseProps> = ({
         {/* Carrossel */}
         <div
           className={`flex w-max animate-marquee py-4 ${paused ? "paused-marquee" : ""}`}
-          onTouchStart={() => setPaused((prev) => !prev)} // toggle no mobile
+          // Mobile: tocar e segurar pausa; soltar retoma
+          onTouchStart={() => setPaused(true)}
+          onTouchEnd={() => setPaused(false)}
+          onTouchCancel={() => setPaused(false)}
         >
           {marqueeProjects.map((project, index) => (
             <div
