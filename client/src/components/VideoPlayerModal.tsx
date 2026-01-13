@@ -102,7 +102,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl aspect-[9/16] max-h-[90vh] md:max-h-[85vh] bg-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,0,0,0.1)] border border-white/5"
+        className="relative w-full max-w-4xl max-h-[90vh] bg-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,0,0,0.1)] border border-white/5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -120,7 +120,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         <video
           ref={videoRef}
           src={videoUrl}
-          className="w-full h-full object-cover"
+          className="w-full h-auto max-h-[70vh] md:max-h-[85vh] object-contain md:object-cover"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={() => setIsPlaying(false)}
