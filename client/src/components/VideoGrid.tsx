@@ -10,7 +10,7 @@ const VideoGrid: React.FC = () => {
     {
       id: 1,
       title: " Introdução:",
-      description: "Criando sua Influenciadora Digital.",
+      description: "Criando sua Influenciadora.",
       thumbnail: "https://speakia.ai/wp-content/uploads/2026/01/imagem-0.png",
       videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
     },
@@ -45,7 +45,7 @@ const VideoGrid: React.FC = () => {
     {
       id: 6,
       title: "Expansão Global:",
-      description: "Tradução e Dublagem Multilíngue.",
+      description: "Tradução e Dublagem.",
       thumbnail: "https://speakia.ai/wp-content/uploads/2026/01/imagem-0-9.png",
       videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
     },
