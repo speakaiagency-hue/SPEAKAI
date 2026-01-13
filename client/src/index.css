@@ -127,11 +127,9 @@
 
 @layer utilities {
   .glass {
-    /* removido border para evitar linha visual */
     @apply bg-background/60 backdrop-blur-lg shadow-none;
   }
   .glass-card {
-    /* removido border e shadow para evitar linha visual */
     @apply bg-card/50 backdrop-blur-md shadow-none;
   }
   .text-gradient {
@@ -146,5 +144,10 @@
 
   .animate-marquee {
     animation: marquee 30s linear infinite;
+    animation-play-state: running; /* padrão */
+  }
+
+  .paused-marquee {
+    animation-play-state: paused; /* classe para pausar */
   }
 }
