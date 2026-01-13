@@ -18,6 +18,7 @@ const Showcase: React.FC<ShowcaseProps> = ({
   gradientFrom = "#3b82f6",
   gradientTo = "#a855f7",
 }) => {
+  // duplicamos os projetos para criar efeito contínuo
   const marqueeProjects = [...projects, ...projects, ...projects];
   const [paused, setPaused] = useState(false);
 
@@ -52,11 +53,13 @@ const Showcase: React.FC<ShowcaseProps> = ({
 
       {/* Marquee Container */}
       <div className="relative w-full group">
+        {/* Gradientes laterais */}
         <div className="absolute left-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-r from-background via-background/20 to-transparent z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-l from-background via-background/20 to-transparent z-20 pointer-events-none" />
 
+        {/* Carrossel */}
         <div
-          className={`flex w-max animate-marquee py-4 ${paused ? "paused-marquee" : ""} group-hover:paused-marquee`}
+          className={`flex w-max animate-marquee py-4 ${paused ? "paused-marquee" : ""}`}
           onTouchStart={() => setPaused((prev) => !prev)} // toggle no mobile
         >
           {marqueeProjects.map((project, index) => (
