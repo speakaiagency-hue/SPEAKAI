@@ -69,7 +69,7 @@ No magical effect or digital “morph” — aim for a realistic, time-lapse-sty
 AUDIO
 Ambient sound: Light room tone, no noise distractions.
 Music (optional): Gentle piano or ambient strings fading in subtly near the end.`,
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.02.52.mp4',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/5wmyx7tbfh36_download.mp4',
     messagesCount: 0
   },
   {
@@ -89,9 +89,23 @@ Add realistic gym details such as water bottles and small white towels placed be
   },
   {
     id: 'v6',
-    title: 'Deepfake Ético',
-    description: 'Troca de rostos para produções profissionais com consentimento e segurança.',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    title: 'Paletinha 3 em 1',
+    description: `Create a vertical UGC-style video featuring a young blonde influencer, around 25 years old, with long wavy hair and light, glowing makeup. She's in a softly lit indoor space with a clean, cozy background — like a vanity area or bedroom with natural daylight.
+
+She is holding the exact makeup palette from the reference image — a white case with three highly pigmented shades (bronzer, blush, and highlighter), including a built-in mirror. Do not change the look or style of the product.
+
+The influencer speaks in Portuguese (Brazilian Portuguese) with a Rio de Janeiro accent (sotaque carioca). She speaks naturally and casually, as if talking to her audience on Instagram Stories or TikTok.
+
+She does not switch hands, does not apply the product, and no text or effects appear on the screen. She simply holds the palette close enough to show all details clearly.
+
+Her speech should sound unscripted and friendly, including phrases like:
+
+Influencer's dialogue (spoken naturally with a carioca accent):
+
+“Gente, olha essa paletinha 3 em 1 que eu tô amando! Tem blush, bronzer e iluminador num só lugar!”
+
+End the video with her smiling naturally, still holding the palette close to the camera. The tone should feel personal and confident, focusing on how practical and high-quality`,
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/Create_a_vertical_1080p_202601131538.mp4',
     messagesCount: 0
   }
 ];
