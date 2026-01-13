@@ -12,7 +12,7 @@ const VideoGrid: React.FC = () => {
       title: " Introdução:",
       description: "Criando sua Influenciadora.",
       thumbnail: "https://speakia.ai/wp-content/uploads/2026/01/imagem-0.png",
-      videoUrl: "https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      videoUrl: "https://speakia.ai/wp-content/uploads/2026/01/Introducao.mp4",
     },
     {
       id: 2,
