@@ -96,8 +96,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background text-foreground transition-colors duration-300">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 border-r border-border flex-col fixed h-full z-50 glass bg-background/80 backdrop-blur-xl transition-all duration-300">
-        <div className="p-4 flex items-center justify-start border-b border-border/50 h-auto py-3">
+      <aside className="hidden md:flex w-64 flex-col fixed h-full z-50 glass bg-background/80 backdrop-blur-xl transition-all duration-300">
+        <div className="p-4 flex items-center justify-start h-auto py-3">
           <img src="/speak-ai-logo.png" alt="Speak AI" className="h-10 object-contain" />
         </div>
 
@@ -107,16 +107,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-border/50 space-y-2"></div>
+        <div className="p-4 space-y-2"></div>
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border/50">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-xl">
         <div className="flex items-center justify-between p-4 h-16">
           <img src="/speak-ai-logo.png" alt="Speak AI" className="h-8 object-contain" />
           <div className="flex items-center gap-3">
             {isLogged && hasMembership && credits !== null && (
-              <div className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-sm font-semibold text-indigo-400">
+              <div className="flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-500/10 text-sm font-semibold text-indigo-400">
                 <Zap className="w-4 h-4" />
                 {credits}
               </div>
@@ -145,17 +145,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Mobile Menu Dropdown */}
         {isOpen && (
-          <div className="absolute top-20 left-0 right-0 bg-background/95 backdrop-blur-xl border-b border-border/50 p-4 space-y-2">
+          <div className="absolute top-20 left-0 right-0 bg-background/95 backdrop-blur-xl p-4 space-y-2">
             {navItems.map((item) => (
               <NavLink key={item.href} item={item} />
             ))}
-            <div className="border-t border-border/50 pt-4 space-y-2 mt-4">
+            <div className="pt-4 space-y-2 mt-4">
               {isLogged && (
                 <Button
                   variant="outline"
                   size="sm"
                   disabled={!hasMembership}
-                  className={`w-full border-border/50 text-xs justify-start transition-all ${
+                  className={`w-full text-xs justify-start transition-all ${
                     hasMembership
                       ? "text-foreground hover:bg-secondary/50 cursor-pointer"
                       : "text-muted-foreground/50 cursor-not-allowed opacity-50"
@@ -175,7 +175,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full border-border/50 text-foreground hover:bg-secondary/50 text-xs justify-start"
+                className="w-full text-foreground hover:bg-secondary/50 text-xs justify-start"
                 onClick={() => setIsOpen(false)}
               >
                 Personalizado
@@ -207,14 +207,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         )}
       </div>
 
-      {/* Main Content */}
+            {/* Main Content */}
       <main className="flex-1 md:pl-64 min-h-screen pt-24 md:pt-0">
-        {/* Top Bar with Créditos and Planos */}
-        <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl border-b border-border/50 items-center justify-between px-6 z-30">
+        {/* Top Bar sem borda */}
+        <div className="hidden md:flex fixed top-0 right-0 left-64 h-20 bg-background/80 backdrop-blur-xl items-center justify-between px-6 z-30">
           <div></div>
-                   <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
             {isLogged && hasMembership && credits !== null && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 font-semibold text-indigo-400">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500/10 font-semibold text-indigo-400">
                 <Zap className="w-4 h-4" />
                 {credits}
               </div>
@@ -223,7 +223,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <Button
                 variant="outline"
                 disabled={!hasMembership}
-                className={`border-border/50 rounded-full transition-all ${
+                className={`rounded-full transition-all ${
                   hasMembership
                     ? "text-foreground hover:bg-secondary/50 cursor-pointer"
                     : "text-muted-foreground/50 cursor-not-allowed opacity-50"
@@ -237,7 +237,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             )}
             <Button
               variant="outline"
-              className="border-border/50 text-foreground hover:bg-secondary/50 rounded-full"
+              className="text-foreground hover:bg-secondary/50 rounded-full"
               onClick={() => {}}
             >
               Personalizado
@@ -261,10 +261,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
+        {/* Conteúdo principal */}
         <div className="max-w-7xl mx-auto p-6 lg:p-12 animate-in fade-in duration-500 slide-in-from-bottom-4 md:mt-20">
           {children}
         </div>
       </main>
+
+      {/* Modais */}
       <PlansModal open={plansOpen} onOpenChange={setPlansOpen} />
       <CreditsModal open={creditsOpen} onOpenChange={setCreditsOpen} />
     </div>
