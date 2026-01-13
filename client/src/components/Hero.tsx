@@ -12,7 +12,7 @@ const Hero: React.FC = () => {
         </span>
       </h1>
       <p className="text-lg text-textMuted text-center mb-12 font-light max-w-xl">
-        Aulas curtas, diretas e que cabem no seu dia. Conhecimento sem complicação..
+        Aulas curtas, diretas e que cabem no seu dia. Conhecimento sem complicação.
         <br className="hidden md:block" />
       </p>
     </div>
