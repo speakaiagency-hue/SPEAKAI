@@ -21,6 +21,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [showControls, setShowControls] = useState(false); // novo estado
 
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -102,7 +103,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-4xl max-h-[90vh] bg-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,0,0,0.1)] border border-white/5"
+        className="relative w-full max-w-4xl max-h-[90vh] bg-black rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(255,0,0,0.1)] border border-white/5 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -117,83 +118,87 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         </div>
 
         {/* Video */}
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          className="w-full h-auto video-orientation"
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onEnded={() => setIsPlaying(false)}
-          onClick={togglePlay}
-          playsInline
-        />
+        <div className="flex-1 flex items-center justify-center">
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            className="w-full h-auto max-h-[70vh] object-contain video-orientation"
+            onTimeUpdate={handleTimeUpdate}
+            onLoadedMetadata={handleLoadedMetadata}
+            onEnded={() => setIsPlaying(false)}
+            onClick={() => setShowControls((prev) => !prev)} // alterna controles
+            playsInline
+          />
+        </div>
 
-        {/* Controls */}
-        <div className="absolute bottom-0 left-0 w-full p-4 flex flex-col gap-4 z-50 bg-gradient-to-t from-black/95 via-black/60 to-transparent">
-          {/* Progress */}
-          <div
-            className="w-full h-1 bg-white/10 rounded-full cursor-pointer relative group flex items-center"
-            onClick={handleProgressClick}
-          >
+        {/* Controls só aparecem se showControls for true */}
+        {showControls && (
+          <div className="w-full p-4 flex flex-col gap-4 z-50 bg-gradient-to-t from-black/95 via-black/60 to-transparent">
+            {/* Progress */}
             <div
-              className="absolute h-full bg-[#FF0000] rounded-full z-10"
-              style={{ width: `${progress}%` }}
-            />
-            <div
-              className="absolute w-3.5 h-3.5 bg-[#FF0000] rounded-full z-20 shadow-lg border-2 border-white/10 transform -translate-x-1/2"
-              style={{ left: `${progress}%` }}
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex items-center gap-4 text-white px-2">
-            <button onClick={togglePlay} className="hover:text-[#FF0000] transition-colors p-1">
-              {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7" />}
-            </button>
-
-            <button onClick={() => skip(-10)} className="hover:text-[#FF0000] transition-colors p-1">
-              <SkipBack className="w-7 h-7" />
-            </button>
-
-            <button onClick={() => skip(10)} className="hover:text-[#FF0000] transition-colors p-1">
-              <SkipForward className="w-7 h-7" />
-            </button>
-
-            {/* Volume */}
-            <div
-              className="flex items-center gap-2 group/volume relative ml-2"
-              onMouseEnter={() => setShowVolumeSlider(true)}
-              onMouseLeave={() => setShowVolumeSlider(false)}
+              className="w-full h-1 bg-white/10 rounded-full cursor-pointer relative group flex items-center"
+              onClick={handleProgressClick}
             >
-              <button
-                onClick={toggleMute}
-                className={`transition-colors p-1 ${isMuted ? "text-white/40" : "hover:text-[#FF0000]"}`}
-              >
-                <Volume2 className="w-6 h-6" />
-              </button>
-
               <div
-                className={`transition-all duration-300 origin-left flex items-center ${
-                  showVolumeSlider ? "w-24 opacity-100" : "w-0 opacity-0 overflow-hidden"
-                }`}
-              >
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={isMuted ? 0 : volume}
-                  onChange={handleVolumeChange}
-                  className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#FF0000] hover:accent-[#FF3333]"
-                />
-              </div>
+                className="absolute h-full bg-[#FF0000] rounded-full z-10"
+                style={{ width: `${progress}%` }}
+              />
+              <div
+                className="absolute w-3.5 h-3.5 bg-[#FF0000] rounded-full z-20 shadow-lg border-2 border-white/10 transform -translate-x-1/2"
+                style={{ left: `${progress}%` }}
+              />
             </div>
 
-            <span className="text-sm font-medium tracking-tight text-white/90 ml-auto select-none">
-              {currentTime} / {duration}
-            </span>
+            {/* Buttons */}
+            <div className="flex items-center gap-4 text-white px-2">
+              <button onClick={togglePlay} className="hover:text-[#FF0000] transition-colors p-1">
+                {isPlaying ? <Pause className="w-7 h-7" /> : <Play className="w-7 h-7" />}
+              </button>
+
+              <button onClick={() => skip(-10)} className="hover:text-[#FF0000] transition-colors p-1">
+                <SkipBack className="w-7 h-7" />
+              </button>
+
+              <button onClick={() => skip(10)} className="hover:text-[#FF0000] transition-colors p-1">
+                <SkipForward className="w-7 h-7" />
+              </button>
+
+              {/* Volume */}
+              <div
+                className="flex items-center gap-2 group/volume relative ml-2"
+                onMouseEnter={() => setShowVolumeSlider(true)}
+                onMouseLeave={() => setShowVolumeSlider(false)}
+              >
+                <button
+                  onClick={toggleMute}
+                  className={`transition-colors p-1 ${isMuted ? "text-white/40" : "hover:text-[#FF0000]"}`}
+                >
+                  <Volume2 className="w-6 h-6" />
+                </button>
+
+                <div
+                  className={`transition-all duration-300 origin-left flex items-center ${
+                    showVolumeSlider ? "w-24 opacity-100" : "w-0 opacity-0 overflow-hidden"
+                  }`}
+                >
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                    className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer accent-[#FF0000] hover:accent-[#FF3333]"
+                  />
+                </div>
+              </div>
+
+              <span className="text-sm font-medium tracking-tight text-white/90 ml-auto select-none">
+                {currentTime} / {duration}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Pause overlay */}
         {!isPlaying && (
