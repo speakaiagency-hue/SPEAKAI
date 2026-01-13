@@ -61,6 +61,7 @@ const Showcase: React.FC<ShowcaseProps> = ({
           } group-hover:[animation-play-state:paused]`}
           onTouchStart={() => setPaused(true)}
           onTouchEnd={() => setPaused(false)}
+          onTouchCancel={() => setPaused(false)}
         >
           {marqueeProjects.map((project, index) => (
             <div
