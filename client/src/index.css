@@ -81,12 +81,17 @@
   --accent-foreground: 210 40% 98%;
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
-  --border: 0 0% 0%; /* ← borda invisível */
+  --border: 0 0% 0%; /* borda invisível */
   --input: 217 33% 17%;
   --ring: 263 70% 50%;
 }
 
 @layer base {
+  html, body {
+    height: 100%;
+    width: 100%;
+    background: hsl(var(--background));
+  }
   body {
     @apply font-sans antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary;
   }
@@ -122,16 +127,18 @@
 
 @layer utilities {
   .glass {
-    @apply bg-background/60 backdrop-blur-lg border border-white/10;
+    /* removido border para evitar linha visual */
+    @apply bg-background/60 backdrop-blur-lg shadow-none;
   }
   .glass-card {
-    @apply bg-card/50 backdrop-blur-md border border-white/5 shadow-xl;
+    /* removido border e shadow para evitar linha visual */
+    @apply bg-card/50 backdrop-blur-md shadow-none;
   }
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-400;
   }
 
-  /* 🔥 Marquee Animation para Showcase */
+  /* Marquee Animation para Showcase */
   @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
