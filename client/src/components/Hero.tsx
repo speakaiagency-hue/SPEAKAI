@@ -13,9 +13,7 @@ const Hero: React.FC = () => {
         <span className="text-white">com Speak AI </span>
       </h1>
       <p className="text-lg text-textMuted text-center mb-12 font-light max-w-xl">
-        Tutorial completo para usar o sistema. <br className="hidden md:block" />
-        <span className="text-purple-300/60">
-          Do upload à publicação, passo a passo em vídeo.
+        Aulas curtas, diretas e que cabem no seu dia. Conhecimento sem complicação.. <br className="hidden md:block" />
         </span>
       </p>
     </div>
