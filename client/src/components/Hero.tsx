@@ -13,11 +13,6 @@ const Hero: React.FC = () => {
           <div className="absolute inset-[-150%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#3b82f6_0%,#a855f7_25%,#020617_50%,#3b82f6_75%,#3b82f6_100%)] blur-xl opacity-50" />
           {/* Inner Content (Logo) */}
           <div className="relative bg-[#020617] rounded-[14px] px-8 py-6 flex items-center justify-center">
-            <img
-              src="/speak-ai-logo.png"
-              alt="Speakia AI"
-              className="h-16 md:h-20 w-auto object-contain relative z-10"
-            />
           </div>
         </div>
       </div>
