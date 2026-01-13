@@ -120,7 +120,7 @@ const VideoPlayerModal: React.FC<VideoPlayerModalProps> = ({
         <video
           ref={videoRef}
           src={videoUrl}
-          className="w-full h-auto max-h-[70vh] md:max-h-[85vh] object-contain md:object-cover"
+          className="w-full h-auto video-orientation"
           onTimeUpdate={handleTimeUpdate}
           onLoadedMetadata={handleLoadedMetadata}
           onEnded={() => setIsPlaying(false)}
