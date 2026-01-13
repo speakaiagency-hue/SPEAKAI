@@ -36,16 +36,82 @@ export const MOCK_VIDEOS = [
   },
   {
     id: 'v4',
-    title: 'Cinematografia IA',
-    description: 'Crie cenas cinematográficas a partir de descrições simples de texto.',
-    videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
+    title: 'O Valor de Cada Instante',
+    description: 'Create a cinematic one-take video showing a single woman talking directly to the camera. As she speaks, her appearance gradually ages in real-time — transitioning seamlessly from age 30 to age 70 without cuts or sudden morphing. The transformation should be natural, fluid, and emotionally resonant.
+
+CHARACTER – YOUNG TO OLD
+
+Ethnicity / Look: Latina or Mediterranean features. Medium to deep olive-toned skin with natural glow.
+
+Hair (Start): Long, rich dark brown hair with soft waves, loose and healthy.
+
+Hair (End): Gray or salt-and-pepper version of same hairstyle — either shorter or pulled into a low bun.
+
+Eyes: Warm brown, expressive and soulful.
+
+Facial structure: High cheekbones, full lips, subtle jawline.
+
+Makeup (Start): Natural glam – light foundation, soft blush, glossed lips.
+
+Makeup (End): Minimal makeup or none – allowing natural aging features like wrinkles, smile lines, and age spots to appear.
+
+Expression: Calm and reflective throughout, with emotional depth increasing as time passes.
+
+OUTFIT
+
+A timeless outfit that remains consistent during the transition — for example:
+
+Cream knit sweater or blouse, neutral trousers, delicate earrings.
+
+The outfit should feel classic and age-agnostic — fitting both versions of her.
+
+Fabric should subtly wrinkle or soften over time to match her aging.
+
+DIALOGUE (Portuguese – spoken naturally)
+
+SPOKEN TEXT (Portuguese - BR):
+"Se eu pudesse dizer uma coisa pra mim mesma... é que nada dura pra sempre. Nem o que dói, nem o que brilha. Mas tudo vale a pena."
+
+(Translation: "If I could say one thing to myself… it’s that nothing lasts forever. Not what hurts, not what shines. But it’s all worth it.")
+
+Her voice should remain the same tone — warm, emotional — but can subtly deepen or gain texture as she ages.
+
+CAMERA & TRANSITION
+
+Shot: Medium close-up, centered. Locked-off camera — no cuts.
+
+Lens: 50mm or 85mm for intimacy.
+
+Lighting: Warm soft light from one side — golden hour or indoor diffused sunlight.
+
+Background: Neutral, cozy environment — soft-focus interior (e.g., curtain, plants, bookshelf). No time-specific details that would contradict the transition.
+
+Transition Technique:
+Aging occurs in real-time, gradually: skin texture changes, fine lines appear, hair shifts from brown to gray, posture subtly alters.
+
+No magical effect or digital “morph” — aim for a realistic, time-lapse-style transformation.
+
+AUDIO
+
+Ambient sound: Light room tone, no noise distractions.
+
+Music (optional): Gentle piano or ambient strings fading in subtly near the end, evoking emotion without overpowering her voice.
+
+Notes:
+
+No glitch effects.
+No subtitles.
+No abrupt visual shifts.
+Keep entire video grounded in realism and emotional storytelling.
+
+— mature, poetic, timeless.',
+    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.02.52.mp4',
     messagesCount: 0
   },
   {
     id: 'v5',
     title: 'Motion Graphics',
     description: 'Animações complexas geradas instantaneamente para seus projetos.',
-    imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=800&q=80',
     videoUrl: 'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
     messagesCount: 0
   },
