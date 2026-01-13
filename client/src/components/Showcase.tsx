@@ -56,9 +56,8 @@ const Showcase: React.FC<ShowcaseProps> = ({
         <div className="absolute right-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-l from-background via-background/20 to-transparent z-20 pointer-events-none" />
 
         <div
-          className={`flex w-max animate-marquee py-4 ${
-            paused ? "[animation-play-state:paused]" : ""
-          } group-hover:[animation-play-state:paused]`}
+          className="flex w-max animate-marquee py-4 group-hover:paused-marquee"
+          style={{ animationPlayState: paused ? "paused" : "running" }}
           onTouchStart={() => setPaused(prev => !prev)} // toggle no mobile
         >
           {marqueeProjects.map((project, index) => (
@@ -122,35 +121,3 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ project }) => {
             {project.tag}
           </span>
 
-          <h3 className="text-sm md:text-base font-bold text-white mb-1.5 leading-tight line-clamp-1 group-hover/card:text-purple-400 transition-colors">
-            {project.title}
-          </h3>
-
-          <p className="text-slate-400 text-[10px] md:text-[11px] leading-relaxed mb-4 line-clamp-3 h-[42px] md:h-[48px]">
-            {project.description}
-          </p>
-        </div>
-
-        <div className="mt-auto">
-          <div className="mb-3">
-            <button
-              onClick={handleCopy}
-              className={`flex items-center gap-2 text-[9px] md:text-[10px] font-medium py-1.5 px-3 rounded-lg border transition-all duration-300 w-fit
-                  ${
-                    copied
-                      ? "bg-green-500/20 text-green-400 border-green-500/30"
-                      : "bg-white/5 text-slate-400 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20"
-                  }`}
-            >
-              {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-              {copied ? "Copiado!" : "Copiar texto"}
-            </button>
-          </div>
-          <div className="w-8 h-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full transition-all duration-700 group-hover/card:w-full" />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Showcase;
