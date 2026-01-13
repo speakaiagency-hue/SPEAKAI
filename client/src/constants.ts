@@ -66,44 +66,44 @@ export const MOCK_VIDEOS = [
 export const MOCK_PHOTOS = [
   {
     id: 'p1',
-    title: 'Retratos Realistas',
-    description: 'Fotografia de pessoas com detalhes de pele e iluminação de estúdio impecáveis.',
-    imageUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80',
+    title: 'IA mostrando um produto na mão',
+    description: 'Uma mulher de 29 anos, pele clara, cabelo preto liso, sorriso leve. Ela segura um produto de beleza na mão direita, olhando para a câmera. Roupa casual moderna, fundo branco minimalista, estilo catálogo.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2888.png',
     messagesCount: 0
   },
   {
     id: 'p2',
-    title: 'Estúdio Visual',
-    description: 'Crie imagens publicitárias com precisão absoluta de iluminação e composição.',
-    imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+    title: 'IA psicóloga foto profissional',
+    description: 'Mulher de 35 anos, pele clara, cabelo castanho preso em coque. Roupa formal discreta (blazer azul marinho), fundo de consultório elegante com estante de livros. Expressão acolhedora e confiante, iluminação suave.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2889.png',
     messagesCount: 0
   },
   {
     id: 'p3',
-    title: 'Arquitetura Futura',
-    description: 'Designs arquitetônicos inovadores e renderizações fotorrealistas.',
-    imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+    title: 'Bella tomando coca-cola',
+    description: 'Manter todas as características originais da pessoa e do fundo da imagem sem alterações. Adicionar apenas o detalhe de que a pessoa está segurando uma lata de Coca-Cola e bebendo dela, com gesto natural e expressão descontraída. A iluminação e cenário devem permanecer exatamente iguais ao original.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2893.png',
     messagesCount: 0
   },
   {
     id: 'p4',
-    title: 'Product Design',
-    description: 'Mockups de produtos em alta definição para e-commerce e apresentações.',
-    imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
+    title: 'IA fazendo ‘provador fashion’',
+    description: 'Foto estilo editorial mostrando uma mulher de 24 anos, pele morena clara, cabelo castanho longo. Ela está em frente a espelho experimentando roupas diferentes: vestido elegante, jeans casual e look esportivo. Iluminação de loja moderna, estética Instagram.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2891.png',
     messagesCount: 0
   },
   {
     id: 'p5',
-    title: 'Concept Art',
-    description: 'Ilustrações fantásticas para jogos, filmes e storytelling visual.',
-    imageUrl: 'https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&w=800&q=80',
+    title: 'Empresária foto profissional',
+    description: 'Foto corporativa de mulher de 38 anos, pele morena, cabelo castanho médio liso, estilo clássico. Roupa executiva feminina (blazer cinza e blusa social azul), fundo de escritório moderno com janelas amplas. Postura firme, olhar determinado, iluminação profissional.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/imagem-0-21.png',
     messagesCount: 0
   },
   {
     id: 'p6',
-    title: 'Food Styling',
-    description: 'Imagens gastronômicas que despertam o desejo, prontas para redes sociais.',
-    imageUrl: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80',
+    title: 'Chef de Cozinha Profissional',
+    description: 'Retrato realista de uma muher de 32 anos, pele clara, cabelo castanho preso em coque elegante. Ela veste uniforme de chef de cozinha branco impecável com avental preto. Está em uma cozinha moderna e iluminada, segurando uma panela de aço inox com uma das mãos e uma colher de madeira na outra, como se estivesse preparando uma receita. Expressão confiante e simpática, fundo com bancadas de mármore e utensílios culinários organizados. Iluminação quente e profissional, estilo fotografia editorial gastronômica.',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/imagem-0-22.png',
     messagesCount: 0
   }
 ];
