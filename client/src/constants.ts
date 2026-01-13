@@ -70,14 +70,14 @@ export const MOCK_PHOTOS = [
     id: 'p2',
     title: 'Psicóloga Digital',
     description: 'Mulher de 35 anos, pele clara, cabelo castanho preso em coque. Roupa formal discreta (blazer azul marinho), fundo de consultório elegante com estante de livros. Expressão acolhedora e confiante, iluminação suave.',
-    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2889.png',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2889-1.png',
     messagesCount: 0
   },
   {
     id: 'p3',
     title: 'Um Gole de Felicidade',
     description: 'Manter todas as características originais da pessoa e do fundo da imagem sem alterações. Adicionar apenas o detalhe de que a pessoa está segurando uma lata de Coca-Cola e bebendo dela, com gesto natural e expressão descontraída. A iluminação e cenário devem permanecer exatamente iguais ao original.',
-    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2893.png',
+    imageUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2893-1.png',
     messagesCount: 0
   },
   {
