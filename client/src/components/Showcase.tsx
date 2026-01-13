@@ -56,8 +56,7 @@ const Showcase: React.FC<ShowcaseProps> = ({
         <div className="absolute right-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-l from-background via-background/20 to-transparent z-20 pointer-events-none" />
 
         <div
-          className="flex w-max animate-marquee py-4 group-hover:paused-marquee"
-          style={{ animationPlayState: paused ? "paused" : "running" }}
+          className={`flex w-max animate-marquee py-4 ${paused ? "paused-marquee" : ""} group-hover:paused-marquee`}
           onTouchStart={() => setPaused((prev) => !prev)} // toggle no mobile
         >
           {marqueeProjects.map((project, index) => (
