@@ -98,6 +98,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col fixed h-full z-50 glass bg-background/80 backdrop-blur-xl transition-all duration-300">
         <div className="p-4 flex items-center justify-start h-auto py-3">
+          <img src="/speak-ai-logo.png" alt="Speak AI" className="h-10 object-contain" />
         </div>
 
         <nav className="flex-1 py-6 px-3 space-y-2 text-[14px] pl-[9px] pr-[9px] pt-[24px] pb-[24px]">
