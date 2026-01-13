@@ -68,8 +68,8 @@ const Home: React.FC = () => {
 
         <div id="showcase-videos">
           <Showcase
-            title="Criações em Vídeos"
-            subtitle="Conteúdos dinâmicos e virais gerados 100% por inteligência artificial."
+            title="Prompts de Vídeo"
+            subtitle="Modelos prontos para você adaptar e usar em qualquer ferramenta de IA"
             projects={MOCK_VIDEOS}
           />
         </div>
@@ -77,8 +77,8 @@ const Home: React.FC = () => {
         {/* Removida a borda superior */}
         <div id="showcase-photos" className="pt-8">
           <Showcase
-            title="Criações em Fotos"
-            subtitle="Imagens de alta resolução e realismo extremo para qualquer projeto visual."
+            title="Prompts de Foto"
+            subtitle="Sugestões práticas para copiar e aplicar em qualquer gerador de imagens."
             projects={MOCK_PHOTOS}
             gradientFrom="#f472b6"
             gradientTo="#ec4899"
