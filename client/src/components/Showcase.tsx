@@ -19,6 +19,7 @@ const Showcase: React.FC<ShowcaseProps> = ({
   gradientTo = "#a855f7",
 }) => {
   const marqueeProjects = [...projects, ...projects, ...projects];
+  const [paused, setPaused] = useState(false);
 
   return (
     <div className="w-full pb-12 relative z-10 overflow-hidden">
@@ -54,7 +55,13 @@ const Showcase: React.FC<ShowcaseProps> = ({
         <div className="absolute left-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-r from-background via-background/20 to-transparent z-20 pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-12 md:w-48 bg-gradient-to-l from-background via-background/20 to-transparent z-20 pointer-events-none" />
 
-        <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused] py-4">
+        <div
+          className={`flex w-max animate-marquee py-4 ${
+            paused ? "[animation-play-state:paused]" : ""
+          } group-hover:[animation-play-state:paused]`}
+          onTouchStart={() => setPaused(true)}
+          onTouchEnd={() => setPaused(false)}
+        >
           {marqueeProjects.map((project, index) => (
             <div
               key={`${project.id}-${index}`}
