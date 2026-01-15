@@ -99,4 +99,29 @@ export class GeminiService {
   }
 }
 
+// Instância única
 export const gemini = new GeminiService();
+
+/**
+ * Wrapper para compatibilidade com routes.ts
+ * Assim você pode continuar usando `createChatService()` no routes.ts
+ */
+export async function createChatService() {
+  return {
+    createChat(history?: Content[]) {
+      return gemini["getAI"]().chats.create({
+        model: TEXT_MODEL,
+        history,
+      });
+    },
+
+    async sendMessage(chat: any, message: string) {
+      const result = await chat.sendMessage({ message });
+      return result;
+    },
+
+    async generateTitle(text: string): Promise<string> {
+      return text.split(" ").slice(0, 5).join(" ");
+    },
+  };
+}
