@@ -1,5 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-import { ModelType, AspectRatio, ImageSize, ReferenceImage } from "../../shared/types"; 
+import { ModelType, AspectRatio, ImageSize, ReferenceImage } from "../../client/src/types";
 // 👆 ajuste o caminho conforme onde você colocou seu types.ts (ex: src/types ou shared/types)
 
 export const generateImage = async (
