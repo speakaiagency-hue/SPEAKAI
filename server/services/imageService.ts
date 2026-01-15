@@ -14,7 +14,7 @@ function getApiKey(): string {
 export const generateImage = async (
   prompt: string,
   model: ModelType,
-  references: ReferenceImage[] = [],
+  images: ReferenceImage[] = [],   // 👈 alinhado com o nome usado na rota
   aspectRatio: AspectRatio = "1:1",
   imageSize: ImageSize = "1K",
   numImages: number = 1
@@ -22,14 +22,14 @@ export const generateImage = async (
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
   // Prepara partes: imagens de referência válidas
-  const parts: any[] = references
-    .filter((ref) => typeof ref?.data === "string" && typeof ref?.type === "string")
-    .map((ref) => {
-      const base64 = ref.data.includes(",") ? ref.data.split(",")[1] : ref.data;
+  const parts: any[] = images
+    .filter((img) => typeof img?.data === "string" && typeof img?.type === "string")
+    .map((img) => {
+      const base64 = img.data.includes(",") ? img.data.split(",")[1] : img.data;
       return {
         inlineData: {
           data: base64,
-          mimeType: ref.type,
+          mimeType: img.type,
         },
       };
     });
@@ -59,21 +59,21 @@ export const generateImage = async (
     throw new Error("Nenhum conteúdo gerado pelo modelo.");
   }
 
-  const images: string[] = [];
+  const resultImages: string[] = [];
 
   for (const candidate of response.candidates) {
     if (candidate.content?.parts) {
       for (const part of candidate.content.parts) {
         if (part.inlineData?.data && part.inlineData?.mimeType) {
-          images.push(`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`);
+          resultImages.push(`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`);
         }
       }
     }
   }
 
-  if (images.length === 0) {
+  if (resultImages.length === 0) {
     throw new Error("Nenhuma imagem encontrada na resposta.");
   }
 
-  return images;
+  return resultImages;
 };
