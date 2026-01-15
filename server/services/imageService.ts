@@ -21,11 +21,16 @@ export const generateImage = async (
 ): Promise<string[]> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
 
+  // 🔎 Logs para depuração
+  console.log("📦 Prompt recebido:", prompt);
+  console.log("📦 Quantidade de imagens recebidas:", images?.length || 0);
+
   // Prepara partes: imagens de referência válidas
   const parts: any[] = images
     .filter((img) => typeof img?.data === "string" && typeof img?.type === "string")
-    .map((img) => {
+    .map((img, idx) => {
       const base64 = img.data.includes(",") ? img.data.split(",")[1] : img.data;
+      console.log(`📦 Imagem ${idx} processada, mimeType: ${img.type}, tamanho base64: ${base64.length}`);
       return {
         inlineData: {
           data: base64,
@@ -38,6 +43,8 @@ export const generateImage = async (
   if (prompt.trim()) {
     parts.push({ text: prompt });
   }
+
+  console.log("📦 Parts enviados ao Gemini:", parts.length);
 
   const config: any = {
     imageConfig: { aspectRatio },
@@ -74,6 +81,8 @@ export const generateImage = async (
   if (resultImages.length === 0) {
     throw new Error("Nenhuma imagem encontrada na resposta.");
   }
+
+  console.log("📦 Imagens retornadas pelo Gemini:", resultImages.length);
 
   return resultImages;
 };
