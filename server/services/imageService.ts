@@ -1,6 +1,5 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 import { ModelType, AspectRatio, ImageSize, ReferenceImage } from "../../client/src/types";
-// 👆 ajuste o caminho conforme onde você colocou seu types.ts (ex: src/types ou shared/types)
 
 export const generateImage = async (
   prompt: string,
@@ -8,17 +7,22 @@ export const generateImage = async (
   references: ReferenceImage[] = [],
   aspectRatio: AspectRatio = "1:1",
   imageSize: ImageSize = "1K",
-  numImages: number = 1 // 👈 novo parâmetro
+  numImages: number = 1
 ): Promise<string[]> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  // Prepara partes: imagens de referência primeiro
-  const parts: any[] = references.map((ref) => ({
-    inlineData: {
-      data: ref.data.split(",")[1], // remove o prefixo data:image/png;base64,
-      mimeType: ref.type,
-    },
-  }));
+  // Prepara partes: imagens de referência válidas
+  const parts: any[] = references
+    .filter((ref) => typeof ref?.data === "string" && typeof ref?.type === "string")
+    .map((ref) => {
+      const base64 = ref.data.includes(",") ? ref.data.split(",")[1] : ref.data;
+      return {
+        inlineData: {
+          data: base64,
+          mimeType: ref.type,
+        },
+      };
+    });
 
   // Adiciona o prompt se existir
   if (prompt.trim()) {
@@ -30,11 +34,10 @@ export const generateImage = async (
       aspectRatio,
     },
     generationConfig: {
-      candidateCount: numImages, // 👈 pede várias imagens
+      candidateCount: numImages,
     },
   };
 
-  // Se for modelo PRO, permite escolher tamanho
   if (model === ModelType.PRO) {
     config.imageConfig.imageSize = imageSize;
   }
@@ -51,11 +54,10 @@ export const generateImage = async (
 
   const images: string[] = [];
 
-  // Itera sobre todos os candidatos e partes
   for (const candidate of response.candidates) {
     if (candidate.content?.parts) {
       for (const part of candidate.content.parts) {
-        if (part.inlineData) {
+        if (part.inlineData?.data && part.inlineData?.mimeType) {
           images.push(
             `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`
           );
