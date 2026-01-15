@@ -21,22 +21,22 @@ function ImagePageComponent() {
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrls.forEach((url) => URL.revokeObjectURL(url));
     };
-  }, [previewUrl]);
+  }, [previewUrls]);
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] || null;
-    setFile(f);
+    const selectedFiles = Array.from(e.target.files || []);
+    setFiles(selectedFiles);
     setGeneratedImages([]);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(f ? URL.createObjectURL(f) : null);
+    previewUrls.forEach((url) => URL.revokeObjectURL(url));
+    setPreviewUrls(selectedFiles.map((f) => URL.createObjectURL(f)));
   };
 
   const fileToBase64 = (f: File): Promise<{ base64: string; mimeType: string }> =>
@@ -52,26 +52,23 @@ function ImagePageComponent() {
     });
 
   const handleGenerate = async () => {
-    if (!prompt && !file) {
-      toast({ title: "Digite um prompt ou envie uma imagem", variant: "destructive" });
+    if (!prompt && files.length === 0) {
+      toast({ title: "Digite um prompt ou envie imagens", variant: "destructive" });
       return;
     }
 
     setIsGenerating(true);
     try {
-      let imageBase64: string | undefined;
-      let imageMimeType: string | undefined;
+      let imagesBase64: { base64: string; mimeType: string }[] = [];
 
-      if (file) {
-        const { base64, mimeType } = await fileToBase64(file);
-        imageBase64 = base64;
-        imageMimeType = mimeType;
+      if (files.length > 0) {
+        imagesBase64 = await Promise.all(files.map(fileToBase64));
       }
 
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({ prompt, aspectRatio, imageBase64, imageMimeType }),
+        body: JSON.stringify({ prompt, aspectRatio, images: imagesBase64 }),
       });
 
       const result = await response.json();
@@ -93,7 +90,7 @@ function ImagePageComponent() {
         throw new Error("Resposta da API não contém URL da imagem.");
       }
 
-      toast({ title: "Imagem processada com sucesso!" });
+      toast({ title: "Imagens processadas com sucesso!" });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro inesperado.";
       toast({ title: errorMessage, variant: "destructive" });
@@ -114,7 +111,7 @@ function ImagePageComponent() {
           Geração de Imagem
         </h1>
         <p className="text-muted-foreground">
-          Descreva o que você quer ver ou envie uma imagem para editar.
+          Descreva o que você quer ver ou envie imagens para editar.
         </p>
       </div>
 
@@ -160,27 +157,31 @@ function ImagePageComponent() {
             className="flex flex-col items-center justify-center gap-2 cursor-pointer py-10 rounded-xl transition hover:bg-[#1a1d24]"
           >
             <UploadCloud className="w-10 h-10 text-purple-500" />
-            <span className="text-sm text-gray-400">Clique para enviar uma imagem</span>
+            <span className="text-sm text-gray-400">Clique para enviar imagens</span>
           </label>
           <input
             id="file-upload"
             type="file"
             accept="image/*"
+            multiple
             onChange={onFileChange}
             className="hidden"
           />
-          {file && (
+          {files.length > 0 && (
             <div className="mt-2 text-sm text-gray-300 truncate">
-              Arquivo selecionado: {file.name}
+              {files.length} arquivo(s) selecionado(s)
             </div>
           )}
-          {previewUrl && (
-            <div className="mt-4">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-64 rounded-lg border border-gray-700 object-contain"
-              />
+          {previewUrls.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-4">
+              {previewUrls.map((url, i) => (
+                <img
+                  key={i}
+                  src={url}
+                  alt={`Preview ${i}`}
+                  className="max-h-64 rounded-lg border border-gray-700 object-contain"
+                />
+              ))}
             </div>
           )}
         </div>
@@ -200,13 +201,13 @@ function ImagePageComponent() {
               <span className="text-sm font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">
                 {IMAGE_COST} ⚡
               </span>
-              <span>{file ? "Aplicar mudanças" : "Gerar Imagem"}</span>
+              <span>{files.length > 0 ? "Aplicar mudanças" : "Gerar Imagem"}</span>
             </>
           )}
         </Button>
       </div>
 
-      {/* Gallery + downloads fora da imagem */}
+           {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
           <div className="grid grid-cols-2 gap-4">
