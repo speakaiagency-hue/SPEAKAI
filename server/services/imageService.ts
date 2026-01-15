@@ -8,25 +8,27 @@ export async function createImageService() {
     async generateImage(
       prompt: string,
       aspectRatio: string = "1:1",
-      inputImage?: { data: string; mimeType: string }
-    ): Promise<{ imageUrl: string; model: string }> {
+      inputImages: { data: string; mimeType: string }[] = []
+    ): Promise<{ images: string[]; model: string }> {
       return await rotator.executeWithRotation(async (apiKey) => {
         const ai = new GoogleGenAI({ apiKey });
 
         const parts: any[] = [];
 
-        if (inputImage) {
-          // Primeiro envia a imagem
-          parts.push({
-            inlineData: {
-              data: inputImage.data,
-              mimeType: inputImage.mimeType,
-            },
-          });
+        if (inputImages.length > 0) {
+          // Adiciona todas as imagens enviadas
+          for (const img of inputImages) {
+            parts.push({
+              inlineData: {
+                data: img.data,
+                mimeType: img.mimeType,
+              },
+            });
+          }
 
-          // Depois envia instrução do usuário
+          // Depois adiciona instrução do usuário
           parts.push({
-            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+            text: prompt || "Edite estas imagens mantendo os elementos originais.",
           });
         } else {
           // Geração só por texto
@@ -41,7 +43,6 @@ export async function createImageService() {
           config: {
             imageConfig: { aspectRatio },
           },
-          // Configuração conservadora para reduzir variação
           generationConfig: {
             temperature: 0.2,
             topP: 0.8,
@@ -49,8 +50,9 @@ export async function createImageService() {
           },
         });
 
-        // Debug opcional: logar resposta completa
         console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
+
+        const images: string[] = [];
 
         if (
           geminiResponse.candidates &&
@@ -62,15 +64,19 @@ export async function createImageService() {
             if (part.inlineData) {
               const base64EncodeString: string = part.inlineData.data || "";
               const mimeType = part.inlineData.mimeType;
-              return {
-                imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
-                model: "Gemini Flash",
-              };
+              images.push(`data:${mimeType};base64,${base64EncodeString}`);
             }
           }
         }
 
-        throw new Error("A resposta da API não continha uma imagem.");
+        if (images.length === 0) {
+          throw new Error("A resposta da API não continha imagens.");
+        }
+
+        return {
+          images,
+          model: "Gemini Flash",
+        };
       });
     },
   };
