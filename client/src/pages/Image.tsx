@@ -167,24 +167,41 @@ function ImagePageComponent() {
             onChange={onFileChange}
             className="hidden"
           />
+
           {files.length > 0 && (
-            <div className="mt-2 text-sm text-gray-300 truncate">
-              {files.length} arquivo(s) selecionado(s)
+            <div className="mt-6 space-y-4">
+              <h3 className="text-sm font-semibold text-gray-300">Arquivos selecionados:</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {files.map((file, i) => (
+                  <div key={i} className="relative group">
+                    <img
+                      src={previewUrls[i]}
+                      alt={`Preview ${i}`}
+                      className="rounded-lg border border-gray-700 object-cover max-h-48 w-full"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-xs text-white px-2 py-1 truncate">
+                      {file.name}
+                    </div>
+                    <button
+                      onClick={() => {
+                        const newFiles = [...files];
+                        const newPreviews = [...previewUrls];
+                        newFiles.splice(i, 1);
+                        newPreviews.splice(i, 1);
+                        setFiles(newFiles);
+                        setPreviewUrls(newPreviews);
+                      }}
+                      className="absolute top-1 right-1 bg-white/10 hover:bg-white/20 text-white rounded-full p-1 border border-white/20 transition"
+                      title="Remover"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
-          {previewUrls.length > 0 && (
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              {previewUrls.map((url, i) => (
-                <img
-                  key={i}
-                  src={url}
-                  alt={`Preview ${i}`}
-                  className="max-h-64 rounded-lg border border-gray-700 object-contain"
-                />
-              ))}
-            </div>
-          )}
-        </div>
+               </div>
 
         {/* Action */}
         <Button
@@ -207,7 +224,7 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-           {/* Gallery + downloads */}
+      {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
           <div className="grid grid-cols-2 gap-4">
