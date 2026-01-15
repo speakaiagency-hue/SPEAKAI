@@ -129,13 +129,13 @@ export async function registerRoutes(
     }
   });
 
-  // ✅ Image Generation API (Protected) corrigida
+  // ✅ Image Generation API (Protected) corrigida para múltiplas imagens
   app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const { prompt, aspectRatio = "1:1", imageBase64, imageMimeType } = req.body;
-      if ((!prompt || !prompt.trim()) && !imageBase64) {
+      const { prompt, aspectRatio = "1:1", images = [], numImages = 1 } = req.body;
+      if ((!prompt || !prompt.trim()) && (!images || images.length === 0)) {
         return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
       }
 
@@ -147,9 +147,8 @@ export async function registerRoutes(
       const result = await imageService.generateImage(
         prompt,
         aspectRatio,
-        imageBase64 && imageMimeType
-          ? { data: imageBase64, mimeType: imageMimeType }
-          : undefined
+        images,     // 👈 agora aceita múltiplas imagens
+        numImages   // 👈 quantidade de imagens solicitadas
       );
 
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
