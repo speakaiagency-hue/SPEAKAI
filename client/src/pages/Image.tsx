@@ -24,7 +24,7 @@ function ImagePageComponent() {
   const [files, setFiles] = useState<File[]>([]);
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [numImages, setNumImages] = useState(1); // 👈 novo estado
+  const [numImages, setNumImages] = useState(1);
 
   useEffect(() => {
     return () => {
@@ -40,13 +40,13 @@ function ImagePageComponent() {
     setPreviewUrls(selectedFiles.map((f) => URL.createObjectURL(f)));
   };
 
-  const fileToBase64 = (f: File): Promise<{ base64: string; mimeType: string }> =>
+  // ✅ Corrigido para enviar { data, type } em vez de { base64, mimeType }
+  const fileToBase64 = (f: File): Promise<{ data: string; type: string }> =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         const dataUrl = reader.result as string;
-        const base64 = dataUrl.split(",")[1];
-        resolve({ base64, mimeType: f.type });
+        resolve({ data: dataUrl, type: f.type });
       };
       reader.onerror = reject;
       reader.readAsDataURL(f);
@@ -60,7 +60,7 @@ function ImagePageComponent() {
 
     setIsGenerating(true);
     try {
-      let imagesBase64: { base64: string; mimeType: string }[] = [];
+      let imagesBase64: { data: string; type: string }[] = [];
 
       if (files.length > 0) {
         imagesBase64 = await Promise.all(files.map(fileToBase64));
@@ -107,6 +107,9 @@ function ImagePageComponent() {
         className="min-h-[160px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
         maxLength={2000}
       />
+      <div className="text-xs text-muted-foreground font-mono">
+        {prompt.length}/2000
+      </div>
 
       {/* Aspect ratio + contador */}
       <div className="flex items-end justify-between px-6 pb-4">
@@ -126,10 +129,6 @@ function ImagePageComponent() {
             </button>
           ))}
         </div>
-
-        <div className="text-xs text-muted-foreground font-mono">
-          {prompt.length}/2000
-        </div>
       </div>
 
       {/* Seletor de quantidade */}
@@ -146,7 +145,7 @@ function ImagePageComponent() {
             </option>
           ))}
         </select>
-            </div>
+      </div>
 
       {/* Upload estilizado */}
       <div className="bg-[#0f1117] p-4 rounded-xl border border-dashed border-[#2d3748] shadow-2xl">
