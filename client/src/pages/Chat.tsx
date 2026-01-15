@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
-import ChatMessage from "@/components/ChatMessage"; // novo componente
-
+import ChatMessage from "@/components/ChatMessage";
 import { Message } from "@/types";
 
 function ChatComponent() {
@@ -28,12 +26,9 @@ function ChatComponent() {
   const { toast } = useToast();
   const conversationIdRef = useRef(Date.now().toString());
 
-  // Auto scroll to bottom
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
   const handleSend = async () => {
@@ -86,12 +81,7 @@ function ChatComponent() {
       ]);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Erro ao conectar com IA";
-      toast({
-        title: "Erro ao enviar mensagem",
-        description: message,
-        variant: "destructive",
-      });
-      console.error("Chat error:", error);
+      toast({ title: "Erro ao enviar mensagem", description: message, variant: "destructive" });
     } finally {
       setIsTyping(false);
     }
@@ -131,21 +121,12 @@ function ChatComponent() {
             onClick={() => setUseContext(!useContext)}
           >
             <span>Contexto:</span>
-            {useContext ? (
-              <ToggleRight className="w-8 h-8 text-primary" />
-            ) : (
-              <ToggleLeft className="w-8 h-8 text-muted-foreground" />
-            )}
+            {useContext ? <ToggleRight className="w-8 h-8 text-primary" /> : <ToggleLeft className="w-8 h-8 text-muted-foreground" />}
           </div>
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" /> Exportar
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClear}
-            className="text-destructive hover:bg-destructive/10"
-          >
+          <Button variant="ghost" size="sm" onClick={handleClear} className="text-destructive hover:bg-destructive/10">
             <Eraser className="w-4 h-4 mr-2" /> Limpar
           </Button>
         </div>
@@ -157,7 +138,6 @@ function ChatComponent() {
             {messages.map((m) => (
               <ChatMessage key={m.id} message={m} />
             ))}
-
             {isTyping && (
               <div className="flex gap-4">
                 <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center shrink-0">
