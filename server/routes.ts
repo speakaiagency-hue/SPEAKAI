@@ -4,7 +4,7 @@ import { storage } from "./storage";
 import { generateVideo, type GenerateVideoParams } from "./services/geminiService";
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
-import { createImageService } from "./services/imageService";
+import { generateImage } from "./services/imageService"; // 👈 import direto da função
 import { authMiddleware } from "./middleware/authMiddleware";
 import { deductCredits } from "./services/webhookService";
 
@@ -17,7 +17,6 @@ export async function registerRoutes(
 ): Promise<Server> {
   const chatService = await createChatService();
   const promptService = await createPromptService();
-  const imageService = await createImageService();
 
   // Video Generation API (Protected)
   app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
@@ -134,7 +133,7 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const { prompt, aspectRatio = "1:1", images = [], numImages = 1 } = req.body;
+      const { prompt, aspectRatio = "1:1", images = [], numImages = 1, model = "gemini-2.5-flash-image" } = req.body;
       if ((!prompt || !prompt.trim()) && (!images || images.length === 0)) {
         return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
       }
@@ -144,14 +143,16 @@ export async function registerRoutes(
         return res.status(402).json(deductResult);
       }
 
-      const result = await imageService.generateImage(
+      const result = await generateImage(
         prompt,
+        model,
+        images,
         aspectRatio,
-        images,     // 👈 agora aceita múltiplas imagens
-        numImages   // 👈 quantidade de imagens solicitadas
+        "1K",
+        numImages
       );
 
-      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
+      res.json({ images: result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
       console.error("Image generation error:", error);
       const message = error instanceof Error ? error.message : "Erro ao gerar imagem";
