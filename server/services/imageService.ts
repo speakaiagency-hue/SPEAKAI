@@ -1,88 +1,77 @@
-import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
-import { ModelType, AspectRatio, ImageSize, ReferenceImage } from "../../client/src/types";
+import { GoogleGenAI } from "@google/genai";
+import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
 
-// Função para obter uma chave válida do ambiente
-function getApiKey(): string {
-  const keys = process.env.GEMINI_API_KEYS?.split(",").map(k => k.trim()).filter(Boolean);
-  if (!keys || keys.length === 0) {
-    throw new Error("Nenhuma chave GEMINI_API_KEYS definida no ambiente.");
-  }
-  // Usa a primeira chave da lista (simples e funcional)
-  return keys[0];
-}
+export async function createImageService() {
+  const rotator = getGeminiKeyRotator();
 
-export const generateImage = async (
-  prompt: string,
-  model: ModelType,
-  images: ReferenceImage[] = [],   // 👈 alinhado com o nome usado na rota
-  aspectRatio: AspectRatio = "1:1",
-  imageSize: ImageSize = "1K",
-  numImages: number = 1
-): Promise<string[]> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  return {
+    async generateImage(
+      prompt: string,
+      aspectRatio: string = "1:1",
+      inputImage?: { data: string; mimeType: string }
+    ): Promise<{ imageUrl: string; model: string }> {
+      return await rotator.executeWithRotation(async (apiKey) => {
+        const ai = new GoogleGenAI({ apiKey });
 
-  // 🔎 Logs para depuração
-  console.log("📦 Prompt recebido:", prompt);
-  console.log("📦 Quantidade de imagens recebidas:", images?.length || 0);
+        const parts: any[] = [];
 
-  // Prepara partes: imagens de referência válidas
-  const parts: any[] = images
-    .filter((img) => typeof img?.data === "string" && typeof img?.type === "string")
-    .map((img, idx) => {
-      const base64 = img.data.includes(",") ? img.data.split(",")[1] : img.data;
-      console.log(`📦 Imagem ${idx} processada, mimeType: ${img.type}, tamanho base64: ${base64.length}`);
-      return {
-        inlineData: {
-          data: base64,
-          mimeType: img.type,
-        },
-      };
-    });
+        if (inputImage) {
+          // Primeiro envia a imagem
+          parts.push({
+            inlineData: {
+              data: inputImage.data,
+              mimeType: inputImage.mimeType,
+            },
+          });
 
-  // Adiciona o prompt se existir
-  if (prompt.trim()) {
-    parts.push({ text: prompt });
-  }
-
-  console.log("📦 Parts enviados ao Gemini:", parts.length);
-
-  const config: any = {
-    imageConfig: { aspectRatio },
-    generationConfig: { candidateCount: numImages },
-  };
-
-  // Se for modelo PRO, permite escolher tamanho
-  if (model === ModelType.PRO) {
-    config.imageConfig.imageSize = imageSize;
-  }
-
-  const response: GenerateContentResponse = await ai.models.generateContent({
-    model,
-    contents: { parts },
-    config,
-  });
-
-  if (!response.candidates || response.candidates.length === 0) {
-    throw new Error("Nenhum conteúdo gerado pelo modelo.");
-  }
-
-  const resultImages: string[] = [];
-
-  for (const candidate of response.candidates) {
-    if (candidate.content?.parts) {
-      for (const part of candidate.content.parts) {
-        if (part.inlineData?.data && part.inlineData?.mimeType) {
-          resultImages.push(`data:${part.inlineData.mimeType};base64,${part.inlineData.data}`);
+          // Depois envia instrução do usuário
+          parts.push({
+            text: prompt || "Edite esta imagem mantendo todos os elementos originais.",
+          });
+        } else {
+          // Geração só por texto
+          parts.push({
+            text: prompt || "Uma arte digital cinematográfica e detalhada",
+          });
         }
-      }
-    }
-  }
 
-  if (resultImages.length === 0) {
-    throw new Error("Nenhuma imagem encontrada na resposta.");
-  }
+        const geminiResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash-image",
+          contents: { parts },
+          config: {
+            imageConfig: { aspectRatio },
+          },
+          // Configuração conservadora para reduzir variação
+          generationConfig: {
+            temperature: 0.2,
+            topP: 0.8,
+            topK: 40,
+          },
+        });
 
-  console.log("📦 Imagens retornadas pelo Gemini:", resultImages.length);
+        // Debug opcional: logar resposta completa
+        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
-  return resultImages;
-};
+        if (
+          geminiResponse.candidates &&
+          geminiResponse.candidates[0] &&
+          geminiResponse.candidates[0].content &&
+          geminiResponse.candidates[0].content.parts
+        ) {
+          for (const part of geminiResponse.candidates[0].content.parts) {
+            if (part.inlineData) {
+              const base64EncodeString: string = part.inlineData.data || "";
+              const mimeType = part.inlineData.mimeType;
+              return {
+                imageUrl: `data:${mimeType};base64,${base64EncodeString}`,
+                model: "Gemini Flash",
+              };
+            }
+          }
+        }
+
+        throw new Error("A resposta da API não continha uma imagem.");
+      });
+    },
+  };
+}
