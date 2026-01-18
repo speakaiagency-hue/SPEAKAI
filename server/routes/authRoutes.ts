@@ -42,12 +42,12 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       }
 
       // 🔄 Verifica compras pendentes (fluxo compra antes do cadastro)
-      const pendingPurchases = await (storage as any).findPendingPurchasesByEmail?.(email);
+      const pendingPurchases = await storage.findPendingPurchasesByEmail?.(email);
       if (pendingPurchases && pendingPurchases.length > 0) {
         for (const purchase of pendingPurchases) {
           if (purchase.status === "approved") {
-            await (storage as any).addCredits?.(newUser.id, purchase.credits);
-            await (storage as any).markPendingAsUsed?.(purchase.purchase_id);
+            await storage.addCredits(newUser.id, purchase.credits, purchase.purchase_id);
+            await storage.markPendingAsUsed?.(purchase.purchase_id);
             console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
           }
         }
@@ -81,14 +81,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
-      let passwordMatch = false;
-      try {
-        passwordMatch = await bcrypt.compare(password, user.password);
-      } catch (err) {
-        console.error("Erro ao comparar senha:", err);
-        return res.status(401).json({ error: "Email ou senha inválidos" });
-      }
-
+      const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
@@ -118,7 +111,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
         return res.json({ hasMembership: true, credits: credits.credits });
       }
 
-      const hasMembership = await (kiwifyService as any).hasAnyPurchase(user.email);
+      const hasMembership = await kiwifyService.hasAnyPurchase(user.email);
       res.json({ hasMembership });
     } catch (error) {
       console.error("Check membership error:", error);
