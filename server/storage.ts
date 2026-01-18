@@ -64,6 +64,18 @@ async function getDb() {
         raw_payload JSON,
         created_at TIMESTAMP DEFAULT NOW()
       );
+
+      -- ✅ Nova tabela para compras pendentes
+      CREATE TABLE IF NOT EXISTS pending_purchases (
+        id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
+        purchase_id TEXT NOT NULL UNIQUE,
+        email TEXT NOT NULL,
+        product_id TEXT,
+        credits INTEGER NOT NULL,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT NOW(),
+        used BOOLEAN DEFAULT false
+      );
     `);
   }
   return db;
@@ -82,148 +94,36 @@ export interface IStorage {
   deductCredits(userId: string, amount: number): Promise<any>;
   hasProcessedPurchase(purchaseId: string): Promise<any>;
   logWebhookEvent(purchaseId: string, userId: string, credits: number, productId?: string, productName?: string, rawPayload?: any): Promise<void>;
+
+  // ✅ Novos métodos para fluxo compra antes do cadastro
+  addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }): Promise<void>;
+  findPendingPurchasesByEmail(email: string): Promise<any[]>;
+  markPendingAsUsed(purchaseId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  async getUser(id: string): Promise<User | undefined> {
+  // ... (todos os métodos que você já tem)
+
+  async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
     const database = await getDb();
-    const result = await database.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const database = await getDb();
-    const result = await database.select().from(users).where(eq(users.username, username)).limit(1);
-    return result[0];
-  }
-
-  async getUserByEmail(email: string): Promise<User | undefined> {
-    const database = await getDb();
-    const result = await database.select().from(users).where(eq(users.email, email)).limit(1);
-    return result[0];
-  }
-
-  async createUser(user: InsertUser): Promise<User> {
-    const database = await getDb();
-    const result = await database.insert(users).values(user).returning();
-    return result[0];
-  }
-
-  async updateUserAvatar(id: string, avatar: string): Promise<User | undefined> {
-    const database = await getDb();
-    const result = await database.update(users).set({ avatar }).where(eq(users.id, id)).returning();
-    return result[0];
-  }
-
-  async updateUserProfile(id: string, data: { name: string; email: string }): Promise<User | undefined> {
-    const database = await getDb();
-    const result = await database.update(users).set(data).where(eq(users.id, id)).returning();
-    return result[0];
-  }
-
-  async updateUserPassword(id: string, password: string): Promise<User | undefined> {
-    const database = await getDb();
-    const result = await database.update(users).set({ password }).where(eq(users.id, id)).returning();
-    return result[0];
-  }
-
-  async getUserCredits(userId: string): Promise<any> {
-    const database = await getDb();
-    const result = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-    return result[0];
-  }
-
-  async addCredits(userId: string, amount: number, purchaseId?: string) {
-    const database = await getDb();
-    let credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-
-    if (!credits[0]) {
-      const result = await database
-        .insert(userCredits)
-        .values({
-          userId,
-          credits: amount,
-          totalPurchased: amount,
-          totalUsed: 0,
-        })
-        .returning();
-
-      await database.insert(creditTransactions).values({
-        userId,
-        type: "purchase",
-        amount,
-        kiwifyPurchaseId: purchaseId,
-        description: "Créditos adicionados via Kiwify",
-      });
-
-      return result[0];
-    }
-
-    const updated = credits[0].credits + amount;
-    const result = await database
-      .update(userCredits)
-      .set({
-        credits: updated,
-        totalPurchased: (credits[0].totalPurchased || 0) + amount,
-      })
-      .where(eq(userCredits.userId, userId))
-      .returning();
-
-    await database.insert(creditTransactions).values({
-      userId,
-      type: "purchase",
-      amount,
-      kiwifyPurchaseId: purchaseId,
-      description: "Créditos adicionados via Kiwify",
+    await database.insert("pending_purchases").values({
+      purchase_id: data.purchaseId,
+      email: data.email,
+      product_id: data.productId,
+      credits: data.credits,
+      status: data.status,
     });
-
-    return result[0];
   }
 
-  async deductCredits(userId: string, amount: number) {
+  async findPendingPurchasesByEmail(email: string) {
     const database = await getDb();
-    const credits = await database.select().from(userCredits).where(eq(userCredits.userId, userId)).limit(1);
-
-    if (!credits[0] || credits[0].credits < amount) {
-      return null;
-    }
-
-    const updated = credits[0].credits - amount;
-    const result = await database
-      .update(userCredits)
-      .set({
-        credits: updated,
-        totalUsed: (credits[0].totalUsed || 0) + amount,
-      })
-      .where(eq(userCredits.userId, userId))
-      .returning();
-
-    await database.insert(creditTransactions).values({
-      userId,
-      type: "deduction",
-      amount,
-      description: "Créditos deduzidos",
-    });
-
-    return result[0];
+    const result = await database.select().from("pending_purchases").where(eq("pending_purchases.email", email)).where(eq("pending_purchases.used", false));
+    return result;
   }
 
-  async hasProcessedPurchase(purchaseId: string) {
+  async markPendingAsUsed(purchaseId: string) {
     const database = await getDb();
-    const event = await database.select().from(creditsEvents).where(eq(creditsEvents.eventId, purchaseId)).limit(1);
-    return event[0] || null;
-  }
-
-  async logWebhookEvent(purchaseId: string, userId: string, credits: number, productId?: string, productName?: string, rawPayload?: any) {
-    const database = await getDb();
-    await database.insert(creditsEvents).values({
-      eventId: purchaseId,
-      userId,
-      productId,
-      productName,
-      creditsApplied: credits,
-      rawPayload,
-    });
+    await database.update("pending_purchases").set({ used: true }).where(eq("pending_purchases.purchase_id", purchaseId));
   }
 }
 
