@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, Mail, Lock, Camera, LogOut, History } from "lucide-react";
+import { User, Mail, Lock, Camera, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,20 +38,16 @@ export default function Profile() {
     const reader = new FileReader();
     reader.onload = async (event) => {
       const base64 = event.target?.result as string;
-      try {
-        const headers: HeadersInit = { "Content-Type": "application/json" };
-        const authHeader = getAuthHeader();
-        if (authHeader.Authorization) {
-          (headers as Record<string, string>).Authorization = authHeader.Authorization;
-        }
-        const response = await fetch("/api/auth/update-avatar", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ avatar: base64 }),
-        });
 
-        if (!response.ok) throw new Error("Erro ao atualizar avatar");
-        const updatedUser = { ...user, avatar: base64 };
+      // garante que tenha prefixo data:image
+      const avatarData = base64.startsWith("data:")
+        ? base64
+        : `data:image/png;base64,${base64}`;
+
+      try {
+        // aqui você poderia enviar para backend se tivesse
+        // mas vamos apenas salvar no localStorage
+        const updatedUser = { ...user, avatar: avatarData };
         localStorage.setItem("user", JSON.stringify(updatedUser));
         setUser(updatedUser);
         toast({ title: "Avatar atualizado!" });
@@ -224,11 +220,11 @@ export default function Profile() {
               </div>
               <div className="flex items-center gap-3 p-3 bg-secondary/20 rounded-lg">
                 <Mail className="w-4 h-4 text-muted-foreground" />
-                <span>{user.email}</span>
-              </div>
-            </>
-          )}
-        </CardContent>
+                             <span>{user.email}</span>
+            </div>
+          </>
+        )}
+      </CardContent>
       </Card>
 
       {/* Alterar Senha */}
