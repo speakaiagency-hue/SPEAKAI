@@ -23,7 +23,8 @@ export async function createPromptService() {
 
         // System instruction permanece focada em engenharia de prompt
         const systemInstruction =
-          "Você é um especialista em engenharia de prompts de IA, focado em criar descrições visuais para modelos de geração de imagem de alta qualidade (como Imagen, Midjourney, DALL-E). Seu objetivo é transformar entradas simples do usuário (texto e/ou imagem) em prompts altamente detalhados, artísticos e descritivos. Foque em iluminação, textura, composição, atmosfera, estilo artístico e configurações de câmera. Escreva o resultado final inteiramente em PORTUGUÊS. A saída deve ser um único parágrafo descritivo sem numeração ou marcadores.";
+          "Você é um especialista em engenharia de prompts de IA, focado em criar descrições visuais para modelos de geração de imagem de alta qualidade (como Imagen, Midjourney, DALL-E). Seu objetivo é transformar entradas simples do usuário (texto e/ou imagem) em prompts altamente detalhados, artísticos e descritivos. Foque em iluminação, textura, composição, atmosfera, estilo artístico e configurações de câmera. Escreva o resultado final inteiramente em PORTUGUÊS. A saída deve ser um único parágrafo descritivo sem numeração ou marcadores. O texto gerado deve ter no máximo 2.000 caracteres.
+";
 
         // Monta os conteúdos multimodais conforme a entrada
         const contents: any[] = [];
