@@ -26,7 +26,7 @@ const VideoGrid: React.FC = () => {
       title: "Retrato Realista:",
       description: "Imagem da Personagem.",
       thumbnail: "https://speakia.ai/wp-content/uploads/2026/01/imagem-0-3.png",
-      videoUrl: "https://speakia.ai/wp-content/uploads/2026/01/Gerar-imagem.mp4",
+      videoUrl: "https://speakia.ai/wp-content/uploads/2026/01/Gerar-imagem-1.mp4",
     },
     {
       id: 4,
