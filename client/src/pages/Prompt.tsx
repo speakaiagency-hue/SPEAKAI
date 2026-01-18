@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Wand2, RefreshCw, CheckCircle2, Upload } from "lucide-react";
+import { Copy, Wand2, RefreshCw, CheckCircle2, Upload, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +17,9 @@ function PromptComponent() {
 
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageData, setUploadedImageData] = useState<{ base64: string; mimeType: string } | null>(null);
+
+  // 👉 estado para controlar se foi copiado
+  const [copied, setCopied] = useState(false);
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -38,8 +41,8 @@ function PromptComponent() {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
         body: JSON.stringify({
-          userInput: input.trim() || null,                 // texto opcional
-          imageBase64: uploadedImageData?.base64 || null,  // imagem opcional
+          userInput: input.trim() || null,
+          imageBase64: uploadedImageData?.base64 || null,
           mimeType: uploadedImageData?.mimeType || null,
         }),
       });
@@ -79,7 +82,11 @@ function PromptComponent() {
   const handleCopy = () => {
     if (!generatedPrompt) return;
     navigator.clipboard.writeText(generatedPrompt);
+    setCopied(true); // muda estado
     toast({ title: "Copiado!" });
+
+    // volta para "Copiar" depois de 2 segundos
+    setTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -176,9 +183,23 @@ function PromptComponent() {
               {generatedPrompt}
             </div>
             <div className="flex justify-center">
-              <Button className="bg-secondary hover:bg-secondary/80 text-secondary-foreground px-6 py-3" onClick={handleCopy}>
-                <Copy className="w-4 h-4 mr-2" />
-                Copiar texto
+              <Button
+                className={`px-6 py-3 transition-colors ${
+                  copied ? "bg-green-600 text-white" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"
+                }`}
+                onClick={handleCopy}
+              >
+                {copied ? (
+                  <>
+                                       <Check className="w-4 h-4 mr-2" />
+                    Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copiar texto
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
