@@ -9,7 +9,7 @@ import type { IStorage } from "../storage";
 import express from "express";
 
 export async function registerWebhookRoutes(app: Express, storage: IStorage, kiwifyService: any) {
-  // ✅ Kiwify Webhook Endpoint com express.raw para validar assinatura
+  // ✅ Endpoint do Webhook da Kiwify
   app.post("/api/webhook/kiwify", express.raw({ type: "application/json" }), async (req: Request, res: Response) => {
     try {
       const signature = req.headers["x-kiwify-signature"] as string;
@@ -17,7 +17,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
       console.log("📩 Webhook recebido da Kiwify:", payload);
 
-      // Validação da assinatura
+      // 🔒 Validação da assinatura
       if (signature && process.env.KIWIFY_WEBHOOK_SECRET) {
         const isValid = await verifyKiwifySignature(payload, signature);
         if (!isValid) {
@@ -29,7 +29,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
       const parsed = typeof payload === "string" ? JSON.parse(payload) : payload;
       const fallbackEmail = `kiwify_${Date.now()}@placeholder.com`;
 
-      // ✅ Corrigido para usar Product e Customer com P maiúsculo
+      // 📦 Montagem dos dados recebidos
       const webhookData: KiwifyWebhookData = {
         purchase_id: parsed.purchase_id || parsed.order_id || parsed.id || `purchase_${Date.now()}`,
         customer_email: parsed.Customer?.email || parsed.customer?.email || parsed.email || fallbackEmail,
@@ -42,10 +42,11 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
       console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
 
-      const result = await handleKiwifyPurchase(webhookData);
+      // 🔄 Processa compra (adiciona créditos ou registra como pendente)
+      const result = await handleKiwifyPurchase(webhookData, storage);
 
       if (result.success) {
-        console.log(`✅ Créditos adicionados: ${result.creditsAdded} para usuário ${result.userId}`);
+        console.log(`✅ Processado: ${result.message} | Créditos: ${result.creditsAdded} | UserId: ${result.userId ?? "pendente"}`);
         return res.status(200).json({
           success: true,
           message: result.message,
