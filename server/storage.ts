@@ -9,7 +9,7 @@ import {
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 let db: ReturnType<typeof drizzle> | null = null;
 
@@ -123,7 +123,7 @@ export class DatabaseStorage implements IStorage {
   async getUserByEmail(email: string) {
     const database = await getDb();
     const result = await database.select().from(users).where(eq(users.email, email));
-    return result[0]; // ✅ garante que password vem junto
+    return result[0];
   }
 
   async createUser(user: InsertUser) {
@@ -150,14 +150,86 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  // Métodos de créditos e eventos ficariam aqui...
+  // ✅ Créditos
+  async getUserCredits(userId: string) {
+    const database = await getDb();
+    const result = await database.select().from(userCredits).where(eq(userCredits.userId, userId));
+    return result[0];
+  }
 
+  async addCredits(userId: string, amount: number, purchaseId?: string) {
+    const database = await getDb();
+
+    await database.update(userCredits)
+      .set({
+        credits: sql`${userCredits.credits} + ${amount}`,
+        totalPurchased: sql`${userCredits.totalPurchased} + ${amount}`,
+        updatedAt: sql`NOW()`,
+      })
+      .where(eq(userCredits.userId, userId));
+
+    await database.insert(creditTransactions).values({
+      userId,
+      type: "purchase",
+      amount,
+      description: "Créditos adicionados",
+      kiwifyPurchaseId: purchaseId,
+      operationType: "system",
+    });
+  }
+
+  async deductCredits(userId: string, amount: number) {
+    const database = await getDb();
+
+    await database.update(userCredits)
+      .set({
+        credits: sql`${userCredits.credits} - ${amount}`,
+        totalUsed: sql`${userCredits.totalUsed} + ${amount}`,
+        updatedAt: sql`NOW()`,
+      })
+      .where(eq(userCredits.userId, userId));
+
+    await database.insert(creditTransactions).values({
+      userId,
+      type: "usage",
+      amount,
+      description: "Créditos utilizados",
+      operationType: "system",
+    });
+  }
+
+  async hasProcessedPurchase(purchaseId: string) {
+    const database = await getDb();
+    const result = await database.select().from(creditsEvents).where(eq(creditsEvents.eventId, purchaseId));
+    return result.length > 0;
+  }
+
+  async logWebhookEvent(
+    purchaseId: string,
+    userId: string,
+    credits: number,
+    productId?: string,
+    productName?: string,
+    rawPayload?: any
+  ) {
+    const database = await getDb();
+    await database.insert(creditsEvents).values({
+      eventId: purchaseId,
+      userId,
+      productId,
+      productName,
+      creditsApplied: credits,
+      rawPayload,
+    });
+  }
+
+  // ✅ Compras pendentes
   async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
     const database = await getDb();
     await database.insert(pendingPurchases).values({
-      purchase_id: data.purchaseId,
+      purchaseId: data.purchaseId,
       email: data.email,
-      product_id: data.productId,
+      productId: data.productId,
       credits: data.credits,
       status: data.status,
     });
@@ -178,7 +250,7 @@ export class DatabaseStorage implements IStorage {
     await database
       .update(pendingPurchases)
       .set({ used: true })
-      .where(eq(pendingPurchases.purchase_id, purchaseId));
+      .where(eq(pendingPurchases.purchaseId, purchaseId));
   }
 }
 
