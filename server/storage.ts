@@ -116,20 +116,36 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByUsername(username: string) {
     const database = await getDb();
-    const result = await database.select().from(users).where(eq(users.username, username));
+    const result = await database.select().from(users).where(eq(users.username, username.toLowerCase()));
     return result[0];
   }
 
   async getUserByEmail(email: string) {
     const database = await getDb();
-    const result = await database.select().from(users).where(eq(users.email, email));
+    const normalizedEmail = email.toLowerCase();
+    const result = await database.select().from(users).where(eq(users.email, normalizedEmail));
     return result[0];
   }
 
   async createUser(user: InsertUser) {
     const database = await getDb();
-    const result = await database.insert(users).values(user).returning();
-    return result[0];
+    const normalizedUser = {
+      ...user,
+      username: user.username.toLowerCase(),
+      email: user.email?.toLowerCase(),
+    };
+    const result = await database.insert(users).values(normalizedUser).returning();
+    const newUser = result[0];
+
+    // Cria registro inicial de créditos
+    await database.insert(userCredits).values({
+      userId: newUser.id,
+      credits: 0,
+      totalPurchased: 0,
+      totalUsed: 0,
+    });
+
+    return newUser;
   }
 
   async updateUserAvatar(id: string, avatar: string) {
@@ -140,7 +156,10 @@ export class DatabaseStorage implements IStorage {
 
   async updateUserProfile(id: string, data: { name: string; email: string }) {
     const database = await getDb();
-    const result = await database.update(users).set(data).where(eq(users.id, id)).returning();
+    const result = await database.update(users).set({
+      name: data.name,
+      email: data.email.toLowerCase(),
+    }).where(eq(users.id, id)).returning();
     return result[0];
   }
 
@@ -160,13 +179,23 @@ export class DatabaseStorage implements IStorage {
   async addCredits(userId: string, amount: number, purchaseId?: string) {
     const database = await getDb();
 
-    await database.update(userCredits)
-      .set({
-        credits: sql`${userCredits.credits} + ${amount}`,
-        totalPurchased: sql`${userCredits.totalPurchased} + ${amount}`,
-        updatedAt: sql`NOW()`,
-      })
-      .where(eq(userCredits.userId, userId));
+    const existing = await database.select().from(userCredits).where(eq(userCredits.userId, userId));
+    if (existing.length === 0) {
+      await database.insert(userCredits).values({
+        userId,
+        credits: amount,
+        totalPurchased: amount,
+        totalUsed: 0,
+      });
+    } else {
+      await database.update(userCredits)
+        .set({
+          credits: sql`${userCredits.credits} + ${amount}`,
+          totalPurchased: sql`${userCredits.totalPurchased} + ${amount}`,
+          updatedAt: sql`NOW()`,
+        })
+        .where(eq(userCredits.userId, userId));
+    }
 
     await database.insert(creditTransactions).values({
       userId,
@@ -223,12 +252,12 @@ export class DatabaseStorage implements IStorage {
     });
   }
 
-  // ✅ Compras pendentes
+    // ✅ Compras pendentes
   async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
     const database = await getDb();
     await database.insert(pendingPurchases).values({
       purchaseId: data.purchaseId,
-      email: data.email,
+      email: data.email.toLowerCase(), // normaliza email
       productId: data.productId,
       credits: data.credits,
       status: data.status,
@@ -237,10 +266,11 @@ export class DatabaseStorage implements IStorage {
 
   async findPendingPurchasesByEmail(email: string) {
     const database = await getDb();
+    const normalizedEmail = email.toLowerCase();
     const result = await database
       .select()
       .from(pendingPurchases)
-      .where(eq(pendingPurchases.email, email))
+      .where(eq(pendingPurchases.email, normalizedEmail))
       .where(eq(pendingPurchases.used, false));
     return result;
   }
