@@ -10,11 +10,14 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
   // ✅ Registro de novo usuário
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
-      const { email, password, name } = req.body;
+      let { email, password, name } = req.body;
 
       if (!email || !password || !name) {
         return res.status(400).json({ error: "Email, senha e nome são obrigatórios" });
       }
+
+      // Normaliza email para minúsculas
+      email = email.toLowerCase();
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
@@ -43,8 +46,8 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       const pendingPurchases = await storage.findPendingPurchasesByEmail(email);
       for (const purchase of pendingPurchases) {
         if (purchase.status === "approved") {
-          await storage.addCredits(newUser.id, purchase.credits, purchase.purchase_id);
-          await storage.markPendingAsUsed(purchase.purchase_id);
+          await storage.addCredits(newUser.id, purchase.credits, purchase.purchaseId);
+          await storage.markPendingAsUsed(purchase.purchaseId);
           console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
         }
       }
@@ -66,11 +69,14 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
   // ✅ Login
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.body;
+      let { email, password } = req.body;
 
       if (!email || !password) {
         return res.status(400).json({ error: "Email e senha são obrigatórios" });
       }
+
+      // Normaliza email para minúsculas
+      email = email.toLowerCase();
 
       const user = await storage.getUserByEmail(email);
 
@@ -109,7 +115,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
         return res.json({ hasMembership: true, credits: credits.credits });
       }
 
-      const hasMembership = await kiwifyService.hasAnyPurchase(user.email);
+      const hasMembership = await kiwifyService.hasAnyPurchase(user.email.toLowerCase());
       res.json({ hasMembership });
     } catch (error) {
       console.error("Check membership error:", error);
@@ -136,8 +142,11 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
   // ✅ Atualizar perfil
   app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
     try {
-      const { name, email } = req.body;
+      let { name, email } = req.body;
       if (!name || !email) return res.status(400).json({ error: "Nome e email são obrigatórios" });
+
+      // Normaliza email
+      email = email.toLowerCase();
 
       const updatedUser = await storage.updateUserProfile(req.user!.id, { name, email });
       if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado" });
