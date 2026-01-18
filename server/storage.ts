@@ -4,7 +4,8 @@ import {
   users, 
   userCredits, 
   creditTransactions, 
-  creditsEvents 
+  creditsEvents,
+  pendingPurchases // ✅ importar schema da tabela nova
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -16,12 +17,12 @@ async function getDb() {
   if (!db) {
     const pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+      ssl: process.env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     });
 
     db = drizzle(pool);
 
-    // Create tables if they don't exist
+    // Criação das tabelas (se não existirem)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -93,7 +94,14 @@ export interface IStorage {
   addCredits(userId: string, amount: number, purchaseId?: string): Promise<any>;
   deductCredits(userId: string, amount: number): Promise<any>;
   hasProcessedPurchase(purchaseId: string): Promise<any>;
-  logWebhookEvent(purchaseId: string, userId: string, credits: number, productId?: string, productName?: string, rawPayload?: any): Promise<void>;
+  logWebhookEvent(
+    purchaseId: string,
+    userId: string,
+    credits: number,
+    productId?: string,
+    productName?: string,
+    rawPayload?: any
+  ): Promise<void>;
 
   // ✅ Novos métodos para fluxo compra antes do cadastro
   addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }): Promise<void>;
@@ -102,11 +110,11 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // ... (todos os métodos que você já tem)
+  // ... (outros métodos já implementados)
 
   async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
     const database = await getDb();
-    await database.insert("pending_purchases").values({
+    await database.insert(pendingPurchases).values({
       purchase_id: data.purchaseId,
       email: data.email,
       product_id: data.productId,
@@ -117,13 +125,20 @@ export class DatabaseStorage implements IStorage {
 
   async findPendingPurchasesByEmail(email: string) {
     const database = await getDb();
-    const result = await database.select().from("pending_purchases").where(eq("pending_purchases.email", email)).where(eq("pending_purchases.used", false));
+    const result = await database
+      .select()
+      .from(pendingPurchases)
+      .where(eq(pendingPurchases.email, email))
+      .where(eq(pendingPurchases.used, false));
     return result;
   }
 
   async markPendingAsUsed(purchaseId: string) {
     const database = await getDb();
-    await database.update("pending_purchases").set({ used: true }).where(eq("pending_purchases.purchase_id", purchaseId));
+    await database
+      .update(pendingPurchases)
+      .set({ used: true })
+      .where(eq(pendingPurchases.purchase_id, purchaseId));
   }
 }
 
