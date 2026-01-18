@@ -7,7 +7,7 @@ import { createKiwifyService } from "../services/kiwifyService";
 export async function registerAuthRoutes(app: Express, storage: IStorage) {
   const kiwifyService = await createKiwifyService();
 
-  // Register endpoint - create new user with hashed password
+  // ✅ Registro de novo usuário
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
       const { email, password, name } = req.body;
@@ -41,6 +41,18 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
         await storage.updateUserProfile(newUser.id, { email, name });
       }
 
+      // 🔄 Verifica compras pendentes (fluxo compra antes do cadastro)
+      const pendingPurchases = await (storage as any).findPendingPurchasesByEmail?.(email);
+      if (pendingPurchases && pendingPurchases.length > 0) {
+        for (const purchase of pendingPurchases) {
+          if (purchase.status === "approved") {
+            await (storage as any).addCredits?.(newUser.id, purchase.credits);
+            await (storage as any).markPendingAsUsed?.(purchase.purchase_id);
+            console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
+          }
+        }
+      }
+
       const token = generateToken(newUser.id, email, name);
 
       res.status(201).json({
@@ -54,7 +66,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
     }
   });
 
-  // Login endpoint
+  // ✅ Login
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
@@ -93,7 +105,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
     }
   });
 
-  // Check membership (Protected)
+  // ✅ Verificação de membership
   app.get("/api/auth/check-membership", authMiddleware, async (req: Request, res: Response) => {
     try {
       const user = await storage.getUser(req.user!.id);
@@ -114,7 +126,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
     }
   });
 
-  // Update User Avatar (Protected)
+  // ✅ Atualizar avatar
   app.post("/api/auth/update-avatar", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { avatar } = req.body;
@@ -130,7 +142,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
     }
   });
 
-  // Update User Profile (Protected)
+  // ✅ Atualizar perfil
   app.post("/api/auth/update-profile", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { name, email } = req.body;
@@ -146,7 +158,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
     }
   });
 
-  // Change Password (Protected)
+  // ✅ Alterar senha
   app.post("/api/auth/change-password", authMiddleware, async (req: Request, res: Response) => {
     try {
       const { currentPassword, newPassword } = req.body;
