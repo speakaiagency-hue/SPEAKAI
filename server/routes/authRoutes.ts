@@ -37,25 +37,22 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
         password: hashedPassword,
       });
 
-      if (newUser) {
-        await storage.updateUserProfile(newUser.id, { email, name });
-      }
+      await storage.updateUserProfile(newUser.id, { email, name });
 
-      // 🔄 Verifica compras pendentes (fluxo compra antes do cadastro)
-      const pendingPurchases = await storage.findPendingPurchasesByEmail?.(email);
-      if (pendingPurchases && pendingPurchases.length > 0) {
-        for (const purchase of pendingPurchases) {
-          if (purchase.status === "approved") {
-            await storage.addCredits(newUser.id, purchase.credits, purchase.purchase_id);
-            await storage.markPendingAsUsed?.(purchase.purchase_id);
-            console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
-          }
+      // 🔄 Verifica compras pendentes
+      const pendingPurchases = await storage.findPendingPurchasesByEmail(email);
+      for (const purchase of pendingPurchases) {
+        if (purchase.status === "approved") {
+          await storage.addCredits(newUser.id, purchase.credits, purchase.purchase_id);
+          await storage.markPendingAsUsed(purchase.purchase_id);
+          console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
         }
       }
 
       const token = generateToken(newUser.id, email, name);
 
       res.status(201).json({
+        success: true,
         message: "Conta criada com sucesso",
         token,
         user: { id: newUser.id, email, name },
@@ -76,8 +73,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       }
 
       const user = await storage.getUserByEmail(email);
-
-      if (!user || !user.password || typeof user.password !== "string") {
+      if (!user || typeof user.password !== "string") {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
 
@@ -89,6 +85,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       const token = generateToken(user.id, user.email || email, user.name || undefined);
 
       res.json({
+        success: true,
         token,
         user: { id: user.id, email: user.email || email, name: user.name },
       });
@@ -107,7 +104,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       }
 
       const credits = await storage.getUserCredits(user.id);
-      if (credits && credits.credits > 0) {
+      if (credits?.credits > 0) {
         return res.json({ hasMembership: true, credits: credits.credits });
       }
 
@@ -128,7 +125,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       const updatedUser = await storage.updateUserAvatar(req.user!.id, avatar);
       if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado" });
 
-      res.json({ user: updatedUser });
+      res.json({ success: true, user: updatedUser });
     } catch (error) {
       console.error("Avatar update error:", error);
       res.status(500).json({ error: "Erro ao atualizar avatar" });
@@ -144,7 +141,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       const updatedUser = await storage.updateUserProfile(req.user!.id, { name, email });
       if (!updatedUser) return res.status(404).json({ error: "Usuário não encontrado" });
 
-      res.json({ user: updatedUser });
+      res.json({ success: true, user: updatedUser });
     } catch (error) {
       console.error("Profile update error:", error);
       res.status(500).json({ error: "Erro ao atualizar perfil" });
@@ -163,7 +160,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       }
 
       const user = await storage.getUser(req.user!.id);
-      if (!user || !user.password) {
+      if (!user || typeof user.password !== "string") {
         return res.status(404).json({ error: "Usuário não encontrado" });
       }
 
