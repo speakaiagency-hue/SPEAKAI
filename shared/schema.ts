@@ -57,6 +57,18 @@ export const creditsEvents = pgTable("credits_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ---------------- PENDING PURCHASES ----------------
+export const pendingPurchases = pgTable("pending_purchases", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  purchaseId: text("purchase_id").notNull().unique(),
+  email: text("email").notNull(),
+  productId: text("product_id"),
+  credits: integer("credits").notNull(),
+  status: text("status").default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+  used: boolean("used").default(false),
+});
+
 // ---------------- SCHEMAS ----------------
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
@@ -69,3 +81,4 @@ export type User = typeof users.$inferSelect;
 export type UserCredits = typeof userCredits.$inferSelect;
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type CreditEvent = typeof creditsEvents.$inferSelect;
+export type PendingPurchase = typeof pendingPurchases.$inferSelect;
