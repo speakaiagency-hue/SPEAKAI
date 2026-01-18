@@ -5,7 +5,7 @@ import {
   userCredits, 
   creditTransactions, 
   creditsEvents,
-  pendingPurchases // ✅ importar schema da tabela nova
+  pendingPurchases
 } from "@shared/schema";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
@@ -66,7 +66,6 @@ async function getDb() {
         created_at TIMESTAMP DEFAULT NOW()
       );
 
-      -- ✅ Nova tabela para compras pendentes
       CREATE TABLE IF NOT EXISTS pending_purchases (
         id VARCHAR PRIMARY KEY DEFAULT gen_random_uuid(),
         purchase_id TEXT NOT NULL UNIQUE,
@@ -103,14 +102,55 @@ export interface IStorage {
     rawPayload?: any
   ): Promise<void>;
 
-  // ✅ Novos métodos para fluxo compra antes do cadastro
   addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }): Promise<void>;
   findPendingPurchasesByEmail(email: string): Promise<any[]>;
   markPendingAsUsed(purchaseId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // ... (outros métodos já implementados)
+  async getUser(id: string) {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string) {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async getUserByEmail(email: string) {
+    const database = await getDb();
+    const result = await database.select().from(users).where(eq(users.email, email));
+    return result[0]; // ✅ garante que password vem junto
+  }
+
+  async createUser(user: InsertUser) {
+    const database = await getDb();
+    const result = await database.insert(users).values(user).returning();
+    return result[0];
+  }
+
+  async updateUserAvatar(id: string, avatar: string) {
+    const database = await getDb();
+    const result = await database.update(users).set({ avatar }).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  async updateUserProfile(id: string, data: { name: string; email: string }) {
+    const database = await getDb();
+    const result = await database.update(users).set(data).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  async updateUserPassword(id: string, password: string) {
+    const database = await getDb();
+    const result = await database.update(users).set({ password }).where(eq(users.id, id)).returning();
+    return result[0];
+  }
+
+  // Métodos de créditos e eventos ficariam aqui...
 
   async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
     const database = await getDb();
