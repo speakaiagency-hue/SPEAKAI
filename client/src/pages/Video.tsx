@@ -285,8 +285,8 @@ function VideoPageComponent() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1a1d24] border-[#2d3748] text-foreground">
-                    <SelectItem value="16:9">Paisagem (16:9)</SelectItem>
-                    <SelectItem value="9:16">Retrato (9:16)</SelectItem>
+                    <SelectItem value="16:9">Panorâmico (16:9)</SelectItem>
+                    <SelectItem value="9:16">Rede Social (9:16)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
