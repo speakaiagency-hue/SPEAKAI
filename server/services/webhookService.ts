@@ -76,12 +76,27 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     let user = await storage.getUserByEmail?.(data.customer_email);
 
     if (!user) {
-      console.warn(`⚠️ Usuário com email ${data.customer_email} não encontrado. Não foi possível adicionar créditos.`);
-      return { success: false, message: "Usuário não encontrado" };
+      // ✅ Fluxo 2: usuário ainda não existe → salvar como pendente
+      console.warn(`⚠️ Usuário com email ${data.customer_email} não encontrado. Registrando compra como pendente.`);
+
+      await storage.addPendingPurchase({
+        purchaseId: data.purchase_id,
+        email: data.customer_email,
+        productId: data.product_id,
+        credits: creditsToAdd,
+        status: data.status,
+      });
+
+      return {
+        success: true,
+        message: "Compra registrada como pendente (aguardando cadastro)",
+        userId: null,
+        creditsAdded: 0,
+      };
     }
 
-    // ✅ Adicionar créditos ao usuário existente
-    await storage.addCredits(user.id, creditsToAdd);
+    // ✅ Fluxo 1: adicionar créditos ao usuário existente
+    await storage.addCredits(user.id, creditsToAdd, data.purchase_id);
     await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd, data.product_id, data.product_name, data);
 
     console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
