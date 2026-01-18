@@ -73,6 +73,7 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       }
 
       const user = await storage.getUserByEmail(email);
+
       if (!user || typeof user.password !== "string") {
         return res.status(401).json({ error: "Email ou senha inválidos" });
       }
