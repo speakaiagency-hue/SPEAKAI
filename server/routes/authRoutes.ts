@@ -42,10 +42,10 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
 
       await storage.updateUserProfile(newUser.id, { email, name });
 
-      // 🔄 Verifica compras pendentes
+      // 🔄 Verifica compras pendentes no registro
       const pendingPurchases = await storage.findPendingPurchasesByEmail(email);
       for (const purchase of pendingPurchases) {
-        if (purchase.status === "approved") {
+        if (purchase.status === "approved" && !purchase.used) {
           await storage.addCredits(newUser.id, purchase.credits, purchase.purchaseId);
           await storage.markPendingAsUsed(purchase.purchaseId);
           console.log(`✅ Créditos liberados do pagamento antecipado para ${email}`);
@@ -87,6 +87,16 @@ export async function registerAuthRoutes(app: Express, storage: IStorage) {
       const passwordMatch = await bcrypt.compare(password, user.password);
       if (!passwordMatch) {
         return res.status(401).json({ error: "Email ou senha inválidos" });
+      }
+
+      // 🔄 Verifica compras pendentes também no login
+      const pendingPurchases = await storage.findPendingPurchasesByEmail(email);
+      for (const purchase of pendingPurchases) {
+        if (purchase.status === "approved" && !purchase.used) {
+          await storage.addCredits(user.id, purchase.credits, purchase.purchaseId);
+          await storage.markPendingAsUsed(purchase.purchaseId);
+          console.log(`✅ Créditos aplicados no login para ${email}`);
+        }
       }
 
       const token = generateToken(user.id, user.email || email, user.name || undefined);
