@@ -18,23 +18,17 @@ const CREDIT_COSTS = {
   video: 40,
 };
 
-// Mapeamento de produtos → créditos fixos (IDs reais da Kiwify)
 const CREDIT_MAP: Record<string, number> = {
-  // Pacotes de créditos
   "b25quAR": 100,
   "OHJeYkb": 200,
   "Ypa4tzr": 300,
   "iRNfqB9": 500,
   "zbugEDV": 1000,
   "LFJ342L": 2000,
-
-  // Planos (IDs extraídos dos links do PlansModal.tsx)
   "jM0siPY": 500,    // Plano Básico
   "q0rFdNB": 1500,   // Plano Pro
   "KFXdvJv": 5000,   // Plano Premium
-
-  // Novo produto da Kiwify (Speak AI Influencer)
-  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000,
+  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000, // Influencer
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -72,16 +66,17 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       };
     }
 
-    // 🔎 Buscar usuário pelo email
-    let user = await storage.getUserByEmail?.(data.customer_email);
+    // 🔎 Normalizar email antes de buscar
+    const normalizedEmail = data.customer_email.toLowerCase();
+    let user = await storage.getUserByEmail?.(normalizedEmail);
 
     if (!user) {
       // ✅ Fluxo 2: usuário ainda não existe → salvar como pendente
-      console.warn(`⚠️ Usuário com email ${data.customer_email} não encontrado. Registrando compra como pendente.`);
+      console.warn(`⚠️ Usuário com email ${normalizedEmail} não encontrado. Registrando compra como pendente.`);
 
       await storage.addPendingPurchase({
         purchaseId: data.purchase_id,
-        email: data.customer_email,
+        email: normalizedEmail,
         productId: data.product_id,
         credits: creditsToAdd,
         status: data.status,
