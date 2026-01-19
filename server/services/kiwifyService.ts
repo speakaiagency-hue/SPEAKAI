@@ -24,11 +24,13 @@ export async function createKiwifyService() {
   return {
     async validateCustomer(email: string, productId: string): Promise<boolean> {
       try {
+        const normalizedEmail = email.toLowerCase();
+
         const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
           headers: {
             Authorization: `Bearer ${clientSecret}`,
           },
-          params: { email },
+          params: { email: normalizedEmail },
         });
 
         if (!response.data?.data?.length) {
@@ -76,14 +78,16 @@ export async function createKiwifyService() {
     async hasAnyPurchase(email: string): Promise<boolean> {
       try {
         if (!hasKiwifyConfig) {
-          return email === "speakai.agency@gmail.com";
+          return email.toLowerCase() === "speakai.agency@gmail.com";
         }
+
+        const normalizedEmail = email.toLowerCase();
 
         const response = await axios.get(`${KIWIFY_API_URL}/customers`, {
           headers: {
             Authorization: `Bearer ${clientSecret}`,
           },
-          params: { email },
+          params: { email: normalizedEmail },
         });
 
         if (!response.data?.data?.length) {
@@ -115,11 +119,13 @@ export async function createKiwifyService() {
 
     async authenticateUser(email: string, password: string): Promise<KiwifyUser | null> {
       try {
+        const normalizedEmail = email.toLowerCase();
+
         if (!hasKiwifyConfig) {
-          if (email === "speakai.agency@gmail.com" && password === "Diamante2019@") {
+          if (normalizedEmail === "speakai.agency@gmail.com" && password === "Diamante2019@") {
             return {
               id: "dev-user-001",
-              email,
+              email: normalizedEmail,
               name: "Speak AI Admin",
               status: "active",
               products: [],
@@ -132,7 +138,7 @@ export async function createKiwifyService() {
           headers: {
             Authorization: `Bearer ${clientSecret}`,
           },
-          params: { email },
+          params: { email: normalizedEmail },
         });
 
         if (!response.data?.data?.length) {
@@ -144,7 +150,7 @@ export async function createKiwifyService() {
         if (customer.status === "active") {
           return {
             id: customer.id,
-            email: customer.email,
+            email: customer.email.toLowerCase(), // normaliza também no retorno
             name: customer.name,
             status: customer.status,
             products: customer.products || [],
