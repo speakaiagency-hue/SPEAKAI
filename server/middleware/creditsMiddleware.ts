@@ -1,3 +1,14 @@
+import type { Request, Response, NextFunction } from "express";
+import { storage } from "../storage"; // ✅ importa a instância correta
+
+declare global {
+  namespace Express {
+    interface Request {
+      userCredits?: number;
+    }
+  }
+}
+
 export async function creditsCheckMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
     if (!req.user) {
@@ -25,8 +36,10 @@ export async function creditsCheckMiddleware(req: Request, res: Response, next: 
       });
     }
 
+    // ➕ expõe créditos restantes para qualquer rota que venha depois
     res.locals.creditsRemaining = req.userCredits;
     console.log(`✅ CreditsMiddleware - Créditos validados: ${req.userCredits} restantes`);
+
     next();
   } catch (error) {
     console.error("🔥 CreditsMiddleware error:", error);
