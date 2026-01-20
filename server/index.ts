@@ -70,7 +70,6 @@ app.use((req, res, next) => {
 (async () => {
   const { registerAuthRoutes } = await import("./routes/authRoutes");
   const { registerWebhookRoutes } = await import("./routes/webhookRoutes");
-  const { creditsCheckMiddleware } = await import("./middleware/creditsMiddleware");
   const { authMiddleware } = await import("./middleware/authMiddleware");
   const { storage } = await import("./storage");
   const { createKiwifyService } = await import("./services/kiwifyService");
@@ -84,19 +83,15 @@ app.use((req, res, next) => {
   registerWebhookRoutes(app, storage, kiwifyService);
   console.log("✅ Webhook da Kiwify registrado em /api/webhook/kiwify");
 
-  // Middleware de créditos para rotas protegidas
-  function protectedRoute(req: Request, res: Response, next: NextFunction) {
-    authMiddleware(req, res, () => creditsCheckMiddleware(req, res, next));
-  }
-
-  app.use((req, res, next) => {
+  // Middleware global de autenticação (sem créditos)
+  app.use((req: Request, res: Response, next: NextFunction) => {
     if (
       req.path.startsWith("/api/chat") ||
       req.path.startsWith("/api/image") ||
       req.path.startsWith("/api/prompt") ||
       req.path.startsWith("/api/video")
     ) {
-      return protectedRoute(req, res, next);
+      return authMiddleware(req, res, next);
     }
     next();
   });
