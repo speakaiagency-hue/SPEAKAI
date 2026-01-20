@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 declare global {
   namespace Express {
@@ -15,6 +15,12 @@ declare global {
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-in-production";
 
+interface DecodedToken extends JwtPayload {
+  id: string;
+  email: string;
+  name?: string;
+}
+
 export function generateToken(userId: string, email: string, name?: string): string {
   return jwt.sign(
     { id: userId, email, name: name || "" },
@@ -23,37 +29,48 @@ export function generateToken(userId: string, email: string, name?: string): str
   );
 }
 
-export function verifyToken(token: string): any {
+export function verifyToken(token: string): DecodedToken | null {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, JWT_SECRET) as DecodedToken;
   } catch (error) {
     return null;
   }
 }
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
 
   if (!token) {
     return res.status(401).json({ error: "Unauthorized - No token provided" });
   }
 
   const decoded = verifyToken(token);
-  if (!decoded) {
+  if (!decoded || !decoded.id || !decoded.email) {
     return res.status(401).json({ error: "Unauthorized - Invalid token" });
   }
 
-  req.user = decoded;
+  req.user = {
+    id: decoded.id,
+    email: decoded.email,
+    name: decoded.name,
+  };
+
   next();
 }
 
 export function optionalAuthMiddleware(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
 
   if (token) {
     const decoded = verifyToken(token);
-    if (decoded) {
-      req.user = decoded;
+    if (decoded && decoded.id && decoded.email) {
+      req.user = {
+        id: decoded.id,
+        email: decoded.email,
+        name: decoded.name,
+      };
     }
   }
 
