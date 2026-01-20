@@ -111,9 +111,10 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 export async function deductCredits(userId: string, operationType: "chat" | "image" | "prompt" | "video") {
   try {
     const cost = CREDIT_COSTS[operationType];
-    const result = await storage.deductCredits(userId, cost);
 
-    if (!result) {
+    // 🔎 Buscar créditos atuais antes de deduzir
+    const currentCredits = await storage.getUserCredits(userId);
+    if (!currentCredits || currentCredits.credits < cost) {
       return {
         success: false,
         error: "insufficient_credits",
@@ -121,11 +122,14 @@ export async function deductCredits(userId: string, operationType: "chat" | "ima
       };
     }
 
-    console.log(`✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result.credits}`);
+    // ✅ Deduzir créditos
+    const result = await storage.deductCredits(userId, cost);
+
+    console.log(`✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result?.credits}`);
 
     return {
       success: true,
-      creditsRemaining: result.credits,
+      creditsRemaining: result?.credits ?? currentCredits.credits - cost,
       cost,
     };
   } catch (error) {
