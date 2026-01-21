@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Image as ImageIcon,
   Download,
   RefreshCw,
-  UploadCloud,
   X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
+import { ReferenceImage } from "@/types";
+import ReferenceUploader from "@/components/ReferenceUploader";
 
 const IMAGE_COST = 7;
 
@@ -21,65 +22,26 @@ function ImagePageComponent() {
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] || null;
-    setFile(f);
-    setGeneratedImages([]);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(f ? URL.createObjectURL(f) : null);
-  };
-
-  const fileToBase64 = (f: File): Promise<{ base64: string; mimeType: string }> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const base64 = dataUrl.split(",")[1];
-        resolve({ base64, mimeType: f.type });
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(f);
-    });
-
   const handleGenerate = async () => {
-    if (!prompt && !file) {
-      toast({ title: "Digite um prompt ou envie uma imagem", variant: "destructive" });
+    if (!prompt && referenceImages.length === 0) {
+      toast({ title: "Digite um prompt ou envie imagens", variant: "destructive" });
       return;
     }
 
     setIsGenerating(true);
     try {
-      let imageBase64: string | undefined;
-      let imageMimeType: string | undefined;
-
-      if (file) {
-        const { base64, mimeType } = await fileToBase64(file);
-        imageBase64 = base64;
-        imageMimeType = mimeType;
-      }
-
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({ prompt, aspectRatio, imageBase64, imageMimeType }),
+        body: JSON.stringify({ prompt, aspectRatio, referenceImages }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        if (result.error === "insufficient_credits") {
-          throw new Error("Créditos insuficientes. Compre mais para continuar.");
-        }
         throw new Error(result.error || "Erro ao gerar imagem");
       }
 
@@ -114,7 +76,7 @@ function ImagePageComponent() {
           Geração de Imagem
         </h1>
         <p className="text-muted-foreground">
-          Descreva o que você quer ver ou envie uma imagem para editar.
+          Descreva o que você quer ver ou envie até 3 imagens de referência.
         </p>
       </div>
 
@@ -153,37 +115,12 @@ function ImagePageComponent() {
           </div>
         </div>
 
-        {/* Upload estilizado */}
-        <div className="bg-[#0f1117] p-4 rounded-xl border border-dashed border-[#2d3748] shadow-2xl">
-          <label
-            htmlFor="file-upload"
-            className="flex flex-col items-center justify-center gap-2 cursor-pointer py-10 rounded-xl transition hover:bg-[#1a1d24]"
-          >
-            <UploadCloud className="w-10 h-10 text-purple-500" />
-            <span className="text-sm text-gray-400">Clique para enviar uma imagem</span>
-          </label>
-          <input
-            id="file-upload"
-            type="file"
-            accept="image/*"
-            onChange={onFileChange}
-            className="hidden"
-          />
-          {file && (
-            <div className="mt-2 text-sm text-gray-300 truncate">
-              Arquivo selecionado: {file.name}
-            </div>
-          )}
-          {previewUrl && (
-            <div className="mt-4">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-64 rounded-lg border border-gray-700 object-contain"
-              />
-            </div>
-          )}
-        </div>
+        {/* ReferenceUploader */}
+        <ReferenceUploader
+          images={referenceImages}
+          onAdd={(img) => setReferenceImages((prev) => [...prev, img].slice(0, 3))}
+          onRemove={(id) => setReferenceImages((prev) => prev.filter((i) => i.id !== id))}
+        />
 
         {/* Action */}
         <Button
@@ -200,13 +137,13 @@ function ImagePageComponent() {
               <span className="text-sm font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">
                 {IMAGE_COST} ⚡
               </span>
-              <span>{file ? "Aplicar mudanças" : "Gerar Imagem"}</span>
+              <span>Gerar Imagem</span>
             </>
           )}
         </Button>
       </div>
 
-      {/* Gallery + downloads fora da imagem */}
+      {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
           <div className="grid grid-cols-2 gap-4">
@@ -219,14 +156,12 @@ function ImagePageComponent() {
               >
                 <img
                   src={src}
-                  alt={`Generated ${i}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
             ))}
           </div>
 
-          {/* Botões de download fora das imagens */}
           <div className="flex flex-wrap gap-3">
             {generatedImages.map((src, i) => (
               <a key={i} href={src} download={`imagem-${i}.png`}>
