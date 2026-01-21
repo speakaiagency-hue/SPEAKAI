@@ -33,7 +33,7 @@ const VideoGrid: React.FC = () => {
       title: "Voz e Movimento:",
       description: "Vídeo Autêntico com IA.",
       thumbnail: "https://speakia.ai/wp-content/uploads/2026/01/imagem-0-6.png",
-      videoUrl: "https://speakia.ai/wp-content/uploads/2026/01/aula-gerar-video-.mp4",
+      videoUrl: "https://speakia.ai/wp-content/uploads/2026/01/aula-video-correto.mp4",
     },
     {
       id: 5,
