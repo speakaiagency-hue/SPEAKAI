@@ -19,12 +19,12 @@ const CREDIT_COSTS = {
 };
 
 const CREDIT_MAP: Record<string, number> = {
-  "b25quAR": 100,
-  "OHJeYkb": 200,
-  "Ypa4tzr": 300,
-  "iRNfqB9": 500,
-  "zbugEDV": 1000,
-  "LFJ342L": 2000,
+  "9umrRSz": 100,
+  "g2c8ZQ1": 200,
+  "8FC8ILk": 300,
+  "k8as5pk": 500,
+  "FZnCLkf": 1000,
+  "QQI70bQ": 2000,
   "jM0siPY": 500,    // Plano Básico
   "q0rFdNB": 1500,   // Plano Pro
   "KFXdvJv": 5000,   // Plano Premium
