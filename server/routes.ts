@@ -7,6 +7,7 @@ import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
 import { authMiddleware } from "./middleware/authMiddleware";
 import { deductCredits } from "./services/webhookService";
+import { ReferenceImage } from "./types";
 
 // Store chat instances per session
 const chatInstances = new Map<string, any>();
@@ -129,14 +130,19 @@ export async function registerRoutes(
     }
   });
 
-  // ✅ Image Generation API (Protected) corrigida
+  // ✅ Image Generation API (Protected) corrigida para múltiplas imagens
   app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const { prompt, aspectRatio = "1:1", imageBase64, imageMimeType } = req.body;
-      if ((!prompt || !prompt.trim()) && !imageBase64) {
-        return res.status(400).json({ error: "Descrição ou imagem são obrigatórios" });
+      const { prompt, aspectRatio = "1:1", referenceImages } = req.body as {
+        prompt: string;
+        aspectRatio: string;
+        referenceImages: ReferenceImage[];
+      };
+
+      if ((!prompt || !prompt.trim()) && (!referenceImages || referenceImages.length === 0)) {
+        return res.status(400).json({ error: "Descrição ou imagens de referência são obrigatórias" });
       }
 
       const deductResult = await deductCredits(req.user.id, "image");
@@ -147,9 +153,7 @@ export async function registerRoutes(
       const result = await imageService.generateImage(
         prompt,
         aspectRatio,
-        imageBase64 && imageMimeType
-          ? { data: imageBase64, mimeType: imageMimeType }
-          : undefined
+        referenceImages || []
       );
 
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
