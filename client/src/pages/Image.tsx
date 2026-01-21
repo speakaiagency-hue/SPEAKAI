@@ -167,7 +167,7 @@ function ImagePageComponent() {
               <a key={i} href={src} download={`imagem-${i}.png`}>
                 <Button variant="secondary" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Baixar imagem {i + 1}
+                  Baixar imagem
                 </Button>
               </a>
             ))}
