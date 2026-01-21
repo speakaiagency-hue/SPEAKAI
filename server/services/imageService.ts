@@ -1,73 +1,168 @@
-import { GoogleGenAI } from "@google/genai";
-import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
-import { ReferenceImage } from "../types"; // garante tipagem consistente
+import type { Express, Request, Response } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { generateVideo, type GenerateVideoParams } from "./services/geminiService";
+import { createChatService } from "./services/chatService";
+import { createPromptService } from "./services/promptService";
+import { createImageService } from "./services/imageService";
+import { authMiddleware } from "./middleware/authMiddleware";
+import { deductCredits } from "./services/webhookService";
+import { ReferenceImage } from "./types";
 
-export async function createImageService() {
-  const rotator = getGeminiKeyRotator();
+// Store chat instances per session
+const chatInstances = new Map<string, any>();
 
-  return {
-    async generateImage(
-      prompt: string,
-      aspectRatio: string = "1:1",
-      referenceImages: ReferenceImage[] = [] // aceita várias imagens
-    ): Promise<{ images: string[]; model: string }> {
-      return await rotator.executeWithRotation(async (apiKey) => {
-        const ai = new GoogleGenAI({ apiKey });
+export async function registerRoutes(
+  httpServer: Server,
+  app: Express
+): Promise<Server> {
+  const chatService = await createChatService();
+  const promptService = await createPromptService();
+  const imageService = await createImageService();
 
-        // Monta os "parts": primeiro imagens, depois texto
-        const parts: any[] = referenceImages.map((img) => ({
-          inlineData: {
-            // remove prefixo caso venha no formato data:image/png;base64,...
-            data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
-            mimeType: img.mimeType,
-          },
-        }));
+  // Video Generation API (Protected)
+  app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-        // Sempre adiciona o prompt no final
-        parts.push({
-          text: prompt || "Uma arte digital cinematográfica e detalhada", // fallback
-        });
+      const params: GenerateVideoParams = req.body;
+      if (!params.prompt) {
+        return res.status(400).json({ error: "Prompt é obrigatório" });
+      }
 
-        const geminiResponse = await ai.models.generateContent({
-          model: "gemini-2.5-flash-image",
-          contents: { parts },
-          config: {
-            imageConfig: { aspectRatio },
-          },
-          generationConfig: {
-            temperature: 0.2,
-            topP: 0.8,
-            topK: 40,
-          },
-        });
+      const deductResult = await deductCredits(req.user.id, "video");
+      if (!deductResult.success) {
+        return res.status(402).json(deductResult);
+      }
 
-        // Debug opcional
-        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
+      const result = await generateVideo(params);
+      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
+    } catch (error) {
+      console.error("Video generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar vídeo";
+      res.status(500).json({ error: message });
+    }
+  });
 
-        const images: string[] = [];
+  // Chat API - Send Message (Protected)
+  app.post("/api/chat/send-message", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-        if (
-          geminiResponse.candidates &&
-          geminiResponse.candidates[0]?.content?.parts
-        ) {
-          for (const part of geminiResponse.candidates[0].content.parts) {
-            if (part.inlineData) {
-              const base64EncodeString: string = part.inlineData.data || "";
-              const mimeType = part.inlineData.mimeType;
-              images.push(`data:${mimeType};base64,${base64EncodeString}`);
-            }
-          }
-        }
+      const { conversationId, message, history } = req.body;
+      if (!message) return res.status(400).json({ error: "Mensagem é obrigatória" });
+      if (!conversationId) return res.status(400).json({ error: "ID da conversa é obrigatório" });
 
-        if (images.length > 0) {
-          return {
-            images,
-            model: "Gemini Flash",
-          };
-        }
+      const deductResult = await deductCredits(req.user.id, "chat");
+      if (!deductResult.success) {
+        return res.status(402).json(deductResult);
+      }
 
-        throw new Error("A resposta da API não continha uma imagem.");
+      if (!chatInstances.has(conversationId)) {
+        chatInstances.set(conversationId, chatService.createChat(history));
+      }
+
+      const chat = chatInstances.get(conversationId);
+      const result = await chatService.sendMessage(chat, message);
+
+      res.json({ text: result.text, creditsRemaining: deductResult.creditsRemaining });
+    } catch (error) {
+      console.error("Chat error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao enviar mensagem";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // Chat API - Generate Title
+  app.post("/api/chat/generate-title", async (req: Request, res: Response) => {
+    try {
+      const { text } = req.body;
+      if (!text) return res.status(400).json({ error: "Texto é obrigatório" });
+
+      const title = await chatService.generateTitle(text);
+      res.json({ title });
+    } catch (error) {
+      console.error("Title generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar título";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // Chat API - Clear chat instance
+  app.post("/api/chat/clear-session", async (req: Request, res: Response) => {
+    try {
+      const { conversationId } = req.body;
+      if (!conversationId) return res.status(400).json({ error: "ID da conversa é obrigatório" });
+
+      chatInstances.delete(conversationId);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Erro ao limpar sessão" });
+    }
+  });
+
+  // Prompt Generation API (Protected)
+  app.post("/api/prompt/generate", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
+
+      const { userInput, imageBase64, mimeType } = req.body;
+      if (!userInput?.trim() && !imageBase64) {
+        return res.status(400).json({ error: "Envie uma imagem ou um texto" });
+      }
+
+      const deductResult = await deductCredits(req.user.id, "prompt");
+      if (!deductResult.success) {
+        return res.status(402).json(deductResult);
+      }
+
+      const result = await promptService.generateCreativePrompt({
+        userText: userInput,
+        imageBase64,
+        mimeType,
       });
-    },
-  };
+
+      res.json({ prompt: result, creditsRemaining: deductResult.creditsRemaining });
+    } catch (error) {
+      console.error("Prompt generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar prompt";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  // ✅ Image Generation API (Protected) corrigida para múltiplas imagens
+  app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
+
+      const { prompt, aspectRatio = "1:1", referenceImages } = req.body as {
+        prompt: string;
+        aspectRatio: string;
+        referenceImages: ReferenceImage[];
+      };
+
+      if ((!prompt || !prompt.trim()) && (!referenceImages || referenceImages.length === 0)) {
+        return res.status(400).json({ error: "Descrição ou imagens de referência são obrigatórias" });
+      }
+
+      const deductResult = await deductCredits(req.user.id, "image");
+      if (!deductResult.success) {
+        return res.status(402).json(deductResult);
+      }
+
+      const result = await imageService.generateImage(
+        prompt,
+        aspectRatio,
+        referenceImages || []
+      );
+
+      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
+    } catch (error) {
+      console.error("Image generation error:", error);
+      const message = error instanceof Error ? error.message : "Erro ao gerar imagem";
+      res.status(500).json({ error: message });
+    }
+  });
+
+  return httpServer;
 }
