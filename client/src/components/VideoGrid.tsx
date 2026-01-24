@@ -12,7 +12,7 @@ const VideoGrid: React.FC = () => {
       title: " Introdução:",
       description: "Criando sua Influenciadora.",
       thumbnail: "https://imagem.speakia.ai/wp-content/uploads/2026/01/imagem-0-585x1024-1.png",
-      videoUrl: "",
+      videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/Introducao.mp4",
     },
     {
       id: 2,
@@ -47,7 +47,7 @@ const VideoGrid: React.FC = () => {
       title: "Expansão Global:",
       description: "Tradução e Dublagem.",
       thumbnail: "https://imagem.speakia.ai/wp-content/uploads/2026/01/imagem-0-9.png",
-      videoUrl: "",
+      videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/Conclusao.mp4",
     },
   ];
 
