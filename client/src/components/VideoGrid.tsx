@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Play } from "lucide-react";
 import VideoPlayerModal from "@/components/VideoPlayerModal";
+import { withMembershipCheck } from "@/components/ProtectedGenerator"; // importa o HOC
 
 const VideoGrid: React.FC = () => {
   const [selectedVideo, setSelectedVideo] = useState<{ url: string; title: string } | null>(null);
@@ -9,7 +10,7 @@ const VideoGrid: React.FC = () => {
   const items = [
     {
       id: 1,
-      title: " Introdução:",
+      title: "Introdução:",
       description: "Criando sua Influenciadora.",
       thumbnail: "https://imagem.speakia.ai/wp-content/uploads/2026/01/imagem-0-585x1024-1.png",
       videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/Introducao.mp4",
@@ -101,4 +102,4 @@ const VideoGrid: React.FC = () => {
   );
 };
 
-export default VideoGrid;
+export default withMembershipCheck(VideoGrid); // protege o componente
