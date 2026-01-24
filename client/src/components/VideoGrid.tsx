@@ -33,14 +33,14 @@ const VideoGrid: React.FC = () => {
       title: "Voz e Movimento:",
       description: "Vídeo Autêntico com IA.",
       thumbnail: "https://imagem.speakia.ai/wp-content/uploads/2026/01/imagem-0-6.png",
-      videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/aula-video-correto.mp4,
+      videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/aula-video-correto.mp4",
     },
     {
       id: 5,
       title: "Conversa Inteligente:",
       description: "Chat com Personalidade.",
       thumbnail: "https://imagem.speakia.ai/wp-content/uploads/2026/01/imagem-0-8.png",
-      videoUrl: "hhttps://imagem.speakia.ai/wp-content/uploads/2026/01/0121.mp4",
+      videoUrl: "https://imagem.speakia.ai/wp-content/uploads/2026/01/0121.mp4",
     },
     {
       id: 6,
