@@ -16,21 +16,21 @@ export const MOCK_VIDEOS = [
     id: 'v1',
     title: 'Dentista falando na cadeira',
     description: 'Vídeo curto estilo reels mostrando um dentista homem de 35 anos, pele clara, cabelo castanho curto e barba bem aparada. Ele está sentado na cadeira odontológica, usando jaleco branco impecável e máscara abaixada no pescoço. Fala diretamente para a câmera com sorriso confiante, em consultório moderno com paredes claras e equipamentos odontológicos ao fundo. Iluminação suave e profissional.',
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2884.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/IMG_2884.mp4',
     messagesCount: 0
   },
   {
     id: 'v2',
     title: 'Troca de Looks',
     description: 'Uma mulher de 28 anos, pele morena clara, cabelo longo e liso castanho escuro. Ela aparece em um fundo neutro e recebe diferentes roupas em transição: muda de um vestido elegante para um look fitness. Mantém expressão alegre e descontraída, com iluminação clara em estilo estúdio. Quero que a transição aconteça como se as roupas estivessem ao lado dela e se encaixassem naturalmente em seu corpo.',
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2885.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/IMG_2885.mp4',
     messagesCount: 0
   },
   {
     id: 'v3',
     title: 'Produto em Destaque',
     description: 'Um homem de 30 anos, pele de tom médio, cabelo curto preto e sorriso leve. Ele segura um creme facial na mão direita e o apresenta à câmera com postura confiante. Veste roupa casual moderna (camiseta preta), em um fundo minimalista branco, com iluminação suave em estilo comercial.',
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/IMG_2886.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/IMG_2886.mp4',
     messagesCount: 0
   },
   {
@@ -69,7 +69,7 @@ No magical effect or digital “morph” — aim for a realistic, time-lapse-sty
 AUDIO
 Ambient sound: Light room tone, no noise distractions.
 Music (optional): Gentle piano or ambient strings fading in subtly near the end.`,
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/5wmyx7tbfh36_download.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.02.52.mp4',
     messagesCount: 0
   },
   {
@@ -84,7 +84,7 @@ On the left, a fair-skinned redhead with long, wavy hair and visible freckles is
 On the right, a woman with medium to tan skin and dark hair tied back is wearing a black sports bra and matching shorts. She is doing traditional abdominal sit-ups with her feet flat on the floor, knees bent, and hands behind her head. She lifts her torso smoothly toward her knees and returns back down in a steady rhythm.
 
 Add realistic gym details such as water bottles and small white towels placed beside them. Their movements should be synchronized but independent, with a static camera angle at eye-level capturing the entire scene.`,
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.15.41.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/WhatsApp-Video-2026-01-13-at-15.15.41.mp4',
     messagesCount: 0
   },
   {
@@ -105,7 +105,7 @@ Influencer's dialogue (spoken naturally with a carioca accent):
 “Gente, olha essa paletinha 3 em 1 que eu tô amando! Tem blush, bronzer e iluminador num só lugar!”
 
 End the video with her smiling naturally, still holding the palette close to the camera. The tone should feel personal and confident, focusing on how practical and high-quality`,
-    videoUrl: 'https://speakia.ai/wp-content/uploads/2026/01/Create_a_vertical_1080p_202601131538.mp4',
+    videoUrl: 'https://imagem.speakia.ai/wp-content/uploads/2026/01/Create_a_vertical_1080p_202601131538.mp4',
     messagesCount: 0
   }
 ];
