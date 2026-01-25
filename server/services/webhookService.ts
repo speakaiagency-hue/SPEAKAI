@@ -20,16 +20,20 @@ const CREDIT_COSTS = {
 };
 
 const CREDIT_MAP: Record<string, number> = {
+  // Links curtos (checkout_link)
   "9umrRSz": 100,
   "g2c8ZQ1": 200,
   "8FC8ILk": 300,
   "k8as5pk": 500,
   "FZnCLkf": 1000,
   "QQI70bQ": 2000,
-  "PT39XnT": 500,    // Plano Básico (checkout_link)
-  "q0rFdNB": 1500,   // Plano Pro (checkout_link)
-  "KFXdvJv": 5000,   // Plano Premium (checkout_link)
-  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000, // Influencer (UUID)
+  "PT39XnT": 500,    // Plano Básico
+  "q0rFdNB": 1500,   // Plano Pro
+  "KFXdvJv": 5000,   // Plano Premium
+
+  // UUIDs internos (product_id)
+  "1ff08800-fa20-11f0-9690-e1b939285a71": 500,  // Plano Speak AI
+  "32555fe0-f65e-11f0-86b6-d955c201f1b2": 1000, // Produto de Créditos
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
