@@ -34,21 +34,43 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
 
         // 📦 Montagem dos dados recebidos
         const webhookData: KiwifyWebhookData = {
-          purchase_id: parsed.purchase_id || parsed.order_id || parsed.id || `purchase_${Date.now()}`,
+          purchase_id:
+            parsed.purchase_id || parsed.order_id || parsed.id || `purchase_${Date.now()}`,
           customer_email:
-            parsed.Customer?.email || parsed.customer?.email || parsed.email || fallbackEmail,
+            parsed.Customer?.email ||
+            parsed.customer?.email ||
+            parsed.email ||
+            fallbackEmail,
           customer_name:
-            parsed.Customer?.full_name || parsed.customer?.name || parsed.name || "Cliente Kiwify",
+            parsed.Customer?.full_name ||
+            parsed.customer?.name ||
+            parsed.name ||
+            "Cliente Kiwify",
           product_name:
             parsed.Product?.product_name ||
             parsed.product?.name ||
             parsed.product_name ||
             "Produto",
           product_id:
-            parsed.Product?.product_id || parsed.product?.id || parsed.product_id || "0",
-          checkout_link: parsed.checkout_link || parsed.Product?.checkout_link || parsed.product?.checkout_link || null, // ✅ incluído
-          value: parseFloat(parsed.Commissions?.charge_amount || parsed.value || parsed.total || "0"),
-          status: parsed.order_status === "paid" ? "approved" : parsed.status || "pending",
+            parsed.Product?.product_id ||
+            parsed.product?.id ||
+            parsed.product_id ||
+            "0",
+          checkout_link:
+            parsed.checkout_link ||
+            parsed.Product?.checkout_link ||
+            parsed.product?.checkout_link ||
+            null, // ✅ incluído para capturar links curtos
+          value: parseFloat(
+            parsed.Commissions?.charge_amount ||
+              parsed.value ||
+              parsed.total ||
+              "0"
+          ),
+          status:
+            parsed.order_status === "paid"
+              ? "approved"
+              : parsed.status || "pending",
         };
 
         console.log("📦 Dados montados para handleKiwifyPurchase:", webhookData);
@@ -60,7 +82,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
           console.log(
             `✅ Processado: ${result.message} | Créditos: ${result.creditsAdded} | UserId: ${
               result.userId ?? "pendente"
-            }`,
+            }`
           );
           return res.status(200).json({
             success: true,
@@ -82,7 +104,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
           message: "Erro ao processar webhook",
         });
       }
-    },
+    }
   );
 
   // ✅ Endpoint para consultar créditos do usuário
