@@ -7,7 +7,7 @@ export interface KiwifyWebhookData {
   customer_name: string;
   product_name: string;
   product_id: string;
-  checkout_link?: string; // adicionado para suportar link curto
+  checkout_link?: string; // ✅ suporte ao link curto
   value: number;
   status: string;
 }
@@ -48,19 +48,21 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Compra não aprovada" };
     }
 
-    // 🔑 Flexível: tenta primeiro pelo product_id, depois pelo checkout_link
-    let productKey: string | undefined = undefined;
+    // 🔑 Flexível: tenta primeiro pelo checkout_link, depois pelo product_id
+    let productKey: string | undefined;
 
-    if (data.product_id && CREDIT_MAP[data.product_id]) {
-      productKey = data.product_id;
-    } else if (data.checkout_link && CREDIT_MAP[data.checkout_link]) {
+    if (data.checkout_link && CREDIT_MAP[data.checkout_link]) {
       productKey = data.checkout_link;
+    } else if (data.product_id && CREDIT_MAP[data.product_id]) {
+      productKey = data.product_id;
     }
 
     const creditsToAdd = productKey ? CREDIT_MAP[productKey] : 0;
 
     if (creditsToAdd === 0) {
-      console.warn(`⚠️ Produto não reconhecido: product_id=${data.product_id}, checkout_link=${data.checkout_link}`);
+      console.warn(
+        `⚠️ Produto não reconhecido: product_id=${data.product_id}, checkout_link=${data.checkout_link}`
+      );
       return { success: false, message: "Produto não reconhecido" };
     }
 
@@ -81,7 +83,9 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     if (!user) {
       // ✅ Fluxo 2: usuário ainda não existe → salvar como pendente
-      console.warn(`⚠️ Usuário com email ${normalizedEmail} não encontrado. Registrando compra como pendente.`);
+      console.warn(
+        `⚠️ Usuário com email ${normalizedEmail} não encontrado. Registrando compra como pendente.`
+      );
 
       await storage.addPendingPurchase({
         purchaseId: data.purchase_id,
@@ -110,7 +114,9 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       data
     );
 
-    console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
+    console.log(
+      `✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`
+    );
 
     return {
       success: true,
@@ -124,7 +130,10 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
   }
 }
 
-export async function deductCredits(userId: string, operationType: "chat" | "image" | "prompt" | "video") {
+export async function deductCredits(
+  userId: string,
+  operationType: "chat" | "image" | "prompt" | "video"
+) {
   try {
     const cost = CREDIT_COSTS[operationType];
 
@@ -141,7 +150,9 @@ export async function deductCredits(userId: string, operationType: "chat" | "ima
     // ✅ Deduzir créditos
     const result = await storage.deductCredits(userId, cost);
 
-    console.log(`✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result?.credits}`);
+    console.log(
+      `✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result?.credits}`
+    );
 
     return {
       success: true,
