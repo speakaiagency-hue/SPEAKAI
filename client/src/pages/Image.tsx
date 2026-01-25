@@ -88,7 +88,7 @@ function ImagePageComponent() {
             onChange={(e) => setPrompt(e.target.value)}
             placeholder="Me conta o que você quer ver — ou descreva a edição que deseja."
             className="min-h-[160px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
-            maxLength={2000}
+            maxLength={5000}
           />
 
           <div className="flex items-end justify-between px-6 pb-4">
@@ -110,7 +110,7 @@ function ImagePageComponent() {
             </div>
 
             <div className="text-xs text-muted-foreground font-mono">
-              {prompt.length}/2000
+              {prompt.length}/5000
             </div>
           </div>
         </div>
