@@ -86,7 +86,7 @@ function PromptComponent() {
     toast({ title: "Copiado!" });
 
     // volta para "Copiar" depois de 2 segundos
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 5000);
   };
 
   return (
@@ -140,10 +140,10 @@ function PromptComponent() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Você pode escrever algo aqui... ou deixar vazio!"
             className="min-h-[200px] w-full bg-[#0f1117] border-none resize-none text-lg p-6 focus-visible:ring-0 placeholder:text-muted-foreground/40"
-            maxLength={2000}
+            maxLength={5000}
           />
           <div className="absolute bottom-4 right-6 text-xs text-muted-foreground font-mono">
-            {input.length}/2000
+            {input.length}/5000
           </div>
         </div>
 
