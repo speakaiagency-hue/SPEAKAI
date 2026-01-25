@@ -176,10 +176,8 @@ function ChatComponent() {
                       : "bg-secondary/50 backdrop-blur-md rounded-tl-sm border border-border/50"
                   )}
                 >
-                  <div className="prose dark:prose-invert prose-sm max-w-none break-words">
-                    <ReactMarkdown 
-                      remarkPlugins={[remarkGfm]}
-                    >
+                  <div className="prose dark:prose-invert prose-sm max-w-none whitespace-pre-wrap break-all overflow-hidden">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {m.content}
                     </ReactMarkdown>
                   </div>
@@ -203,7 +201,7 @@ function ChatComponent() {
             )}
             <div ref={scrollRef} />
           </div>
-        </ScrollArea>
+               </ScrollArea>
 
         <div className="p-4 bg-background/50 border-t border-border/50 backdrop-blur-md">
           <div className="max-w-4xl mx-auto relative">
