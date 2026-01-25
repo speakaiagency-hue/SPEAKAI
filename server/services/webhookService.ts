@@ -25,7 +25,7 @@ const CREDIT_MAP: Record<string, number> = {
   "k8as5pk": 500,
   "FZnCLkf": 1000,
   "QQI70bQ": 2000,
-  "jM0siPY": 500,    // Plano Básico
+  "PT39XnT": 500,    // Plano Básico
   "q0rFdNB": 1500,   // Plano Pro
   "KFXdvJv": 5000,   // Plano Premium
   "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000, // Influencer
