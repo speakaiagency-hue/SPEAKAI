@@ -46,6 +46,7 @@ export async function registerWebhookRoutes(app: Express, storage: IStorage, kiw
             "Produto",
           product_id:
             parsed.Product?.product_id || parsed.product?.id || parsed.product_id || "0",
+          checkout_link: parsed.checkout_link || parsed.Product?.checkout_link || parsed.product?.checkout_link || null, // ✅ incluído
           value: parseFloat(parsed.Commissions?.charge_amount || parsed.value || parsed.total || "0"),
           status: parsed.order_status === "paid" ? "approved" : parsed.status || "pending",
         };
