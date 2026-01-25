@@ -7,6 +7,7 @@ export interface KiwifyWebhookData {
   customer_name: string;
   product_name: string;
   product_id: string;
+  checkout_link?: string; // adicionado para suportar link curto
   value: number;
   status: string;
 }
@@ -25,10 +26,10 @@ const CREDIT_MAP: Record<string, number> = {
   "k8as5pk": 500,
   "FZnCLkf": 1000,
   "QQI70bQ": 2000,
-  "PT39XnT": 500,    // Plano Básico
-  "q0rFdNB": 1500,   // Plano Pro
-  "KFXdvJv": 5000,   // Plano Premium
-  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000, // Influencer
+  "PT39XnT": 500,    // Plano Básico (checkout_link)
+  "q0rFdNB": 1500,   // Plano Pro (checkout_link)
+  "KFXdvJv": 5000,   // Plano Premium (checkout_link)
+  "eaeafac0-c291-11f0-9498-1fd09b0ade58": 1000, // Influencer (UUID)
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -47,11 +48,19 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       return { success: false, message: "Compra não aprovada" };
     }
 
-    const productKey = data.product_id;
-    const creditsToAdd = CREDIT_MAP[productKey] ?? 0;
+    // 🔑 Flexível: tenta primeiro pelo product_id, depois pelo checkout_link
+    let productKey: string | undefined = undefined;
+
+    if (data.product_id && CREDIT_MAP[data.product_id]) {
+      productKey = data.product_id;
+    } else if (data.checkout_link && CREDIT_MAP[data.checkout_link]) {
+      productKey = data.checkout_link;
+    }
+
+    const creditsToAdd = productKey ? CREDIT_MAP[productKey] : 0;
 
     if (creditsToAdd === 0) {
-      console.warn(`⚠️ Produto não reconhecido: ${productKey}`);
+      console.warn(`⚠️ Produto não reconhecido: product_id=${data.product_id}, checkout_link=${data.checkout_link}`);
       return { success: false, message: "Produto não reconhecido" };
     }
 
@@ -77,7 +86,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       await storage.addPendingPurchase({
         purchaseId: data.purchase_id,
         email: normalizedEmail,
-        productId: data.product_id,
+        productId: productKey ?? data.product_id,
         credits: creditsToAdd,
         status: data.status,
       });
@@ -92,7 +101,14 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     // ✅ Fluxo 1: adicionar créditos ao usuário existente
     await storage.addCredits(user.id, creditsToAdd, data.purchase_id);
-    await storage.logWebhookEvent?.(data.purchase_id, user.id, creditsToAdd, data.product_id, data.product_name, data);
+    await storage.logWebhookEvent?.(
+      data.purchase_id,
+      user.id,
+      creditsToAdd,
+      productKey ?? data.product_id,
+      data.product_name,
+      data
+    );
 
     console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
 
