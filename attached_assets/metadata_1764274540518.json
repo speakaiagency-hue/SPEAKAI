@@ -1,7 +1,0 @@
-{
-  "name": "chat",
-  "description": "An empathetic self-help assistant that analyzes emotional patterns, interprets feelings, suggests wellness practices, and maintains an intelligent emotional diary through text conversations.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}

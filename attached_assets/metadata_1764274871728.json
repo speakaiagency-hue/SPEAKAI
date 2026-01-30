@@ -1,5 +1,0 @@
-{
-  "name": "Gerar Imagem",
-  "description": "Uma ferramenta simples para gerar imagens a partir de prompts de texto usando o modelo Gemini Flash do Google. Insira uma descrição da imagem que você deseja criar e deixe a IA dar vida a ela.",
-  "requestFramePermissions": []
-}

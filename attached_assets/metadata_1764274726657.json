@@ -1,7 +1,0 @@
-{
-  "name": "Prompt",
-  "description": "Um aplicativo para criar prompts de arte visual detalhados, combinando texto, imagens e entrada de voz. Ideal para inspirar modelos de IA generativa.",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}
