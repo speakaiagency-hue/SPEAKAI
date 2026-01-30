@@ -27,9 +27,9 @@ const CREDIT_MAP: Record<string, number> = {
   "k8as5pk": 500,
   "FZnCLkf": 1000,
   "QQI70bQ": 2000,
-  "PT39XnT": 500,    // Plano Básico
-  "q0rFdNB": 1500,   // Plano Pro
-  "KFXdvJv": 5000,   // Plano Premium
+  "oVEv5ur": 500,    // Plano Básico
+  "eOp6u0X": 1500,   // Plano Pro
+  "m06mp5S": 5000,   // Plano Premium
 
   // UUIDs internos (product_id)
   "1ff08800-fa20-11f0-9690-e1b939285a71": 500,  // Plano Speak AI
