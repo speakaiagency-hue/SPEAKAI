@@ -21,8 +21,8 @@ const plans = [
     features: [
       "Chat IA ilimitado",
       "Gerador de Prompt",
-      "Gerações de imagem",
-      "Geração de Vídeos",
+      "71 Geração de imagem",
+      "12 Gerações de vídeo",
       "Email + WhatsApp",
     ],
     notIncluded: [],
@@ -38,8 +38,8 @@ const plans = [
     features: [
       "Chat IA ilimitado",
       "Gerador de Prompt",
-      "Gerações de imagem",
-      "Geração de Vídeos",
+      "214 Geração de imagem",
+      "37 Gerações de vídeo",
       "Email + WhatsApp",
     ],
     notIncluded: [],
@@ -55,8 +55,8 @@ const plans = [
     features: [
       "Chat IA ilimitado",
       "Gerador de Prompt",
-      "Gerações de imagem",
-      "Geração de Vídeos",
+      "714 Geração de imagem",
+      "125 Gerações de vídeo",
       "Email + WhatsApp",
     ],
     notIncluded: [],
