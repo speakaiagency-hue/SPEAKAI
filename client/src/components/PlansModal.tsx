@@ -27,7 +27,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: false,
-    url: "https://pay.kiwify.com.br/oVEv5ur", // 🔗 link específico do plano Básico
+    url: "https://pay.kiwify.com.br/8IDayIy", // 🔗 link específico do plano Básico
   },
   {
     id: "pro",
@@ -44,7 +44,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: true,
-    url: "https://pay.kiwify.com.br/eOp6u0X", // 🔗 link específico do plano Pro
+    url: "https://pay.kiwify.com.br/QnHmsQm", // 🔗 link específico do plano Pro
   },
   {
     id: "premium",
@@ -61,7 +61,7 @@ const plans = [
     ],
     notIncluded: [],
     highlighted: false,
-    url: "https://pay.kiwify.com.br/m06mp5S", // 🔗 link específico do plano Premium
+    url: "https://pay.kiwify.com.br/hOJ3bEi", // 🔗 link específico do plano Premium
   },
 ];
 
