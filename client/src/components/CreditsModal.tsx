@@ -11,12 +11,12 @@ interface CreditsModalProps {
 }
 
 const creditPlans = [
-  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00", kiwifyLink: "https://pay.kiwify.com.br/9umrRSz" },
-  { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00", kiwifyLink: "https://pay.kiwify.com.br/g2c8ZQ1" },
-  { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00", kiwifyLink: "https://pay.kiwify.com.br/8FC8ILk" },
-  { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 277,00", popular: true, kiwifyLink: "https://pay.kiwify.com.br/k8as5pk" },
-  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 517,00", kiwifyLink: "https://pay.kiwify.com.br/FZnCLkf" },
-  { id: 6, credits: 2000, originalPrice: "R$ 1.147,00", price: "R$ 977,00", kiwifyLink: "https://pay.kiwify.com.br/QQI70bQ" },
+  { id: 1, credits: 100, originalPrice: "R$ 97,00", price: "R$ 57,00", kiwifyLink: "https://pay.kiwify.com.br/97ObxqK" },
+  { id: 2, credits: 200, originalPrice: "R$ 187,00", price: "R$ 117,00", kiwifyLink: "https://pay.kiwify.com.br/3gpZJ6N" },
+  { id: 3, credits: 300, originalPrice: "R$ 287,00", price: "R$ 177,00", kiwifyLink: "https://pay.kiwify.com.br/M2XmJF7" },
+  { id: 4, credits: 500, originalPrice: "R$ 477,00", price: "R$ 287,00", popular: true, kiwifyLink: "https://pay.kiwify.com.br/ntcPS8x" },
+  { id: 5, credits: 1000, originalPrice: "R$ 957,00", price: "R$ 577,00", kiwifyLink: "https://pay.kiwify.com.br/Tqy289G" },
+  { id: 6, credits: 2000, originalPrice: "R$ 1.547,00", price: "R$ 1.147,00", kiwifyLink: "https://pay.kiwify.com.br/f8d7PdX" },
 ];
 
 export function CreditsModal({ open, onOpenChange }: CreditsModalProps) {
