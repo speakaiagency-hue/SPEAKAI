@@ -27,6 +27,8 @@ export async function generateVideo(params: GenerateVideoParams) {
       numberOfVideos: 1,
       resolution: params.resolution || "720p",
       aspectRatio: params.aspectRatio || "16:9",
+      // Restrições: 1080p e 4k exigem duração de 8 segundos
+      durationSeconds: params.resolution === "1080p" || params.resolution === "4k" ? 8 : 6,
     };
 
     // Payload inicial
@@ -44,9 +46,9 @@ export async function generateVideo(params: GenerateVideoParams) {
       };
     }
 
-    // Modo referência → vídeo
+    // Modo referência → vídeo (até 3 imagens)
     if (params.mode === "reference-to-video" && params.referenceImages?.length) {
-      const referenceImagesPayload = params.referenceImages.map((img) => ({
+      const referenceImagesPayload = params.referenceImages.slice(0, 3).map((img) => ({
         image: {
           imageBytes: img.base64,
           mimeType: img.mimeType || "image/jpeg",
@@ -77,6 +79,9 @@ export async function generateVideo(params: GenerateVideoParams) {
     // Modo extensão de vídeo
     if (params.mode === "extend-video" && params.extendVideoUri) {
       generateVideoPayload.video = { uri: params.extendVideoUri };
+      // extensão só funciona em 720p
+      generateVideoPayload.config.resolution = "720p";
+      generateVideoPayload.config.durationSeconds = 8;
     }
 
     console.log("📤 Submetendo requisição de geração de vídeo...");
