@@ -9,9 +9,15 @@ export async function createChatService() {
   return {
     // Cria uma instância de chat com histórico opcional
     createChat(history?: Content[]): Chat {
+      // Garante que o histórico esteja no formato correto
+      const formattedHistory = history?.map((h) => ({
+        role: h.role,
+        parts: h.parts ?? [{ text: (h as any).content || "" }],
+      }));
+
       return ai.chats.create({
         model: "gemini-2.5-flash", // modelo rápido e otimizado para chat
-        history,
+        history: formattedHistory,
         config: {
           systemInstruction:
             "Você é Speak AI, um assistente criativo e estratégico especializado em ajudar pessoas a desenvolver conteúdos digitais. Seu objetivo é apoiar usuários na criação de roteiros, ideias de postagem para redes sociais, campanhas de marketing e conceitos visuais. Você também pode orientar na concepção de avatares realistas para serem gerados com IA. Responda de forma clara, inspiradora e prática, oferecendo sugestões detalhadas e criativas. Não forneça conselhos médicos. Mantenha as respostas completas e úteis, adaptando-se ao estilo e às necessidades do usuário.",
