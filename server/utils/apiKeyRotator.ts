@@ -143,14 +143,14 @@ class ApiKeyRotator {
   }
 }
 
-// Singleton instance for Gemini API keys
-let geminiKeyRotator: ApiKeyRotator | null = null;
+// Singleton instance for Google API keys
+let googleKeyRotator: ApiKeyRotator | null = null;
 
 export function getGeminiKeyRotator(): ApiKeyRotator {
-  if (!geminiKeyRotator) {
-    geminiKeyRotator = new ApiKeyRotator('GEMINI_API_KEYS');
+  if (!googleKeyRotator) {
+    googleKeyRotator = new ApiKeyRotator('GOOGLE_API_KEY');
   }
-  return geminiKeyRotator;
+  return googleKeyRotator;
 }
 
 export { ApiKeyRotator };
