@@ -32,7 +32,8 @@ export async function createImageService() {
 
         // Chamada correta para geração de imagem
         const geminiResponse = await ai.models.generateContent({
-          model: "imagen-001:generateContent", // modelo oficial para imagens
+          // Modelos atuais da família Imagen 4
+          model: "imagen-4.0-generate-001",
           contents: [{ role: "user", parts }],
           config: {
             imageConfig: { aspectRatio },
@@ -65,7 +66,7 @@ export async function createImageService() {
         if (images.length > 0) {
           return {
             images,
-            model: "Imagen 001",
+            model: "Imagen 4.0",
           };
         }
 
