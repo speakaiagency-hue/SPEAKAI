@@ -4,7 +4,7 @@ import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
 export interface GenerateVideoParams {
   prompt: string;
   mode: "text-to-video" | "image-to-video" | "reference-to-video" | "frame-to-video" | "extend-video";
-  aspectRatio?: "16:9" | "9:16";
+  aspectRatio?: "16:9" | "9:16"; // horizontal ou retrato
   resolution?: "720p" | "1080p" | "4k";
   imageBase64?: string;
   imageMimeType?: string;
