@@ -5,7 +5,7 @@ export interface GenerateVideoParams {
   prompt: string;
   mode: "text-to-video" | "image-to-video" | "reference-to-video";
   aspectRatio?: "16:9" | "9:16";
-  resolution?: "720p" | "1080p";
+  resolution?: "720p" | "1080p" | "4k";
   imageBase64?: string;
   imageMimeType?: string;
   referenceImages?: Array<{ base64: string; mimeType: string }>;
@@ -26,7 +26,7 @@ export async function generateVideo(params: GenerateVideoParams) {
 
     // Payload inicial
     const generateVideoPayload: Record<string, any> = {
-      model: "veo-001", // modelo oficial para vídeo
+      model: "veo-3.1-generate-preview", // modelo atualizado para vídeo
       config,
       prompt: params.prompt,
     };
