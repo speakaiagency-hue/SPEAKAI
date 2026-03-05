@@ -154,26 +154,19 @@ export async function registerRoutes(
       const result = await imageService.generateImage(
         prompt,
         aspectRatio,
+        "2K", // resolução padrão
         referenceImages || []
       );
 
       // 🔑 Normaliza a resposta para sempre retornar um array de imagens
-      let images: string[] = [];
-      if (Array.isArray(result.images)) {
-        images = result.images;
-      } else if (result.imageUrl) {
-        images = [result.imageUrl];
-      } else if (result.url) {
-        images = [result.url];
-      }
-
-      if (images.length === 0) {
-        return res.status(500).json({ error: "Nenhuma imagem gerada" });
+      if (!result.images || result.images.length === 0) {
+        return res.status(500).json({ error: result.message || "Nenhuma imagem gerada" });
       }
 
       res.json({
-        images,
-        creditsRemaining: deductResult.creditsRemaining
+        images: result.images,
+        creditsRemaining: deductResult.creditsRemaining,
+        model: result.model
       });
     } catch (error) {
       console.error("Image generation error:", error);
