@@ -30,7 +30,8 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      const deductResult = await deductCredits(req.user.id, "video");
+      // 🔑 Deduz créditos conforme resolução
+      const deductResult = await deductCredits(req.user.id, "video", { resolution: params.resolution });
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
