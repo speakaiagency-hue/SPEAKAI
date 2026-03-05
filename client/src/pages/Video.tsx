@@ -9,7 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
 
-const VIDEO_COST = 40;
+const VIDEO_COSTS: Record<string, number> = {
+  "720p": 20,
+  "1080p": 40,
+  "4k": 80,
+};
+
+const getVideoCost = (resolution: string) => {
+  return VIDEO_COSTS[resolution] || 40;
+};
 
 interface ImageData {
   base64: string;
@@ -203,13 +211,13 @@ function VideoPageComponent() {
             </span>
             Geração de Vídeo
           </h1>
-          <p className="text-muted-foreground">
+                  <p className="text-muted-foreground">
             Crie vídeos cinematográficos a partir de texto ou imagens.
           </p>
         </div>
       </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Controls */}
         <Card className="lg:col-span-5 border-border/50 shadow-xl bg-[#0f1117] border-[#1f2937] h-fit overflow-hidden">
           <CardContent className="p-6 space-y-6">
@@ -395,7 +403,7 @@ function VideoPageComponent() {
               </div>
             )}
 
-                        {/* Formato e Resolução */}
+                       {/* Formato e Resolução */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Formato</Label>
@@ -430,7 +438,7 @@ function VideoPageComponent() {
               onClick={handleGenerate}
               disabled={isGenerating}
             >
-              {isGenerating ? "Gerando..." : `${VIDEO_COST} ⚡ Gerar`}
+              {isGenerating ? "Gerando..." : `${getVideoCost(resolution)} ⚡ Gerar`}
             </Button>
           </CardContent>
         </Card>
