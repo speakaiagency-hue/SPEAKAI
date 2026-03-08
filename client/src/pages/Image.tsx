@@ -188,7 +188,7 @@ function ImagePageComponent() {
         </div>
       )}
 
-      {/* Modal fullscreen */}
+           {/* Modal fullscreen */}
       {fullscreenImage && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="relative max-w-5xl w-full">
@@ -200,4 +200,15 @@ function ImagePageComponent() {
               <X className="w-5 h-5" />
             </button>
             <img
-              src={fullscreenImage
+              src={fullscreenImage}
+              alt="Imagem ampliada"
+              className="w-full h-auto rounded-xl border border-gray-700 object-contain max-h-[85vh]"
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default withMembershipCheck(ImagePageComponent);
