@@ -46,7 +46,7 @@ export async function createImageService() {
         try {
           const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-image",
-            contents: [{ parts }], // ✅ corrigido: não precisa role
+            contents: [{ parts }], // ✅ corrigido: sem role
             config: {
               responseModalities: [Modality.IMAGE],
               imageConfig: {
