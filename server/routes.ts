@@ -30,7 +30,6 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      // 🔑 Deduz créditos conforme resolução
       const deductResult = await deductCredits(req.user.id, "video", { resolution: params.resolution });
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
@@ -136,9 +135,10 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const { prompt, aspectRatio = "1:1", referenceImages } = req.body as {
+      const { prompt, aspectRatio = "1:1", resolution = "1K", referenceImages } = req.body as {
         prompt: string;
         aspectRatio: string;
+        resolution?: string;
         referenceImages: ReferenceImage[];
       };
 
@@ -146,7 +146,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Descrição ou imagens de referência são obrigatórias" });
       }
 
-      const deductResult = await deductCredits(req.user.id, "image");
+      const deductResult = await deductCredits(req.user.id, "image", { resolution });
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
@@ -154,13 +154,17 @@ export async function registerRoutes(
       const result = await imageService.generateImage(
         prompt,
         aspectRatio,
-        "2K", // resolução padrão
+        resolution || "1K",
         referenceImages || []
       );
 
-      // 🔑 Normaliza a resposta para sempre retornar um array de imagens
       if (!result.images || result.images.length === 0) {
-        return res.status(500).json({ error: result.message || "Nenhuma imagem gerada" });
+        return res.json({
+          images: [],
+          message: result.message || "Nenhuma imagem gerada",
+          creditsRemaining: deductResult.creditsRemaining,
+          model: result.model
+        });
       }
 
       res.json({
