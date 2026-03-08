@@ -32,6 +32,7 @@ export async function createImageService() {
           .filter((img) => img?.data && img?.mimeType)
           .map((img) => ({
             inline_data: {
+              // 🔑 Garante que sempre seja base64 puro
               data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
               mime_type: img.mimeType,
             },
