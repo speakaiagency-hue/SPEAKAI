@@ -15,6 +15,12 @@ export async function createImageService() {
       return await rotator.executeWithRotation(async (apiKey) => {
         const ai = new GoogleGenAI({ apiKey });
 
+        // Validação de resolução
+        const validResolutions = ["512px", "1K", "2K", "4K"];
+        if (!validResolutions.includes(resolution)) {
+          throw new Error("Resolução inválida. Use 512px, 1K, 2K ou 4K.");
+        }
+
         // Monta os "parts": primeiro imagens válidas, depois texto
         const parts: any[] = referenceImages
           .filter((img) => img?.data && img?.mimeType)
@@ -25,6 +31,7 @@ export async function createImageService() {
             },
           }));
 
+        // Prompt padrão se vier vazio
         parts.push({
           text: prompt?.trim() || "Uma foto hiper-realista cinematográfica e detalhada",
         });
@@ -47,6 +54,7 @@ export async function createImageService() {
         });
 
         console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
+        console.log("Finish reason:", geminiResponse.candidates?.[0]?.finishReason);
 
         const images: string[] = [];
 
