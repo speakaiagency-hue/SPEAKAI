@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
 import {
   ReferenceImage,
@@ -16,62 +16,51 @@ export async function createImageService() {
       prompt: string,
       aspectRatio: AspectRatio = "1:1",
       imageSize: ImageSize = "1K",
-      numberOfImages: number = 4,
+      numberOfImages: number = 1,
       personGeneration: PersonGeneration = "allow_adult",
       referenceImages: ReferenceImage[] = []
     ): Promise<GenerationResult> {
       return await rotator.executeWithRotation(async (apiKey) => {
         const ai = new GoogleGenAI({ apiKey });
 
-        // Monta os "parts": primeiro imagens, depois texto
-        const parts: any[] = referenceImages
-          .filter((img) => img?.data && img?.mimeType)
-          .map((img) => {
-            const base64 = img.data.includes(",")
-              ? img.data.split(",")[1]
-              : img.data;
-            return {
-              inlineData: {
-                data: base64,
-                mimeType: img.mimeType,
-              },
-            };
-          });
+        // Configuração base
+        const config: Record<string, any> = {
+          aspectRatio,
+          imageSize,
+          numberOfImages,
+          personGeneration,
+        };
 
-        // Sempre adiciona o prompt no final
-        parts.push({
-          text: prompt?.trim() || "Uma arte digital cinematográfica e detalhada",
-        });
+        // Payload inicial
+        const generateImagePayload: Record<string, any> = {
+          model: "gemini-2.5-flash-image",
+          prompt: prompt?.trim() || "Uma arte digital cinematográfica e detalhada",
+          config,
+        };
+
+        // Se houver imagens de referência, adiciona no payload
+        if (referenceImages.length > 0) {
+          const refs = referenceImages.slice(0, 3).map((img) => ({
+            image: {
+              imageBytes: img.data.includes(",") ? img.data.split(",")[1] : img.data,
+              mimeType: img.mimeType || "image/jpeg",
+            },
+          }));
+          generateImagePayload.config.referenceImages = refs;
+        }
 
         try {
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-image",
-            contents: [{ parts }], // ✅ corrigido: sem role
-            config: {
-              responseModalities: [Modality.IMAGE],
-              imageConfig: {
-                aspectRatio,
-                imageSize,
-                numberOfImages,
-                personGeneration,
-              },
-              temperature: 0.2,
-              topP: 0.8,
-              topK: 40,
-            },
-          });
+          const response = await ai.models.generateImages(generateImagePayload);
 
           const images: string[] = [];
           let message: string | undefined;
 
-          if (response.candidates?.[0]?.content?.parts) {
-            for (const part of response.candidates[0].content.parts) {
-              if (part.inlineData) {
-                const base64Data = part.inlineData.data;
-                const mimeType = part.inlineData.mimeType;
+          if (response?.generatedImages?.length) {
+            for (const img of response.generatedImages) {
+              if (img?.image?.imageBytes) {
+                const base64Data = img.image.imageBytes;
+                const mimeType = img.image.mimeType || "image/png";
                 images.push(`data:${mimeType};base64,${base64Data}`);
-              } else if (part.text) {
-                message = part.text;
               }
             }
           }
