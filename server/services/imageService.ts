@@ -26,12 +26,17 @@ export async function createImageService() {
         // Monta os "parts": primeiro imagens, depois texto
         const parts: any[] = referenceImages
           .filter((img) => img?.data && img?.mimeType)
-          .map((img) => ({
-            inlineData: {
-              data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
-              mimeType: img.mimeType,
-            },
-          }));
+          .map((img) => {
+            const base64 = img.data.includes(",")
+              ? img.data.split(",")[1]
+              : img.data;
+            return {
+              inlineData: {
+                data: base64,
+                mimeType: img.mimeType,
+              },
+            };
+          });
 
         // Sempre adiciona o prompt no final
         parts.push({
@@ -41,7 +46,7 @@ export async function createImageService() {
         try {
           const response = await ai.models.generateContent({
             model: "gemini-2.5-flash-image",
-            contents: [{ role: "user", parts }],
+            contents: [{ parts }], // ✅ corrigido: não precisa role
             config: {
               responseModalities: [Modality.IMAGE],
               imageConfig: {
@@ -49,11 +54,11 @@ export async function createImageService() {
                 imageSize,
                 numberOfImages,
                 personGeneration,
-              } as any,
+              },
               temperature: 0.2,
               topP: 0.8,
               topK: 40,
-            } as any,
+            },
           });
 
           const images: string[] = [];
