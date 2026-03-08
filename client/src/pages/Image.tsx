@@ -41,7 +41,6 @@ function ImagePageComponent() {
       });
 
       const result = await response.json();
-      console.log("API result:", result);
 
       if (!response.ok) {
         throw new Error(result.error || result.message || "Erro ao gerar imagem");
