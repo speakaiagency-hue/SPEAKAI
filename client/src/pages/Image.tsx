@@ -22,6 +22,7 @@ function ImagePageComponent() {
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState("16:9");
+  const [resolution, setResolution] = useState("1K"); // novo campo
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
@@ -36,29 +37,22 @@ function ImagePageComponent() {
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({ prompt, aspectRatio, referenceImages }),
+        body: JSON.stringify({ prompt, aspectRatio, resolution, referenceImages }),
       });
 
       const result = await response.json();
       console.log("API result:", result);
 
       if (!response.ok) {
-        throw new Error(result.error || "Erro ao gerar imagem");
+        throw new Error(result.error || result.message || "Erro ao gerar imagem");
       }
 
-      if (Array.isArray(result.images)) {
+      if (Array.isArray(result.images) && result.images.length > 0) {
         setGeneratedImages(result.images);
-      } else if (result.imageUrl) {
-        setGeneratedImages([result.imageUrl]);
-      } else if (result.url) {
-        setGeneratedImages([result.url]);
-      } else if (result.data && Array.isArray(result.data)) {
-        setGeneratedImages(result.data.map((d: any) => d.url || d.image));
+        toast({ title: "Imagem processada com sucesso!" });
       } else {
-        throw new Error("Resposta da API não contém URL da imagem.");
+        toast({ title: result.message || "Nenhuma imagem gerada.", variant: "destructive" });
       }
-
-      toast({ title: "Imagem processada com sucesso!" });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro inesperado.";
       toast({ title: errorMessage, variant: "destructive" });
@@ -84,7 +78,7 @@ function ImagePageComponent() {
       </div>
 
       <div className="space-y-4">
-        {/* Prompt + Aspect ratio */}
+        {/* Prompt + Aspect ratio + Resolution */}
         <div className="bg-[#0f1117] p-1 rounded-xl border border-[#1f2937] shadow-2xl">
           <Textarea
             value={prompt}
@@ -96,7 +90,7 @@ function ImagePageComponent() {
 
           <div className="flex items-end justify-between px-6 pb-4">
             <div className="flex items-center gap-2 bg-[#0f1117]">
-              {["16:9", "9:16", "1:1"].map((ratio) => (
+              {["16:9", "9:16", "1:1", "1:4", "4:1", "1:8", "8:1"].map((ratio) => (
                 <button
                   key={ratio}
                   onClick={() => setAspectRatio(ratio)}
@@ -108,6 +102,23 @@ function ImagePageComponent() {
                   )}
                 >
                   {ratio}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {["512px", "0.5K", "1K", "2K", "4K"].map((res) => (
+                <button
+                  key={res}
+                  onClick={() => setResolution(res)}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
+                    resolution === res
+                      ? "bg-[#6366f1] text-white border-[#6366f1]"
+                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
+                  )}
+                >
+                  {res}
                 </button>
               ))}
             </div>
@@ -201,4 +212,4 @@ function ImagePageComponent() {
   );
 }
 
-export default withMembershipCheck(ImagePageComponent);
+export default withMembershipCheck(ImagePageComponent
