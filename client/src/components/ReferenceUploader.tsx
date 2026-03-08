@@ -18,10 +18,9 @@ const ReferenceUploader: React.FC<ReferenceUploaderProps> = ({ images, onAdd, on
       const reader = new FileReader();
       reader.onload = (event) => {
         const dataUrl = event.target?.result as string;
-        const base64 = dataUrl.split(",")[1]; // separa só o base64 puro
         onAdd({
           id: crypto.randomUUID(),
-          data: base64,
+          data: dataUrl, // envia o DataURL completo
           mimeType: file.type,
           preview: dataUrl
         });
