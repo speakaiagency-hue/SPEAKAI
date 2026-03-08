@@ -21,10 +21,7 @@ function ImagePageComponent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<"1:1" | "3:4" | "4:3" | "9:16" | "16:9">("1:1");
-  const [imageSize, setImageSize] = useState<"1K" | "2K">("1K");
-  const [numberOfImages, setNumberOfImages] = useState<1 | 2 | 3 | 4>(4);
-  const [personGeneration, setPersonGeneration] = useState<"dont_allow" | "allow_adult" | "allow_all">("allow_adult");
+  const [aspectRatio, setAspectRatio] = useState<"1:1" | "3:4" | "4:3" | "9:16" | "16:9">("16:9");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
   const [modelMessage, setModelMessage] = useState<string | null>(null);
@@ -40,14 +37,7 @@ function ImagePageComponent() {
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({
-          prompt,
-          aspectRatio,
-          imageSize,
-          numberOfImages,
-          personGeneration,
-          referenceImages
-        }),
+        body: JSON.stringify({ prompt, aspectRatio, referenceImages }),
       });
 
       const result = await response.json();
@@ -89,7 +79,7 @@ function ImagePageComponent() {
       </div>
 
       <div className="space-y-4">
-        {/* Prompt + Aspect ratio + Resolution */}
+        {/* Prompt + Aspect ratio */}
         <div className="bg-[#0f1117] p-1 rounded-xl border border-[#1f2937] shadow-2xl">
           <Textarea
             value={prompt}
@@ -99,9 +89,8 @@ function ImagePageComponent() {
             maxLength={5000}
           />
 
-          <div className="flex flex-col gap-4 px-6 pb-4">
-            {/* Aspect Ratio */}
-            <div className="flex items-center gap-2">
+          <div className="flex items-end justify-between px-6 pb-4">
+            <div className="flex items-center gap-2 bg-[#0f1117]">
               {["1:1", "3:4", "4:3", "9:16", "16:9"].map((ratio) => (
                 <button
                   key={ratio}
@@ -114,64 +103,6 @@ function ImagePageComponent() {
                   )}
                 >
                   {ratio}
-                </button>
-              ))}
-            </div>
-
-            {/* Image Size */}
-            <div className="flex items-center gap-2">
-              {["1K", "2K"].map((size) => (
-                <button
-                  key={size}
-                  onClick={() => setImageSize(size as any)}
-                  className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
-                    imageSize === size
-                      ? "bg-[#6366f1] text-white border-[#6366f1]"
-                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
-                  )}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-
-            {/* Number of Images */}
-            <div className="flex items-center gap-2">
-              {[1, 2, 3, 4].map((num) => (
-                <button
-                  key={num}
-                  onClick={() => setNumberOfImages(num as 1 | 2 | 3 | 4)}
-                  className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
-                    numberOfImages === num
-                      ? "bg-[#6366f1] text-white border-[#6366f1]"
-                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
-                  )}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
-
-            {/* Person Generation */}
-            <div className="flex items-center gap-2">
-              {[
-                { key: "dont_allow", label: "Sem pessoas" },
-                { key: "allow_adult", label: "Apenas adultos" },
-                { key: "allow_all", label: "Adultos e crianças" },
-              ].map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => setPersonGeneration(opt.key as any)}
-                  className={cn(
-                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
-                    personGeneration === opt.key
-                      ? "bg-[#6366f1] text-white border-[#6366f1]"
-                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
-                  )}
-                >
-                  {opt.label}
                 </button>
               ))}
             </div>
@@ -189,7 +120,7 @@ function ImagePageComponent() {
           onRemove={(id) => setReferenceImages((prev) => prev.filter((i) => i.id !== id))}
         />
 
-                {/* Action */}
+        {/* Action */}
         <Button
           className="w-full bg-[#6d28d9] hover:bg-[#5b21b6] text-white font-bold h-16 rounded-xl text-xl shadow-lg shadow-purple-900/20 transition-all duration-300 hover:scale-[1.01] flex items-center justify-center gap-3"
           onClick={handleGenerate}
@@ -202,7 +133,7 @@ function ImagePageComponent() {
           ) : (
             <>
               <span className="text-sm font-semibold px-2 py-1 rounded bg-white/20 border border-white/30">
-                {IMAGE_COST * numberOfImages} ⚡
+                {IMAGE_COST} ⚡
               </span>
               <span>Gerar Imagem</span>
             </>
