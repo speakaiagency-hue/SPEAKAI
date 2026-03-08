@@ -10,7 +10,7 @@ export async function createImageService() {
       prompt: string,
       aspectRatio: string = "1:1",
       resolution: "512px" | "0.5K" | "1K" | "2K" | "4K" = "1K",
-      referenceImages: ReferenceImage[] = [] // aceita várias imagens
+      referenceImages: ReferenceImage[] = []
     ): Promise<{ images: string[]; model: string; message?: string }> {
       return await rotator.executeWithRotation(async (apiKey) => {
         const ai = new GoogleGenAI({ apiKey });
@@ -42,6 +42,9 @@ export async function createImageService() {
           text: prompt?.trim() || "Uma arte digital cinematográfica e detalhada",
         });
 
+        // Debug antes da chamada
+        console.log("Parts enviados ao Gemini:", JSON.stringify(parts, null, 2));
+
         // Chamada ao modelo Gemini 3 Pro Image Preview
         const geminiResponse = await ai.models.generateContent({
           model: "gemini-3-pro-image-preview",
@@ -65,6 +68,7 @@ export async function createImageService() {
         console.log("Finish reason:", geminiResponse.candidates?.[0]?.finishReason);
 
         const images: string[] = [];
+        let message: string | undefined;
 
         if (geminiResponse.candidates?.[0]?.content?.parts) {
           for (const part of geminiResponse.candidates[0].content.parts) {
@@ -73,8 +77,9 @@ export async function createImageService() {
               const mimeType = part.inline_data.mime_type;
               images.push(`data:${mimeType};base64,${base64EncodeString}`);
             } else if (part.text) {
-              // Se vier texto em vez de imagem, logamos para debug
+              // Se vier texto em vez de imagem, repassamos como mensagem
               console.log("Modelo retornou texto:", part.text);
+              message = part.text;
             }
           }
         }
@@ -90,7 +95,7 @@ export async function createImageService() {
         return {
           images: [],
           model: "Gemini 3 Pro Image",
-          message: "A resposta da API não continha uma imagem. Tente ajustar o prompt ou a configuração.",
+          message: message || "A resposta da API não continha uma imagem. Tente ajustar o prompt ou a configuração.",
         };
       });
     },
