@@ -22,7 +22,7 @@ function ImagePageComponent() {
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [resolution, setResolution] = useState("1K"); // novo campo
+  const [resolution, setResolution] = useState("1K"); // campo dinâmico
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
@@ -200,15 +200,4 @@ function ImagePageComponent() {
               <X className="w-5 h-5" />
             </button>
             <img
-              src={fullscreenImage}
-              alt="Imagem ampliada"
-              className="w-full h-auto rounded-xl border border-gray-700 object-contain max-h-[85vh]"
-            />
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default withMembershipCheck(ImagePageComponent);
+              src={fullscreenImage
