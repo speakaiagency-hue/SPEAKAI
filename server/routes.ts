@@ -1,7 +1,9 @@
 // ✅ Image Generation API (Protected)
 app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
   try {
-    if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
+    if (!req.user) {
+      return res.status(401).json({ error: "Usuário não autenticado" });
+    }
 
     const { prompt, aspectRatio = "1:1", resolution = "1K", referenceImages } = req.body as {
       prompt: string;
@@ -32,7 +34,7 @@ app.post("/api/image/generate", authMiddleware, async (req: Request, res: Respon
         images: [],
         message: result.message || "Nenhuma imagem gerada",
         creditsRemaining: deductResult.creditsRemaining,
-        model: result.model
+        model: result.model,
       });
     }
 
@@ -40,7 +42,7 @@ app.post("/api/image/generate", authMiddleware, async (req: Request, res: Respon
       images: result.images,
       message: result.message, // pode vir texto explicativo do modelo
       creditsRemaining: deductResult.creditsRemaining,
-      model: result.model
+      model: result.model,
     });
   } catch (error) {
     console.error("Image generation error:", error);
