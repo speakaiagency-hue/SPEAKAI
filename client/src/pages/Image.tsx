@@ -212,4 +212,4 @@ function ImagePageComponent() {
   );
 }
 
-export default withMembershipCheck(ImagePageComponent
+export default withMembershipCheck(ImagePageComponent);
