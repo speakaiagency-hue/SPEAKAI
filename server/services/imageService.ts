@@ -27,11 +27,12 @@ export async function createImageService() {
           throw new Error("Aspect ratio inválido. Use 1:1, 16:9, 9:16, 1:4, 4:1, 1:8 ou 8:1.");
         }
 
-        // Monta os "parts": primeiro imagens válidas, depois texto
+        // Monta os "parts": primeiro imagens válidas
         const parts: any[] = referenceImages
           .filter((img) => img?.data && img?.mimeType)
           .map((img) => ({
             inline_data: {
+              // remove prefixo caso venha no formato data:image/png;base64,...
               data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
               mime_type: img.mimeType,
             },
@@ -73,6 +74,7 @@ export async function createImageService() {
               const mimeType = part.inline_data.mime_type;
               images.push(`data:${mimeType};base64,${base64EncodeString}`);
             } else if (part.text) {
+              // Se vier texto em vez de imagem, logamos para debug
               console.log("Modelo retornou texto:", part.text);
             }
           }
