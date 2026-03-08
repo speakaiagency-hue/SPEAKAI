@@ -21,11 +21,13 @@ function ImagePageComponent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [resolution, setResolution] = useState("1K");
+  const [aspectRatio, setAspectRatio] = useState("1:1");
+  const [imageSize, setImageSize] = useState("1K");
+  const [numberOfImages, setNumberOfImages] = useState(4);
+  const [personGeneration, setPersonGeneration] = useState("allow_adult");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [modelMessage, setModelMessage] = useState<string | null>(null); // novo estado
+  const [modelMessage, setModelMessage] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt && referenceImages.length === 0) {
@@ -38,7 +40,14 @@ function ImagePageComponent() {
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({ prompt, aspectRatio, resolution, referenceImages }),
+        body: JSON.stringify({
+          prompt,
+          aspectRatio,
+          imageSize,
+          numberOfImages,
+          personGeneration,
+          referenceImages
+        }),
       });
 
       const result = await response.json();
@@ -90,9 +99,10 @@ function ImagePageComponent() {
             maxLength={5000}
           />
 
-          <div className="flex items-end justify-between px-6 pb-4">
-            <div className="flex items-center gap-2 bg-[#0f1117]">
-              {["16:9", "9:16", "1:1", "1:4", "4:1", "1:8", "8:1"].map((ratio) => (
+          <div className="flex flex-col gap-4 px-6 pb-4">
+            {/* Aspect Ratio */}
+            <div className="flex items-center gap-2">
+              {["1:1", "3:4", "4:3", "9:16", "16:9"].map((ratio) => (
                 <button
                   key={ratio}
                   onClick={() => setAspectRatio(ratio)}
@@ -108,19 +118,60 @@ function ImagePageComponent() {
               ))}
             </div>
 
+            {/* Image Size */}
             <div className="flex items-center gap-2">
-              {["512px", "0.5K", "1K", "2K", "4K"].map((res) => (
+              {["1K", "2K"].map((size) => (
                 <button
-                  key={res}
-                  onClick={() => setResolution(res)}
+                  key={size}
+                  onClick={() => setImageSize(size)}
                   className={cn(
                     "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
-                    resolution === res
+                    imageSize === size
                       ? "bg-[#6366f1] text-white border-[#6366f1]"
                       : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
                   )}
                 >
-                  {res}
+                  {size}
+                </button>
+              ))}
+            </div>
+
+            {/* Number of Images */}
+            <div className="flex items-center gap-2">
+              {[1, 2, 3, 4].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setNumberOfImages(num)}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
+                    numberOfImages === num
+                      ? "bg-[#6366f1] text-white border-[#6366f1]"
+                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
+                  )}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
+
+            {/* Person Generation */}
+            <div className="flex items-center gap-2">
+              {[
+                { key: "dont_allow", label: "Sem pessoas" },
+                { key: "allow_adult", label: "Apenas adultos" },
+                { key: "allow_all", label: "Adultos e crianças" },
+              ].map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setPersonGeneration(opt.key)}
+                  className={cn(
+                    "px-3 py-1 rounded-lg text-xs font-medium transition-all border",
+                    personGeneration === opt.key
+                      ? "bg-[#6366f1] text-white border-[#6366f1]"
+                      : "bg-[#1a1d24] text-gray-400 border-[#2d3748] hover:bg-[#2d3748]"
+                  )}
+                >
+                  {opt.label}
                 </button>
               ))}
             </div>
@@ -159,7 +210,7 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-      {/* Mensagem do modelo */}
+            {/* Mensagem do modelo */}
       {modelMessage && (
         <div className="mt-6 p-4 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-sm">
           {modelMessage}
@@ -179,6 +230,7 @@ function ImagePageComponent() {
               >
                 <img
                   src={src}
+                  alt={`Imagem ${i + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
@@ -190,7 +242,7 @@ function ImagePageComponent() {
               <a key={i} href={src} download={`imagem-${i}.png`}>
                 <Button variant="secondary" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Baixar imagem
+                  Baixar imagem {i + 1}
                 </Button>
               </a>
             ))}
@@ -198,7 +250,7 @@ function ImagePageComponent() {
         </div>
       )}
 
-            {/* Modal fullscreen */}
+      {/* Modal fullscreen */}
       {fullscreenImage && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="relative max-w-5xl w-full">
