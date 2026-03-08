@@ -22,9 +22,10 @@ function ImagePageComponent() {
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [aspectRatio, setAspectRatio] = useState("16:9");
-  const [resolution, setResolution] = useState("1K"); // campo dinâmico
+  const [resolution, setResolution] = useState("1K");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
+  const [modelMessage, setModelMessage] = useState<string | null>(null); // novo estado
 
   const handleGenerate = async () => {
     if (!prompt && referenceImages.length === 0) {
@@ -45,6 +46,8 @@ function ImagePageComponent() {
       if (!response.ok) {
         throw new Error(result.error || result.message || "Erro ao gerar imagem");
       }
+
+      setModelMessage(result.message || null);
 
       if (Array.isArray(result.images) && result.images.length > 0) {
         setGeneratedImages(result.images);
@@ -156,6 +159,13 @@ function ImagePageComponent() {
         </Button>
       </div>
 
+      {/* Mensagem do modelo */}
+      {modelMessage && (
+        <div className="mt-6 p-4 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-sm">
+          {modelMessage}
+        </div>
+      )}
+
       {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
@@ -188,7 +198,7 @@ function ImagePageComponent() {
         </div>
       )}
 
-           {/* Modal fullscreen */}
+            {/* Modal fullscreen */}
       {fullscreenImage && (
         <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
           <div className="relative max-w-5xl w-full">
