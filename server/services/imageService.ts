@@ -1,12 +1,6 @@
-import { GoogleGenAI, Modality } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
-import {
-  ReferenceImage,
-  GenerationResult,
-  AspectRatio,
-  ImageSize,
-  PersonGeneration,
-} from "../types";
+import { ReferenceImage } from "../types"; // garante tipagem consistente
 
 export async function createImageService() {
   const rotator = getGeminiKeyRotator();
@@ -14,77 +8,65 @@ export async function createImageService() {
   return {
     async generateImage(
       prompt: string,
-      aspectRatio: AspectRatio = "1:1",
-      imageSize: ImageSize = "1K",
-      numberOfImages: number = 1,
-      personGeneration: PersonGeneration = "allow_adult",
-      referenceImages: ReferenceImage[] = []
-    ): Promise<GenerationResult> {
-      return await rotator.executeWithRotation(async () => {
-        // ✅ Inicializa cliente para Vertex AI (usa credenciais do Google Cloud)
-        const ai = new GoogleGenAI({ vertexai: true });
+      aspectRatio: string = "1:1",
+      referenceImages: ReferenceImage[] = [] // aceita várias imagens
+    ): Promise<{ images: string[]; model: string }> {
+      return await rotator.executeWithRotation(async (apiKey) => {
+        const ai = new GoogleGenAI({ apiKey });
 
-        // Monta partes: imagens de referência + texto
-        const parts: any[] = [];
+        // Monta os "parts": primeiro imagens, depois texto
+        const parts: any[] = referenceImages.map((img) => ({
+          inlineData: {
+            // remove prefixo caso venha no formato data:image/png;base64,...
+            data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
+            mimeType: img.mimeType,
+          },
+        }));
 
-        referenceImages.slice(0, 3).forEach((img) => {
-          parts.push({
-            inlineData: {
-              mimeType: img.mimeType || "image/jpeg",
-              data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
-            },
-          });
-        });
-
+        // Sempre adiciona o prompt no final
         parts.push({
-          text: prompt?.trim() || "Uma arte digital cinematográfica e detalhada",
+          text: prompt || "Uma arte digital cinematográfica e detalhada", // fallback
         });
 
-        try {
-          const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash-image-preview", // modelo Vertex AI
-            contents: { role: "user", parts },
-            config: {
-              responseModalities: [Modality.IMAGE, Modality.TEXT],
-              imageConfig: {
-                aspectRatio,
-                imageSize,
-                numberOfImages,
-                personGeneration,
-              },
-              systemInstruction:
-                "Você é um editor de imagem profissional. Preserve a identidade do sujeito e só altere o que for explicitamente pedido.",
-            },
-          });
+        const geminiResponse = await ai.models.generateContent({
+          model: "gemini-2.5-flash-image",
+          contents: { parts },
+          config: {
+            imageConfig: { aspectRatio },
+          },
+          generationConfig: {
+            temperature: 0.2,
+            topP: 0.8,
+            topK: 40,
+          },
+        });
 
-          const imagePart = response.candidates?.[0]?.content?.parts?.find(
-            (p: any) => p.inlineData
-          );
+        // Debug opcional
+        console.log("Gemini response:", JSON.stringify(geminiResponse, null, 2));
 
-          if (imagePart?.inlineData) {
-            return {
-              images: [
-                `data:${imagePart.inlineData.mimeType};base64,${imagePart.inlineData.data}`,
-              ],
-              model: "Gemini 2.5 Flash Image",
-            };
+        const images: string[] = [];
+
+        if (
+          geminiResponse.candidates &&
+          geminiResponse.candidates[0]?.content?.parts
+        ) {
+          for (const part of geminiResponse.candidates[0].content.parts) {
+            if (part.inlineData) {
+              const base64EncodeString: string = part.inlineData.data || "";
+              const mimeType = part.inlineData.mimeType;
+              images.push(`data:${mimeType};base64,${base64EncodeString}`);
+            }
           }
+        }
 
+        if (images.length > 0) {
           return {
-            images: [],
-            model: "Gemini 2.5 Flash Image",
-            message:
-              "A resposta da API não continha uma imagem. Tente ajustar o prompt ou a configuração.",
-          };
-        } catch (error: any) {
-          console.error("Image generation error:", error);
-          return {
-            images: [],
-            model: "Gemini 2.5 Flash Image",
-            message:
-              error.message || "Ocorreu um erro durante a geração da imagem.",
+            images,
+            model: "Gemini Flash",
           };
         }
+
+        throw new Error("A resposta da API não continha uma imagem.");
       });
     },
   };
