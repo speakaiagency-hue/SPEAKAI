@@ -12,7 +12,7 @@ export interface ReferenceImage {
   id: string;
   data: string;      // base64 puro (sem prefixo data:image/png;base64,...)
   mimeType: string;  // tipo MIME (ex: "image/png")
-  preview: string;   // usado para exibir no front (dataURL completo)
+  preview: string;   // usado para exibir no front (DataURL completo)
 }
 
 // Imagem gerada pela IA
