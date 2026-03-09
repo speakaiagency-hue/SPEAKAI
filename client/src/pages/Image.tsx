@@ -34,7 +34,6 @@ function ImagePageComponent() {
 
     setIsGenerating(true);
     try {
-      // ✅ Enviar apenas data + mimeType
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
