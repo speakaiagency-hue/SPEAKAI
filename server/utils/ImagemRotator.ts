@@ -1,6 +1,6 @@
 /**
  * API Key Rotator - Round-robin rotation with automatic fallback
- * Supports multiple API keys from environment variable
+ * Supports multiple API keys froGEMINI_API_KEYm environment variable
  */
 
 class ApiKeyRotator {
@@ -148,7 +148,7 @@ let googleKeyRotator: ApiKeyRotator | null = null;
 
 export function getGeminiKeyRotator(): ApiKeyRotator {
   if (!googleKeyRotator) {
-    googleKeyRotator = new ApiKeyRotator('GOOGLE_API_KEY');
+    googleKeyRotator = new ApiKeyRotator('GEMINI_API_KEY');
   }
   return googleKeyRotator;
 }
