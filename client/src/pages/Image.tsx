@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { getAuthHeader } from "@/lib/auth";
 import { withMembershipCheck } from "@/components/ProtectedGenerator";
-import { ReferenceImage, AspectRatio } from "@/types";
+import { ReferenceImage } from "@/types";
 import ReferenceUploader from "@/components/ReferenceUploader";
 
 const IMAGE_COST = 7;
@@ -21,10 +21,9 @@ function ImagePageComponent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>("16:9");
+  const [aspectRatio, setAspectRatio] = useState("16:9");
   const [referenceImages, setReferenceImages] = useState<ReferenceImage[]>([]);
   const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
-  const [modelMessage, setModelMessage] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     if (!prompt && referenceImages.length === 0) {
@@ -37,30 +36,26 @@ function ImagePageComponent() {
       const response = await fetch("/api/image/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...getAuthHeader() },
-        body: JSON.stringify({
-          prompt,
-          aspectRatio,
-          referenceImages: referenceImages.map(img => ({
-            data: img.data,
-            mimeType: img.mimeType,
-          })),
-        }),
+        body: JSON.stringify({ prompt, aspectRatio, referenceImages }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || result.message || "Erro ao gerar imagem");
+        throw new Error(result.error || "Erro ao gerar imagem");
       }
 
-      setModelMessage(result.message || null);
-
-      if (Array.isArray(result.images) && result.images.length > 0) {
+      if (Array.isArray(result.images)) {
         setGeneratedImages(result.images);
-        toast({ title: "Imagem processada com sucesso!" });
+      } else if (result.imageUrl) {
+        setGeneratedImages([result.imageUrl]);
+      } else if (result.url) {
+        setGeneratedImages([result.url]);
       } else {
-        toast({ title: result.message || "Nenhuma imagem gerada.", variant: "destructive" });
+        throw new Error("Resposta da API não contém URL da imagem.");
       }
+
+      toast({ title: "Imagem processada com sucesso!" });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro inesperado.";
       toast({ title: errorMessage, variant: "destructive" });
@@ -98,7 +93,7 @@ function ImagePageComponent() {
 
           <div className="flex items-end justify-between px-6 pb-4">
             <div className="flex items-center gap-2 bg-[#0f1117]">
-              {(["1:1", "3:4", "4:3", "9:16", "16:9"] as AspectRatio[]).map((ratio) => (
+              {["16:9", "9:16", "1:1"].map((ratio) => (
                 <button
                   key={ratio}
                   onClick={() => setAspectRatio(ratio)}
@@ -148,13 +143,6 @@ function ImagePageComponent() {
         </Button>
       </div>
 
-      {/* Mensagem do modelo */}
-      {modelMessage && (
-        <div className="mt-6 p-4 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 text-sm">
-          {modelMessage}
-        </div>
-      )}
-
       {/* Gallery + downloads */}
       {generatedImages.length > 0 && (
         <div className="space-y-6 mt-12">
@@ -168,7 +156,6 @@ function ImagePageComponent() {
               >
                 <img
                   src={src}
-                  alt={`Imagem ${i + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>
@@ -180,7 +167,7 @@ function ImagePageComponent() {
               <a key={i} href={src} download={`imagem-${i}.png`}>
                 <Button variant="secondary" className="flex items-center gap-2">
                   <Download className="w-4 h-4" />
-                  Baixar imagem {i + 1}
+                  Baixar imagem
                 </Button>
               </a>
             ))}
