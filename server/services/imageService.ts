@@ -9,13 +9,20 @@ export async function createImageService() {
     async generateImage(
       prompt: string,
       aspectRatio: string = "1:1",
-      referenceImages: ReferenceImage[] = [] // aceita várias imagens
+      referenceImages: ReferenceImage[] | ReferenceImage | null = [] // aceita várias ou uma imagem
     ): Promise<{ images: string[]; model: string }> {
       return await rotator.executeWithRotation(async (apiKey) => {
         const ai = new GoogleGenAI({ apiKey });
 
+        // Normaliza para array seguro
+        const safeReferenceImages: ReferenceImage[] = Array.isArray(referenceImages)
+          ? referenceImages
+          : referenceImages
+          ? [referenceImages]
+          : [];
+
         // Monta os "parts": primeiro imagens, depois texto
-        const parts: any[] = referenceImages.map((img) => ({
+        const parts: any[] = safeReferenceImages.map((img) => ({
           inlineData: {
             // remove prefixo caso venha no formato data:image/png;base64,...
             data: img.data.includes(",") ? img.data.split(",")[1] : img.data,
