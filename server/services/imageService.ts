@@ -1,5 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
-import { getGeminiKeyRotator } from "../utils/ImagemRotator"; // corrigido para ImagemRotator
+import { getGeminiKeyRotator } from "../utils/apiKeyRotator"; // corrigido para ImagemRotator
 import { ReferenceImage } from "../types"; // garante tipagem consistente
 
 export async function createImageService() {
