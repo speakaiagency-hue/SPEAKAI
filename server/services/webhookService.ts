@@ -137,15 +137,16 @@ export async function deductCredits(
     let cost: number;
 
     if (operationType === "video") {
-      // 🚨 Resolução obrigatória
-      if (!options?.resolution || !VIDEO_COSTS[options.resolution]) {
+      // 🚨 Normalizar resolução recebida
+      const resolution = options?.resolution?.toLowerCase().trim();
+      if (!resolution || !VIDEO_COSTS[resolution]) {
         return {
           success: false,
           error: "invalid_resolution",
           message: "Resolução inválida ou não informada. Use 720p, 1080p ou 4k.",
         };
       }
-      cost = VIDEO_COSTS[options.resolution];
+      cost = VIDEO_COSTS[resolution];
     } else {
       cost = CREDIT_COSTS[operationType];
     }
