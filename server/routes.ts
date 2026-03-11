@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateVideo, type GenerateVideoParams } from "./services/geminiService";
+import { generateVideoByResolution } from "./services/VideoServiceSelector";
+import { type GenerateVideoParams } from "./services/GeminiServiceBase";
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
@@ -20,7 +21,7 @@ export async function registerRoutes(
   const promptService = await createPromptService();
   const imageService = await createImageService();
 
-  // Video Generation API (Protected)
+  // ✅ Video Generation API (Protected)
   app.post("/api/video/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
@@ -30,13 +31,8 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      const deductResult = await deductCredits(req.user.id, "video");
-      if (!deductResult.success) {
-        return res.status(402).json(deductResult);
-      }
-
-      const result = await generateVideo(params);
-      res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
+      const result = await generateVideoByResolution(req.user.id, params);
+      res.json(result);
     } catch (error) {
       console.error("Video generation error:", error);
       const message = error instanceof Error ? error.message : "Erro ao gerar vídeo";
