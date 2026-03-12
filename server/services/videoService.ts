@@ -7,7 +7,7 @@ export interface GenerateVideoParams {
   prompt: string;
   mode: "text-to-video" | "image-to-video" | "reference-to-video" | "frame-to-video" | "extend-video";
   aspectRatio?: "16:9" | "9:16";
-  resolution?: "720p" | "1080p" | "4k";
+  resolution?: "720p" | "1080p"; // ✅ apenas 720p e 1080p
   imageBase64?: string;
   imageMimeType?: string;
   referenceImages?: Array<{ base64: string; mimeType: string }>;
@@ -37,9 +37,9 @@ export async function generateVideo(userId: string, params: GenerateVideoParams)
 
     const config: Record<string, any> = {
       numberOfVideos: 1,
-      resolution: params.resolution || "720p",
+      resolution: params.resolution || "720p", // ✅ padrão 720p
       aspectRatio: params.aspectRatio || "16:9",
-      durationSeconds: params.resolution === "1080p" || params.resolution === "4k" ? 8 : 6,
+      durationSeconds: params.resolution === "1080p" ? 8 : 6, // ✅ só 720p e 1080p
     };
 
     const generateVideoPayload: Record<string, any> = {
@@ -81,7 +81,7 @@ export async function generateVideo(userId: string, params: GenerateVideoParams)
 
     if (params.mode === "extend-video" && params.extendVideoUri) {
       generateVideoPayload.video = { uri: params.extendVideoUri };
-      generateVideoPayload.config.resolution = "720p";
+      generateVideoPayload.config.resolution = "720p"; // ✅ extensão sempre em 720p
       generateVideoPayload.config.durationSeconds = 8;
     }
 
