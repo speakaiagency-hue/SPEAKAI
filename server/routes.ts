@@ -1,8 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateVideo, type GenerateVideoParams } from "./services/videoService";
-import { generateVideo, type GenerateVideoParams } from "./services/4kvideoService";
+import { generateVideo as generateStandardVideo, type GenerateVideoParams } from "./services/videoService";
+import { generateVideo as generate4kVideo, type Generate4kVideoParams } from "./services/4kvideoService";
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
@@ -40,7 +40,7 @@ export async function registerRoutes(
       // Se resolução for 4k, usa o service específico
       const result = params.resolution === "4k"
         ? await generate4kVideo(req.user.id, params as Generate4kVideoParams)
-        : await generateVideo(req.user.id, params);
+        : await generateStandardVideo(req.user.id, params);
 
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
