@@ -17,23 +17,24 @@ const CREDIT_COSTS = {
   image: 7,
   prompt: 0,
   video: 40,
+  video4k: 100, // ✅ novo custo para vídeos 4K
 };
 
 const CREDIT_MAP: Record<string, number> = {
   // Links curtos (checkout_link)
-"97ObxqK": 100,
-"3gpZJ6N": 200,
-"M2XmJF7": 300,
-"ntcPS8x": 500,
-"Tqy289G": 1000,
-"f8d7PdX": 2000,
-"8IDayIy": 500,    // Plano Básico
-"QnHmsQm": 1500,   // Plano Pro
-"hOJ3bEi": 5000,   // Plano Premium
+  "97ObxqK": 100,
+  "3gpZJ6N": 200,
+  "M2XmJF7": 300,
+  "ntcPS8x": 500,
+  "Tqy289G": 1000,
+  "f8d7PdX": 2000,
+  "8IDayIy": 500,    // Plano Básico
+  "QnHmsQm": 1500,   // Plano Pro
+  "hOJ3bEi": 5000,   // Plano Premium
 
-// UUIDs internos (product_id)
-"57c511c0-05d2-11f1-a5d8-9909e220e83a": 2000,  // Produto de Créditos
-"f1e06ef0-05d0-11f1-b57c-c9aa21f3f207": 5000,  // Produto de Planos
+  // UUIDs internos (product_id)
+  "57c511c0-05d2-11f1-a5d8-9909e220e83a": 2000,  // Produto de Créditos
+  "f1e06ef0-05d0-11f1-b57c-c9aa21f3f207": 5000,  // Produto de Planos
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -136,7 +137,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
 export async function deductCredits(
   userId: string,
-  operationType: "chat" | "image" | "prompt" | "video"
+  operationType: "chat" | "image" | "prompt" | "video" | "video4k"
 ) {
   try {
     const cost = CREDIT_COSTS[operationType];
@@ -153,14 +154,15 @@ export async function deductCredits(
 
     // ✅ Deduzir créditos
     const result = await storage.deductCredits(userId, cost);
+    const remaining = result?.credits ?? (currentCredits.credits - cost);
 
     console.log(
-      `✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${result?.credits}`
+      `✅ Deduzidos ${cost} créditos para ${operationType}. Restante: ${remaining}`
     );
 
     return {
       success: true,
-      creditsRemaining: result?.credits ?? currentCredits.credits - cost,
+      creditsRemaining: remaining,
       cost,
     };
   } catch (error) {
