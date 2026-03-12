@@ -321,7 +321,6 @@ function VideoPageComponent() {
                   <SelectContent className="bg-[#1a1d24] border-[#2d3748] text-foreground">
                     <SelectItem value="720p">720p</SelectItem>
                     <SelectItem value="1080p">1080p</SelectItem>
-                    <SelectItem value="4k">4K</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
