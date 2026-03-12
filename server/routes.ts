@@ -36,7 +36,11 @@ export async function registerRoutes(
         return res.status(402).json(deductResult);
       }
 
-      const result = await generateVideo(params);
+      // Se resolução for 4k, usa o service específico
+      const result = params.resolution === "4k"
+        ? await generate4kVideo(req.user.id, params as Generate4kVideoParams)
+        : await generateStandardVideo(req.user.id, params);
+
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
       console.error("Video generation error:", error);
