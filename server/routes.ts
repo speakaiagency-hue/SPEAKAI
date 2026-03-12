@@ -1,7 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateVideo, type GenerateVideoParams } from "./services/geminiService";
+import { generateVideo, type GenerateVideoParams } from "./services/videoService";
+import { generateVideo as generate4kVideo, type GenerateVideoParams as Generate4kVideoParams } from "./services/4kvideoService";
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
@@ -35,7 +36,11 @@ export async function registerRoutes(
         return res.status(402).json(deductResult);
       }
 
-      const result = await generateVideo(params);
+      // Se resolução for 4k, usa o service específico
+      const result = params.resolution === "4k"
+        ? await generate4kVideo(params as Generate4kVideoParams)
+        : await generateVideo(params);
+
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
       console.error("Video generation error:", error);
