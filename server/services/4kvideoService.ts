@@ -7,7 +7,7 @@ export interface GenerateVideoParams {
   prompt: string;
   mode: "text-to-video" | "image-to-video" | "reference-to-video" | "frame-to-video" | "extend-video";
   aspectRatio?: "16:9" | "9:16";
-  resolution?: "720p" | "1080p" | "4k";
+  resolution?: "4k"; // ✅ apenas 4K
   imageBase64?: string;
   imageMimeType?: string;
   referenceImages?: Array<{ base64: string; mimeType: string }>;
@@ -19,8 +19,8 @@ export interface GenerateVideoParams {
 }
 
 export async function generateVideo(userId: string, params: GenerateVideoParams) {
-  // 🔎 Deduz créditos conforme resolução
-  const creditResult = await deductCredits(userId, "video", { resolution: params.resolution });
+  // 🔎 Deduz créditos sempre para 4K
+  const creditResult = await deductCredits(userId, "video", { resolution: "4k" });
 
   if (!creditResult.success) {
     return {
@@ -37,9 +37,9 @@ export async function generateVideo(userId: string, params: GenerateVideoParams)
 
     const config: Record<string, any> = {
       numberOfVideos: 1,
-      resolution: params.resolution || "720p",
+      resolution: "4k", // ✅ fixado em 4K
       aspectRatio: params.aspectRatio || "16:9",
-      durationSeconds: params.resolution === "1080p" || params.resolution === "4k" ? 8 : 6,
+      durationSeconds: 8, // ✅ duração fixa para 4K
     };
 
     const generateVideoPayload: Record<string, any> = {
@@ -81,7 +81,7 @@ export async function generateVideo(userId: string, params: GenerateVideoParams)
 
     if (params.mode === "extend-video" && params.extendVideoUri) {
       generateVideoPayload.video = { uri: params.extendVideoUri };
-      generateVideoPayload.config.resolution = "720p";
+      generateVideoPayload.config.resolution = "4k"; // ✅ sempre 4K
       generateVideoPayload.config.durationSeconds = 8;
     }
 
