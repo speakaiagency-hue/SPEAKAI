@@ -31,6 +31,7 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
+      // Dedução genérica de créditos (valores específicos são tratados nos services)
       const deductResult = await deductCredits(req.user.id, "video");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
@@ -38,8 +39,8 @@ export async function registerRoutes(
 
       // Se resolução for 4k, usa o service específico
       const result = params.resolution === "4k"
-        ? await generate4kVideo(params as Generate4kVideoParams)
-        : await generateVideo(params);
+        ? await generate4kVideo(req.user.id, params as Generate4kVideoParams)
+        : await generateVideo(req.user.id, params);
 
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
