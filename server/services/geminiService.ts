@@ -1,6 +1,6 @@
 import { GoogleGenAI, VideoGenerationReferenceType } from "@google/genai";
 import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
-import { deductCredits } from "../credits"; // importa a função de créditos
+import { deductCredits } from "./webhookService"; // ✅ import corrigido
 import { storage } from "../storage";       // para buscar usuário e créditos
 
 export interface GenerateVideoParams {
