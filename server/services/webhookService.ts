@@ -72,7 +72,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     const creditsToAdd = productKey ? CREDIT_MAP[productKey] : 0;
     if (creditsToAdd === 0) {
-      console.warn(`⚠️ Produto não reconhecido: product_id=${data.product_id}, checkout_link=${data.checkout_link}`);
+      console.warn("⚠️ Produto não reconhecido:", JSON.stringify(data, null, 2));
       return { success: false, message: "Produto não reconhecido" };
     }
 
@@ -88,7 +88,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     }
 
     // 🔎 Normalizar email
-    const normalizedEmail = data.customer_email.toLowerCase();
+    const normalizedEmail = (data.customer_email || "").trim().toLowerCase();
     let user = await storage.getUserByEmail(normalizedEmail);
 
     if (!user) {
@@ -97,12 +97,15 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       user = await storage.createUser({
         email: normalizedEmail,
         name: data.customer_name,
-        password: DEFAULT_PASSWORD, // senha padrão
+        password: DEFAULT_PASSWORD,
       });
     }
 
     // ✅ Adicionar créditos ao usuário
     await storage.addCredits(user.id, creditsToAdd, data.purchase_id);
+
+    // 🔎 Marcar compra como processada
+    await storage.markPurchaseAsProcessed(data.purchase_id);
 
     // 🔎 Log do evento
     await storage.logWebhookEvent(
@@ -143,12 +146,13 @@ export async function deductCredits(
     }
 
     const currentCredits = await storage.getUserCredits(userId);
+    console.log(`🔎 Usuário ${userId} tem ${currentCredits?.credits ?? 0} créditos antes da operação`);
 
     if (!currentCredits || currentCredits.credits < cost) {
       return {
         success: false,
         error: "insufficient_credits",
-        message: `Você precisa de ${cost} créditos para gerar ${operationType} em ${options?.resolution ?? "1080p"}. Compre mais créditos.`,
+        message: `Saldo atual: ${currentCredits?.credits ?? 0}. Você precisa de ${cost} créditos para gerar ${operationType} em ${options?.resolution ?? "1080p"}.`,
       };
     }
 
@@ -157,7 +161,7 @@ export async function deductCredits(
 
     return {
       success: true,
-      creditsRemaining: result?.credits ?? currentCredits.credits - cost,
+      creditsRemaining: result?.credits ?? (currentCredits.credits - cost),
       cost,
     };
   } catch (error) {
