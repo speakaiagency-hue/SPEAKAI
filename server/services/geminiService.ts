@@ -1,7 +1,10 @@
 import { GoogleGenAI, VideoGenerationReferenceType } from "@google/genai";
 import { getGeminiKeyRotator } from "../utils/apiKeyRotator";
+import { deductCredits } from "../credits"; // importa a função de créditos
+import { storage } from "../storage";       // para buscar usuário e créditos
 
 export interface GenerateVideoParams {
+  userId: string; // adiciona o usuário para vincular dedução
   prompt: string;
   mode: "text-to-video" | "image-to-video" | "reference-to-video" | "frame-to-video" | "extend-video";
   aspectRatio?: "16:9" | "9:16"; // horizontal ou retrato
@@ -18,6 +21,12 @@ export interface GenerateVideoParams {
 
 export async function generateVideo(params: GenerateVideoParams) {
   const rotator = getGeminiKeyRotator();
+
+  // ✅ Deduz créditos antes de gerar
+  const deduction = await deductCredits(params.userId, "video", { resolution: params.resolution });
+  if (!deduction.success) {
+    throw new Error(deduction.message || "Créditos insuficientes para gerar vídeo");
+  }
 
   return await rotator.executeWithRotation(async (apiKey) => {
     const ai = new GoogleGenAI({ apiKey });
@@ -126,6 +135,8 @@ export async function generateVideo(params: GenerateVideoParams) {
       return {
         videoUrl: finalUrl,
         uri: finalUrl,
+        creditsDeducted: deduction.cost,
+        creditsRemaining: deduction.creditsRemaining,
       };
     }
 
