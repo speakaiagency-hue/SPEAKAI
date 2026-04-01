@@ -25,7 +25,12 @@ export async function registerRoutes(
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
 
-      const params: GenerateVideoParams = req.body;
+      // 🔑 injeta o userId do token no params
+      const params: GenerateVideoParams = {
+        ...req.body,
+        userId: req.user.id,
+      };
+
       if (!params.prompt) {
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
