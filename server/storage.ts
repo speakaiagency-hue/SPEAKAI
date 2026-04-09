@@ -259,7 +259,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(pendingPurchases.purchaseId, purchaseId));
   }
 
-  async logWebhookEvent(
+async logWebhookEvent(
   purchaseId: string,
   userId: string,
   credits: number,
