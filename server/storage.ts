@@ -138,7 +138,7 @@ export class DatabaseStorage implements IStorage {
       : normalizedEmail;
 
     // 👉 Se não vier senha, usa padrão do .env ou fallback
-    const rawPassword = user.password || process.env.DEFAULT_PASSWORD || "senhaPadrao123";
+    const rawPassword = user.password || process.env.DEFAULT_PASSWORD || "Speak123";
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const normalizedUser = {
