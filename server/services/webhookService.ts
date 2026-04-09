@@ -20,7 +20,7 @@ const CREDIT_COSTS = {
 };
 
 const CREDIT_MAP: Record<string, number> = {
-  // Links curtos (checkout_link)
+  // Links curtos (checkout_link) — estáveis mesmo em teste
   "97ObxqK": 100,
   "3gpZJ6N": 200,
   "M2XmJF7": 300,
@@ -31,12 +31,12 @@ const CREDIT_MAP: Record<string, number> = {
   "QnHmsQm": 1500,   // Plano Pro
   "hOJ3bEi": 5000,   // Plano Premium
 
-  // UUIDs internos (product_id)
+  // UUIDs internos (product_id) — produção
   "57c511c0-05d2-11f1-a5d8-9909e220e83a": 2000,  // Produto de Créditos
   "f1e06ef0-05d0-11f1-b57c-c9aa21f3f207": 5000,  // Produto de Planos
 
-  // 👉 Adicione aqui os product_id reais da Kiwify que aparecem nos webhooks
-  "67f61fd8-f6de-4472-84af-6fef37d242e7": 1000,  // Exemplo: produto reconhecido
+  // Exemplo de produto real
+  "67f61fd8-f6de-4472-84af-6fef37d242e7": 1000,
 };
 
 export async function verifyKiwifySignature(payload: string, signature: string): Promise<boolean> {
@@ -64,9 +64,10 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
     }
 
     const creditsToAdd = productKey ? CREDIT_MAP[productKey] : 0;
+
+    // 👉 Se não reconheceu produto, ainda cria usuário em modo teste
     if (creditsToAdd === 0) {
       console.warn(`⚠️ Produto não reconhecido: product_id=${data.product_id}, checkout_link=${data.checkout_link}`);
-      return { success: false, message: "Produto não reconhecido" };
     }
 
     const alreadyProcessed = await storage.hasProcessedPurchase?.(data.purchase_id);
@@ -96,22 +97,25 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
       console.log(`✅ Usuário criado automaticamente: ${user.email}`);
     }
 
-    // ✅ Adicionar créditos ao usuário
-    await storage.addCredits(user.id, creditsToAdd, data.purchase_id);
-    await storage.logWebhookEvent?.(
-      data.purchase_id,
-      user.id,
-      creditsToAdd,
-      productKey ?? data.product_id,
-      data.product_name,
-      data
-    );
-
-    console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
+    // ✅ Adicionar créditos se produto reconhecido
+    if (creditsToAdd > 0) {
+      await storage.addCredits(user.id, creditsToAdd, data.purchase_id);
+      await storage.logWebhookEvent?.(
+        data.purchase_id,
+        user.id,
+        creditsToAdd,
+        productKey ?? data.product_id,
+        data.product_name,
+        data
+      );
+      console.log(`✅ Compra processada: ${creditsToAdd} créditos adicionados para ${user.email} (ID: ${user.id})`);
+    } else {
+      console.log(`ℹ️ Usuário criado sem créditos (modo teste): ${user.email}`);
+    }
 
     return {
       success: true,
-      message: `${creditsToAdd} créditos adicionados`,
+      message: creditsToAdd > 0 ? `${creditsToAdd} créditos adicionados` : "Usuário criado em modo teste",
       userId: user.id,
       creditsAdded: creditsToAdd,
     };
