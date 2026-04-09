@@ -259,24 +259,24 @@ export class DatabaseStorage implements IStorage {
       .where(eq(pendingPurchases.purchaseId, purchaseId));
   }
 
-  a  async logWebhookEvent(
-    purchaseId: string,
-    userId: string,
-    credits: number,
-    productId?: string,
-    productName?: string,
-    rawPayload?: any
-  ) {
-    const database = await getDb();
-    await database.insert(creditsEvents).values({
-      eventId: purchaseId,
-      userId,
-      productId,
-      productName,
-      creditsApplied: credits,
-      rawPayload,
-    });
-  }
+  async logWebhookEvent(
+  purchaseId: string,
+  userId: string,
+  credits: number,
+  productId?: string,
+  productName?: string,
+  rawPayload?: any
+) {
+  const database = await getDb();
+  await database.insert(creditsEvents).values({
+    eventId: purchaseId,
+    userId,
+    productId,
+    productName,
+    creditsApplied: credits,
+    rawPayload,
+  });
+}
 
   // ✅ Compras pendentes
   async addPendingPurchase(data: { purchaseId: string; email: string; productId: string; credits: number; status: string }) {
