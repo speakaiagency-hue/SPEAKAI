@@ -1,8 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { generateVideoByResolution } from "./services/VideoServiceSelector";
-import { type GenerateVideoParams } from "./services/GeminiServiceBase";
+import { generateVideo, type GenerateVideoParams } from "./services/geminiService";
 import { createChatService } from "./services/chatService";
 import { createPromptService } from "./services/promptService";
 import { createImageService } from "./services/imageService";
@@ -31,13 +30,12 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Prompt é obrigatório" });
       }
 
-      // Dedução de créditos com base na resolução
-      const deductResult = await deductCredits(req.user.id, "video", { resolution: params.resolution });
+      const deductResult = await deductCredits(req.user.id, "video");
       if (!deductResult.success) {
         return res.status(402).json(deductResult);
       }
 
-      const result = await generateVideoByResolution(req.user.id, params);
+      const result = await generateVideo(params);
       res.json({ ...result, creditsRemaining: deductResult.creditsRemaining });
     } catch (error) {
       console.error("Video generation error:", error);
@@ -46,7 +44,7 @@ export async function registerRoutes(
     }
   });
 
-  // Chat API - Send Message (Protected)
+  // ✅ Chat API - Send Message (Protected)
   app.post("/api/chat/send-message", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
@@ -75,7 +73,7 @@ export async function registerRoutes(
     }
   });
 
-  // Chat API - Generate Title
+  // ✅ Chat API - Generate Title
   app.post("/api/chat/generate-title", async (req: Request, res: Response) => {
     try {
       const { text } = req.body;
@@ -90,7 +88,7 @@ export async function registerRoutes(
     }
   });
 
-  // Chat API - Clear chat instance
+  // ✅ Chat API - Clear chat instance
   app.post("/api/chat/clear-session", async (req: Request, res: Response) => {
     try {
       const { conversationId } = req.body;
@@ -103,7 +101,7 @@ export async function registerRoutes(
     }
   });
 
-  // Prompt Generation API (Protected)
+  // ✅ Prompt Generation API (Protected)
   app.post("/api/prompt/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
@@ -132,7 +130,7 @@ export async function registerRoutes(
     }
   });
 
-  // ✅ Image Generation API (Protected) corrigida para múltiplas imagens
+  // ✅ Image Generation API (Protected)
   app.post("/api/image/generate", authMiddleware, async (req: Request, res: Response) => {
     try {
       if (!req.user) return res.status(401).json({ error: "Usuário não autenticado" });
