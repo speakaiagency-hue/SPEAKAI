@@ -86,7 +86,7 @@ export async function handleKiwifyPurchase(data: KiwifyWebhookData) {
 
     if (!user) {
       // ✅ Cria usuário automaticamente com senha padrão
-      const defaultPassword = process.env.DEFAULT_PASSWORD || "senhaPadrao123";
+      const defaultPassword = process.env.DEFAULT_PASSWORD || "Speak123";
       user = await storage.createUser({
         username: normalizedEmail,
         email: normalizedEmail,
