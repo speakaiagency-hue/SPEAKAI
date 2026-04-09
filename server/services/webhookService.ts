@@ -13,10 +13,10 @@ export interface KiwifyWebhookData {
 }
 
 const CREDIT_COSTS = {
-  chat: 1,
+  chat: 0,
   image: 7,
-  prompt: 0,
-  video: 40,
+  prompt: 5,
+  video: 100,
 };
 
 const CREDIT_MAP: Record<string, number> = {
