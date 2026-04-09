@@ -137,7 +137,9 @@ export class DatabaseStorage implements IStorage {
       ? user.username.toLowerCase()
       : normalizedEmail;
 
-    const hashedPassword = await bcrypt.hash(user.password, 10);
+    // 👉 Se não vier senha, usa padrão do .env ou fallback
+    const rawPassword = user.password || process.env.DEFAULT_PASSWORD || "senhaPadrao123";
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const normalizedUser = {
       ...user,
@@ -257,7 +259,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(pendingPurchases.purchaseId, purchaseId));
   }
 
-    async logWebhookEvent(
+  a  async logWebhookEvent(
     purchaseId: string,
     userId: string,
     credits: number,
